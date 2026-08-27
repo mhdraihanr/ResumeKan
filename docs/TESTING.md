@@ -55,6 +55,9 @@ GET    /api/v1/cvs/1       → 200
 PUT    /api/v1/cvs/1       → 200
 DELETE /api/v1/cvs/1       → 204
 POST   /api/v1/cvs ke-11   → 422  # batas 10 CV
+# validasi projects terstruktur:
+POST   /api/v1/cvs { projects: [{ title:"", role:"" }] } → 422  # title/role required
+POST   /api/v1/cvs { projects: string lama }             → 201  # backward compat
 ```
 
 **AI (Fase 4):** `POST /api/v1/ai/summary` → `200`; request ke-6 dalam 1 menit → `429`.

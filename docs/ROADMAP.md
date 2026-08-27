@@ -16,12 +16,12 @@
 - [x] Endpoint register/login/logout/user
 - [x] Pinia store auth + guard route `/dashboard`
 
-## Fase 2 — CRUD CV (1 hari) [detail](phases/phase-2-crud-cv.md)
+## Fase 2 — CRUD CV (1 hari) ✅ [detail](phases/phase-2-crud-cv.md)
 
-- [ ] Migrasi `cvs` + Form Request validasi skema JSON
-- [ ] Endpoint CRUD + batas 10 CV
-- [ ] Halaman dashboard daftar CV + form buat/edit
-- [ ] Port logika form CV dari Applyin (React → Vue `<script setup>`)
+- [x] Migrasi `cvs` + Form Request validasi skema JSON
+- [x] Endpoint CRUD + batas 10 CV
+- [x] Halaman dashboard daftar CV + form buat/edit
+- [x] Port logika form CV dari Applyin (React → Vue `<script setup>`)
 
 ## Fase 3 — Preview & Template (1 hari) [detail](phases/phase-3-preview-template.md)
 

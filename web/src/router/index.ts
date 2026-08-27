@@ -15,6 +15,19 @@ const router = createRouter({
       component: () => import("../views/DashboardView.vue"),
       meta: { requiresAuth: true },
     },
+    {
+      path: "/cvs/new",
+      name: "cv-new",
+      component: () => import("../views/CvFormView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/cvs/:id/edit",
+      name: "cv-edit",
+      component: () => import("../views/CvFormView.vue"),
+      props: true,
+      meta: { requiresAuth: true },
+    },
   ],
 });
 

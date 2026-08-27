@@ -6,7 +6,7 @@ Generator CV ATS-friendly berbasis AI. Isi form → pilih template → download 
 
 | Layer    | Teknologi                                                  |
 | -------- | ---------------------------------------------------------- |
-| Backend  | Laravel 12 (API-only), PHP 8.3+, Sanctum (SPA cookie auth) |
+| Backend  | Laravel 13 (API-only), PHP 8.3+, Sanctum (SPA cookie auth) |
 | Frontend | Vue 3 + TypeScript + Vite, Pinia, Vue Router               |
 | UI       | Tailwind CSS v4, shadcn-vue                                |
 | Animasi  | @vueuse/motion                                             |
@@ -18,7 +18,7 @@ Generator CV ATS-friendly berbasis AI. Isi form → pilih template → download 
 
 ```
 ResumeKan/
-├── api/            # Laravel 12 (backend API)
+├── api/            # Laravel 13 (backend API)
 ├── web/            # Vue 3 SPA (frontend)
 └── docs/           # Dokumen sebelum development
 ```

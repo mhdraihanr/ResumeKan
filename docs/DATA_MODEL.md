@@ -85,11 +85,20 @@ Index: `user_id`. Tidak perlu index lain.
   },
   "languages": "string ≤200",
   "certificates": "string ≤1000, opsional",
-  "projects": "string ≤1000, opsional",
+  "projects": [
+    {
+      // array, max 5 item, opsional
+      "title": "string ≤100 — nama proyek",
+      "role": "string ≤100 — peran Anda di proyek",
+      "objective": "string ≤500 — tujuan / apa yang diselesaikan",
+      "techStack": "string ≤200 — comma-separated, mis. React, Go, PostgreSQL",
+    },
+  ],
 }
 ```
 
 Aturan validasi global: setiap array maksimal sesuai catatan; total payload JSON ≤ 50 KB.
+Backward compat: `projects` lama berupa `string` diterima dan dikonversi ke array 1 item saat validasi (lihat `StoreCvRequest::prepareForValidation`).
 
 ## Estimasi Ukuran
 
