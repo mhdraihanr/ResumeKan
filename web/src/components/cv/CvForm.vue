@@ -17,12 +17,28 @@ const emit = defineEmits<{
 }>();
 
 const local = ref<CvData>(JSON.parse(JSON.stringify(props.modelValue)));
+let syncing = false;
 watch(
   () => props.modelValue,
-  (v) => (local.value = JSON.parse(JSON.stringify(v))),
+  (v) => {
+    if (syncing) return;
+    syncing = true;
+    local.value = JSON.parse(JSON.stringify(v));
+    syncing = false;
+  },
   { deep: true },
 );
-watch(local, (v) => emit("update:modelValue", v), { deep: true });
+watch(
+  local,
+  (v) => {
+    if (syncing) return;
+    syncing = true;
+    emit("update:modelValue", JSON.parse(JSON.stringify(v)));
+    // reset next tick agar tidak lock
+    setTimeout(() => (syncing = false), 0);
+  },
+  { deep: true },
+);
 
 function addExp() {
   local.value.experiences ??= [];
@@ -43,6 +59,18 @@ function addEdu() {
 }
 function removeEdu(i: number) {
   local.value.education?.splice(i, 1);
+}
+function addOrg() {
+  local.value.organizations ??= [];
+  local.value.organizations.push({
+    organization: "",
+    role: "",
+    period: "",
+    description: "",
+  });
+}
+function removeOrg(i: number) {
+  local.value.organizations?.splice(i, 1);
 }
 function addProject() {
   const p = local.value.projects;
@@ -73,18 +101,25 @@ function normalizeProjects() {
   }
 }
 normalizeProjects();
+
+function autoResize(e: Event) {
+  const el = e.target as HTMLTextAreaElement;
+  if (CSS.supports("field-sizing", "content")) return;
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
+}
 </script>
 
 <template>
-  <form @submit.prevent="emit('submit')" class="space-y-8">
+  <form @submit.prevent="emit('submit')" class="space-y-6">
     <!-- Meta -->
-    <section class="space-y-3">
+    <section class="space-y-2.5">
       <h2
         class="text-sm font-semibold uppercase tracking-widest text-slate-500"
       >
         Info CV
       </h2>
-      <div class="grid gap-3 sm:grid-cols-3">
+      <div class="grid gap-2.5 sm:grid-cols-3">
         <label class="space-y-1">
           <span class="text-xs font-medium text-slate-700">Judul CV *</span>
           <input
@@ -95,7 +130,7 @@ normalizeProjects();
             required
             maxlength="100"
             placeholder="CV Backend"
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
           />
         </label>
         <label class="space-y-1">
@@ -108,7 +143,7 @@ normalizeProjects();
                 ($event.target as HTMLSelectElement).value,
               )
             "
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
           >
             <option value="modern">Modern</option>
             <option value="classic">Classic</option>
@@ -124,7 +159,7 @@ normalizeProjects();
                 ($event.target as HTMLSelectElement).value,
               )
             "
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
           >
             <option value="id">Indonesia</option>
             <option value="en">English</option>
@@ -134,20 +169,21 @@ normalizeProjects();
     </section>
 
     <!-- Personal -->
-    <section class="space-y-3">
+    <section class="space-y-2.5">
       <h2
         class="text-sm font-semibold uppercase tracking-widest text-slate-500"
       >
         Data Pribadi
       </h2>
-      <div class="grid gap-3 sm:grid-cols-2">
+      <div class="grid gap-2.5 sm:grid-cols-2">
         <label class="space-y-1">
           <span class="text-xs font-medium text-slate-700">Nama *</span>
           <input
             v-model="local.personal.name"
             required
             maxlength="100"
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+            placeholder="Budi Santoso"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
           />
         </label>
         <label class="space-y-1">
@@ -156,7 +192,8 @@ normalizeProjects();
             v-model="local.personal.email"
             type="email"
             required
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+            placeholder="budi@email.com"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
           />
         </label>
         <label class="space-y-1">
@@ -165,7 +202,8 @@ normalizeProjects();
             v-model="local.personal.phone"
             required
             maxlength="30"
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+            placeholder="+62 812-3456-7890"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
           />
         </label>
         <label class="space-y-1">
@@ -174,32 +212,42 @@ normalizeProjects();
             v-model="local.personal.address"
             required
             maxlength="200"
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+            placeholder="Jakarta, Indonesia"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
           />
         </label>
         <label class="space-y-1">
           <span class="text-xs font-medium text-slate-700">LinkedIn</span>
           <input
             v-model="local.personal.linkedin"
-            type="url"
-            placeholder="https://linkedin.com/in/..."
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+            type="text"
+            placeholder="linkedin.com/in/nama atau www.linkedin.com/in/nama"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
           />
         </label>
         <label class="space-y-1">
           <span class="text-xs font-medium text-slate-700">Website</span>
           <input
             v-model="local.personal.website"
-            type="url"
-            placeholder="https://..."
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+            type="text"
+            placeholder="www.example.com atau https://example.com"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+          />
+        </label>
+        <label class="space-y-1">
+          <span class="text-xs font-medium text-slate-700">GitHub</span>
+          <input
+            v-model="local.personal.github"
+            type="text"
+            placeholder="github.com/username atau www.github.com/username"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
           />
         </label>
       </div>
     </section>
 
     <!-- Summary -->
-    <section class="space-y-3">
+    <section class="space-y-2.5">
       <h2
         class="text-sm font-semibold uppercase tracking-widest text-slate-500"
       >
@@ -210,7 +258,8 @@ normalizeProjects();
         maxlength="600"
         rows="3"
         placeholder="Ringkasan profesional singkat..."
-        class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+        class="auto-expand w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
+        @input="autoResize($event)"
       ></textarea>
       <p class="text-right text-xs text-slate-400">
         {{ (local.summary ?? "").length }}/600
@@ -218,7 +267,7 @@ normalizeProjects();
     </section>
 
     <!-- Experiences -->
-    <section class="space-y-3">
+    <section class="space-y-2.5">
       <div class="flex items-center justify-between">
         <h2
           class="text-sm font-semibold uppercase tracking-widest text-slate-500"
@@ -237,7 +286,7 @@ normalizeProjects();
       <div
         v-for="(exp, i) in local.experiences"
         :key="i"
-        class="rounded-xl border border-slate-200 p-4 space-y-3"
+        class="rounded-xl border border-slate-200 p-3 space-y-2.5"
       >
         <div class="flex justify-between">
           <span class="text-xs font-semibold text-slate-500">#{{ i + 1 }}</span>
@@ -249,50 +298,69 @@ normalizeProjects();
             Hapus
           </button>
         </div>
-        <div class="grid gap-3 sm:grid-cols-2">
-          <input
-            v-model="exp.company"
-            placeholder="Perusahaan *"
-            required
-            class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-          />
-          <input
-            v-model="exp.position"
-            placeholder="Posisi *"
-            required
-            class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-          />
-          <input
-            v-model="exp.location"
-            placeholder="Lokasi (opsional)"
-            class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-          />
-          <div class="grid grid-cols-2 gap-3">
+        <div class="grid gap-2.5 sm:grid-cols-2">
+          <label class="space-y-1">
+            <span class="text-xs font-medium text-slate-700">Perusahaan *</span>
             <input
-              v-model="exp.startDate"
-              placeholder="Mulai (YYYY-MM) *"
+              v-model="exp.company"
+              placeholder="PT Maju Jaya"
               required
-              class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
             />
+          </label>
+          <label class="space-y-1">
+            <span class="text-xs font-medium text-slate-700">Posisi *</span>
             <input
-              v-model="exp.endDate"
-              placeholder="Selesai / Present *"
+              v-model="exp.position"
+              placeholder="Backend Engineer"
               required
-              class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
             />
+          </label>
+          <label class="space-y-1">
+            <span class="text-xs font-medium text-slate-700">Lokasi</span>
+            <input
+              v-model="exp.location"
+              placeholder="Jakarta"
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            />
+          </label>
+          <div class="grid grid-cols-2 gap-2.5">
+            <label class="space-y-1">
+              <span class="text-xs font-medium text-slate-700">Mulai *</span>
+              <input
+                v-model="exp.startDate"
+                placeholder="2022-01"
+                required
+                class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+              />
+            </label>
+            <label class="space-y-1">
+              <span class="text-xs font-medium text-slate-700">Selesai *</span>
+              <input
+                v-model="exp.endDate"
+                placeholder="2024-12 / Present"
+                required
+                class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+              />
+            </label>
           </div>
         </div>
-        <textarea
-          v-model="exp.description"
-          maxlength="1500"
-          rows="3"
-          placeholder="1 baris = 1 bullet ATS. Contoh:&#10;Memimpin migrasi 12 orang, potong backlog 35%&#10;Bangun onboarding React, naikkan aktivasi 18%"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-        ></textarea>
+        <label class="space-y-1 block">
+          <span class="text-xs font-medium text-slate-700"
+            >Deskripsi — 1 baris = 1 bullet</span
+          >
+          <textarea
+            v-model="exp.description"
+            maxlength="1500"
+            rows="3"
+            placeholder="Memimpin migrasi 12 orang, potong backlog 35%&#10;Bangun onboarding React, naikkan aktivasi 18%"
+            class="auto-expand w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            @input="autoResize($event)"
+          ></textarea>
+        </label>
         <p class="text-right text-xs text-slate-400">
-          {{
-            (exp.description ?? "").split("\n").filter(Boolean).length
-          }}
+          {{ (exp.description ?? "").split("\n").filter(Boolean).length }}
           bullet · {{ (exp.description ?? "").length }}/1500
         </p>
       </div>
@@ -302,7 +370,7 @@ normalizeProjects();
     </section>
 
     <!-- Education -->
-    <section class="space-y-3">
+    <section class="space-y-2.5">
       <div class="flex items-center justify-between">
         <h2
           class="text-sm font-semibold uppercase tracking-widest text-slate-500"
@@ -321,7 +389,7 @@ normalizeProjects();
       <div
         v-for="(edu, i) in local.education"
         :key="i"
-        class="rounded-xl border border-slate-200 p-4 space-y-3"
+        class="rounded-xl border border-slate-200 p-3 space-y-2.5"
       >
         <div class="flex justify-between">
           <span class="text-xs font-semibold text-slate-500">#{{ i + 1 }}</span>
@@ -333,50 +401,160 @@ normalizeProjects();
             Hapus
           </button>
         </div>
-        <div class="grid gap-3 sm:grid-cols-2">
-          <input
-            v-model="edu.institution"
-            placeholder="Institusi *"
-            required
-            class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-          />
-          <input
-            v-model="edu.degree"
-            placeholder="Gelar *"
-            required
-            class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-          />
-          <input
-            v-model="edu.major"
-            placeholder="Jurusan (opsional)"
-            class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-          />
-          <input
-            v-model="edu.year"
-            placeholder="Tahun *"
-            required
-            class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-          />
+        <div class="grid gap-2.5 sm:grid-cols-2">
+          <label class="space-y-1">
+            <span class="text-xs font-medium text-slate-700">Institusi *</span>
+            <input
+              v-model="edu.institution"
+              placeholder="Universitas Indonesia"
+              required
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            />
+          </label>
+          <label class="space-y-1">
+            <span class="text-xs font-medium text-slate-700">Gelar *</span>
+            <input
+              v-model="edu.degree"
+              placeholder="S1"
+              required
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            />
+          </label>
+          <label class="space-y-1">
+            <span class="text-xs font-medium text-slate-700">Jurusan</span>
+            <input
+              v-model="edu.major"
+              placeholder="Teknik Informatika"
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            />
+          </label>
+          <label class="space-y-1">
+            <span class="text-xs font-medium text-slate-700">Tahun *</span>
+            <input
+              v-model="edu.year"
+              placeholder="2020 — 2024"
+              required
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            />
+          </label>
         </div>
-        <input
-          v-model="edu.achievements"
-          placeholder="Prestasi (opsional)"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-        />
+        <div class="grid gap-2.5 sm:grid-cols-2">
+          <label class="space-y-1">
+            <span class="text-xs font-medium text-slate-700">IPK</span>
+            <input
+              v-model="edu.gpa"
+              placeholder="3.85/4.00"
+              maxlength="10"
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            />
+          </label>
+          <label class="space-y-1">
+            <span class="text-xs font-medium text-slate-700">Prestasi</span>
+            <input
+              v-model="edu.achievements"
+              placeholder="Cum Laude"
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            />
+          </label>
+        </div>
       </div>
       <p v-if="!local.education?.length" class="text-xs text-slate-400">
         Belum ada pendidikan. Klik Tambah.
       </p>
     </section>
 
+    <!-- Organisasi -->
+    <section class="space-y-2.5">
+      <div class="flex items-center justify-between">
+        <h2
+          class="text-sm font-semibold uppercase tracking-widest text-slate-500"
+        >
+          Organisasi
+        </h2>
+        <button
+          type="button"
+          @click="addOrg"
+          :disabled="(local.organizations?.length ?? 0) >= 5"
+          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+        >
+          + Tambah
+        </button>
+      </div>
+      <div
+        v-for="(org, i) in local.organizations"
+        :key="i"
+        class="rounded-xl border border-slate-200 p-3 space-y-2.5"
+      >
+        <div class="flex justify-between">
+          <span class="text-xs font-semibold text-slate-500">#{{ i + 1 }}</span
+          ><button
+            type="button"
+            @click="removeOrg(i)"
+            class="text-xs text-red-600 hover:underline"
+          >
+            Hapus
+          </button>
+        </div>
+        <div class="grid gap-2.5 sm:grid-cols-2">
+          <label class="space-y-1">
+            <span class="text-xs font-medium text-slate-700">Organisasi *</span>
+            <input
+              v-model="org.organization"
+              placeholder="BEM Fasilkom"
+              required
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            />
+          </label>
+          <label class="space-y-1">
+            <span class="text-xs font-medium text-slate-700">Peran *</span>
+            <input
+              v-model="org.role"
+              placeholder="Ketua Divisi"
+              required
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            />
+          </label>
+          <label class="space-y-1 sm:col-span-2">
+            <span class="text-xs font-medium text-slate-700">Periode *</span>
+            <input
+              v-model="org.period"
+              placeholder="2022 — 2024"
+              required
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            />
+          </label>
+        </div>
+        <label class="space-y-1 block">
+          <span class="text-xs font-medium text-slate-700"
+            >Deskripsi — 1 baris = 1 bullet</span
+          >
+          <textarea
+            v-model="org.description"
+            maxlength="800"
+            rows="2"
+            placeholder="Koordinasi 20 anggota, selenggarakan 5 workshop&#10;Kelola anggaran Rp 15jt"
+            class="auto-expand w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            @input="autoResize($event)"
+          ></textarea>
+        </label>
+        <p class="text-right text-xs text-slate-400">
+          {{ (org.description ?? "").split("\n").filter(Boolean).length }}
+          bullet · {{ (org.description ?? "").length }}/800
+        </p>
+      </div>
+      <p v-if="!local.organizations?.length" class="text-xs text-slate-400">
+        Belum ada organisasi. Klik Tambah (max 5).
+      </p>
+    </section>
+
     <!-- Skills -->
-    <section class="space-y-3">
+    <section class="space-y-2.5">
       <h2
         class="text-sm font-semibold uppercase tracking-widest text-slate-500"
       >
         Keahlian
       </h2>
-      <div class="grid gap-3 sm:grid-cols-2">
+      <div class="grid gap-2.5 sm:grid-cols-2">
         <label class="space-y-1">
           <span class="text-xs font-medium text-slate-700"
             >Hard skills (pisah koma)</span
@@ -385,7 +563,7 @@ normalizeProjects();
             v-model="local.skills!.hard"
             maxlength="500"
             placeholder="Go, Laravel, PostgreSQL"
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
           />
         </label>
         <label class="space-y-1">
@@ -396,14 +574,14 @@ normalizeProjects();
             v-model="local.skills!.soft"
             maxlength="300"
             placeholder="Komunikasi, Leadership"
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
           />
         </label>
       </div>
     </section>
 
     <!-- Lainnya -->
-    <section class="space-y-3">
+    <section class="space-y-2.5">
       <h2
         class="text-sm font-semibold uppercase tracking-widest text-slate-500"
       >
@@ -415,7 +593,7 @@ normalizeProjects();
           v-model="local.languages"
           maxlength="200"
           placeholder="Indonesia (Native), English (Fluent)"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+          class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
         />
       </label>
       <label class="space-y-1 block">
@@ -424,13 +602,14 @@ normalizeProjects();
           v-model="local.certificates"
           maxlength="1000"
           rows="2"
-          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+          class="auto-expand w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
+          @input="autoResize($event)"
         ></textarea>
       </label>
     </section>
 
     <!-- Proyek -->
-    <section class="space-y-3">
+    <section class="space-y-2.5">
       <div class="flex items-center justify-between">
         <h2
           class="text-sm font-semibold uppercase tracking-widest text-slate-500"
@@ -456,7 +635,7 @@ normalizeProjects();
           techStack?: string;
         }[]"
         :key="i"
-        class="rounded-xl border border-slate-200 p-4 space-y-3"
+        class="rounded-xl border border-slate-200 p-3 space-y-2.5"
       >
         <div class="flex justify-between">
           <span class="text-xs font-semibold text-slate-500">#{{ i + 1 }}</span>
@@ -468,7 +647,7 @@ normalizeProjects();
             Hapus
           </button>
         </div>
-        <div class="grid gap-3 sm:grid-cols-2">
+        <div class="grid gap-2.5 sm:grid-cols-2">
           <label class="space-y-1">
             <span class="text-xs font-medium text-slate-700"
               >Nama proyek *</span
@@ -478,7 +657,7 @@ normalizeProjects();
               required
               maxlength="100"
               placeholder="ResumeKan"
-              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
             />
           </label>
           <label class="space-y-1">
@@ -488,7 +667,7 @@ normalizeProjects();
               required
               maxlength="100"
               placeholder="Fullstack"
-              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
             />
           </label>
         </div>
@@ -499,7 +678,8 @@ normalizeProjects();
             maxlength="500"
             rows="2"
             placeholder="ATS-friendly CV builder — isi form → preview → PDF"
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+            class="auto-expand w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
+            @input="autoResize($event)"
           ></textarea>
         </label>
         <label class="space-y-1 block">
@@ -508,7 +688,7 @@ normalizeProjects();
             v-model="proj.techStack"
             maxlength="200"
             placeholder="Vue, Laravel, PostgreSQL"
-            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
           />
         </label>
       </div>
@@ -528,3 +708,18 @@ normalizeProjects();
     </button>
   </form>
 </template>
+
+<style scoped>
+.auto-expand {
+  field-sizing: content;
+  min-block-size: 3lh;
+  max-block-size: 12lh;
+  overflow-y: auto;
+  resize: vertical;
+}
+@supports not (field-sizing: content) {
+  .auto-expand {
+    min-height: 72px;
+  }
+}
+</style>

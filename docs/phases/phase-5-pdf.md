@@ -11,7 +11,7 @@
 ## Referensi
 
 - Kontrak: [API Spec — PDF](../API_SPEC.md#pdf)
-- ADR-4: Browsershot + headless Chrome; DomPDF/wkhtmltopdf tidak dipakai (rusak di Tailwind modern).
+- ADR-4: Browsershot + headless Chrome; DomPDF/wkhtmltopdf tidak dipakai (rusak di Tailwind modern). Template HTML yang sama dengan Fase 3: `modern` (VitaeKit) / `classic` (LumiCV Minimal).
 - Nama file: `{nama}_CV.pdf`, timeout render 30s → `504`.
 
 ## Definisi Selesai

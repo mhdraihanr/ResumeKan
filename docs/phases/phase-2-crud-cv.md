@@ -62,6 +62,15 @@
 | UI              | `CvForm.vue` — card list per proyek (mirip experiences), grid `sm:grid-cols-2` untuk title/role     |
 | Backward compat | `projects: "string lama"` → `[{ title: string, role: "—", objective: "", techStack: "" }]`          |
 
+## Enhancement — IPK & Organisasi (2026-08-28)
+
+> Brainstorm Exa ATS: IPK di dalam `education[]`, Organisasi sebagai section terpisah (heading ATS standar).
+
+| Hal        | Detail                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| IPK (GPA)  | `education[].gpa?: string ≤10` — format `3.85` atau `3.85/4.00`, tampil `IPK: 3.85/4.00` di bawah institusi. ATS: di dalam Education, label jelas, hanya isi jika ≥3.50 & fresh graduate. Validasi `nullable\|string\|max:10`. Preview `text-[9pt] text-slate-500`. Kosong → tidak render.                                                                                                                                    |
+| Organisasi | `organizations?: { organization, role, period, description? }[]` max 5 — heading ATS `Organisasi`/`Organizations` terpisah (bukan di `education.achievements`). Form section baru setelah Pendidikan, card mirip experiences. Preview section dengan `border-b-[1.5px]` seragam, `role — organization` + `period` kanan, bullets newline. Kosong → section hilang. Backward compat: field opsional, payload lama tetap valid. |
+
 ## Definisi Selesai
 
 - [x] Buat, lihat daftar, edit, hapus CV dari dashboard.

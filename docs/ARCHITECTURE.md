@@ -37,6 +37,7 @@
 - **Keputusan:** Spatie Browsershot render HTML template yang sama dengan preview → PDF.
 - **Alasan:** CV = HTML/CSS; hasil identik dengan preview. DomPDF/wkhtmltopdf rusak pada Tailwind modern (flex/grid/oklch).
 - **Prasyarat deploy:** binary Chromium tersedia di server.
+- **Template Fase 3:** `modern` = VitaeKit Modern (sans-serif, navy `#1e40af` underline, A4 print CSS) — https://vitaekit.com/resume-templates/modern · `classic` = LumiCV Minimal (whitespace, `border-b-[1.5px] border-slate-900` 8 section, monochrome) — https://lumicv.com/resume-templates/minimal. Keduanya single-column ATS-friendly, HTML/CSS murni yang sama untuk preview & PDF. Skills pisah `Hard skills:` / `Soft skills:` di kedua template. LinkedIn/Website/GitHub dukung `www.` tanpa scheme (normalisasi `https://` di `StoreCvRequest`). IPK di dalam Education, Organisasi section terpisah.
 
 ### ADR-5: Gemini via `Http::post()`, tanpa SDK
 

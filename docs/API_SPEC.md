@@ -50,7 +50,7 @@
 
 → `201 { cv }`. Gagal jika user sudah punya 10 CV → `422`.
 
-> `data.projects` terstruktur: array objek `{ title, role, objective, techStack }` (max 5). Nilai lama `string` masih diterima (backward compat, dikonversi ke 1 item).
+> `data.projects` terstruktur: array objek `{ title, role, objective, techStack }` (max 5). Nilai lama `string` masih diterima (backward compat, dikonversi ke 1 item). `data.education[].gpa` opsional `≤10`, `data.organizations` array max 5 — lihat `DATA_MODEL.md`.
 
 ### `GET /cvs/{id}` → `200 { cv }` (lengkap dengan `data`)
 

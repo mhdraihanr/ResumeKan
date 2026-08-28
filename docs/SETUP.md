@@ -32,6 +32,25 @@ CV_MAX_PER_USER=10
 AI_THROTTLE_PER_MINUTE=5
 ```
 
+## Menjalankan Development (harian)
+
+Butuh 2 terminal:
+
+```bash
+# Terminal 1 — API http://127.0.0.1:8000
+cd api
+php artisan serve
+# alternatif: php artisan dev (serve + queue + vite) — butuh `cd api && npm install` dulu
+
+# Terminal 2 — Web http://127.0.0.1:5173
+cd web
+pnpm dev
+
+# Cek
+curl http://127.0.0.1:8000/up   # → 200
+# buka http://127.0.0.1:5173
+```
+
 ## Perintah Awal (dijalankan saat scaffold)
 
 ```bash

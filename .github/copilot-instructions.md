@@ -12,3 +12,5 @@ For UI, copy, people, mobile layout, or code comments work, load the matching sk
 - Code comments: `antislop-code`
 Before starting, ask the user when antislop applies: during the work, or after it is done.
 <!-- antislop:end -->
+
+dont use edit with sed-i

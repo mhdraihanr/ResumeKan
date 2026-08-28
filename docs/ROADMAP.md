@@ -23,10 +23,10 @@
 - [x] Halaman dashboard daftar CV + form buat/edit
 - [x] Port logika form CV dari Applyin (React → Vue `<script setup>`)
 
-## Fase 3 — Preview & Template (1 hari) [detail](phases/phase-3-preview-template.md)
+## Fase 3 — Preview & Template (1 hari) ✅ [detail](phases/phase-3-preview-template.md)
 
-- [ ] Komponen `CvPreview` dengan 2 template (modern, classic)
-- [ ] Preview real-time saat mengisi form (computed dari store)
+- [x] Komponen `CvPreview` dengan 2 template (modern, classic) — VitaeKit Modern / LumiCV Minimal
+- [x] Preview real-time saat mengisi form (computed dari store)
 
 ## Fase 4 — AI Summary (½ hari) [detail](phases/phase-4-ai-summary.md)
 

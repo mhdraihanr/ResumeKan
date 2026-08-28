@@ -6,6 +6,7 @@ export interface CvData {
     address: string;
     linkedin?: string;
     website?: string;
+    github?: string;
   };
   summary?: string;
   experiences?: {
@@ -21,7 +22,14 @@ export interface CvData {
     degree: string;
     major?: string;
     year: string;
+    gpa?: string;
     achievements?: string;
+  }[];
+  organizations?: {
+    organization: string;
+    role: string;
+    period: string;
+    description?: string;
   }[];
   skills?: { hard?: string; soft?: string };
   languages?: string;
@@ -50,6 +58,7 @@ export function emptyCvData(): CvData {
     summary: "",
     experiences: [],
     education: [],
+    organizations: [],
     skills: { hard: "", soft: "" },
     languages: "",
     certificates: "",

@@ -23,16 +23,18 @@ ResumeKan/
 └── docs/           # Dokumen sebelum development
 ```
 
-## Menjalankan (setelah scaffold)
+## Menjalankan (harian)
 
 ```bash
-# Backend
-cd api && composer install && cp .env.example .env
-php artisan migrate && php artisan serve
+# Terminal 1 — API http://127.0.0.1:8000
+cd api && php artisan serve
+# Windows Herd Lite: export PATH="/c/Users/ASUS TUF/.config/herd-lite/bin:$PATH" dulu
 
-# Frontend
-cd web && pnpm install && pnpm run dev
+# Terminal 2 — Web http://127.0.0.1:5173
+cd web && pnpm dev
 ```
+
+> Detail lengkap (env, prasyarat, troubleshooting) → [Setup](docs/SETUP.md).
 
 ## Dokumentasi
 

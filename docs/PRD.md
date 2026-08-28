@@ -19,15 +19,15 @@ ResumeKan adalah web app yang membantu pencari kerja (fokus: Indonesia) membuat 
 
 ## 4. Fitur MVP (v1)
 
-| #   | Fitur             | Deskripsi                                                                                                                                                           |
-| --- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| F1  | Auth              | Register, login, logout via email+password                                                                                                                          |
-| F2  | Form CV           | Data pribadi, ringkasan, pengalaman kerja (bullet per baris), pendidikan, hard/soft skills, bahasa, sertifikat, proyek terstruktur (title/role/objective/techStack) |
-| F3  | Preview real-time | Render CV saat form diisi, 2 template (modern, classic)                                                                                                             |
-| F4  | Simpan draft      | CRUD CV per user; satu user punya banyak CV                                                                                                                         |
-| F5  | AI summary        | Generate ringkasan profesional dari data form (Gemini), bisa diedit manual                                                                                          |
-| F6  | Download PDF      | Server-side render HTML → PDF, nama file `{nama}_CV.pdf`                                                                                                            |
-| F7  | Multi-bahasa CV   | Konten CV ID/EN (pilihan user per CV)                                                                                                                               |
+| #   | Fitur             | Deskripsi                                                                                                                                                                                              |
+| --- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| F1  | Auth              | Register, login, logout via email+password                                                                                                                                                             |
+| F2  | Form CV           | Data pribadi, ringkasan, pengalaman kerja (bullet per baris), pendidikan (IPK opsional), organisasi (max 5), hard/soft skills, bahasa, sertifikat, proyek terstruktur (title/role/objective/techStack) |
+| F3  | Preview real-time | Render CV saat form diisi, 2 template (modern, classic)                                                                                                                                                |
+| F4  | Simpan draft      | CRUD CV per user; satu user punya banyak CV                                                                                                                                                            |
+| F5  | AI summary        | Generate ringkasan profesional dari data form (Gemini), bisa diedit manual                                                                                                                             |
+| F6  | Download PDF      | Server-side render HTML → PDF, nama file `{nama}_CV.pdf`                                                                                                                                               |
+| F7  | Multi-bahasa CV   | Konten CV ID/EN (pilihan user per CV)                                                                                                                                                                  |
 
 ## 5. Non-Fitur v1 (dilarang dibangun sekarang)
 

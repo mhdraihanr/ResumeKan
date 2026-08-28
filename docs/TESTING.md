@@ -60,9 +60,11 @@ POST   /api/v1/cvs { projects: [{ title:"", role:"" }] } → 422  # title/role r
 POST   /api/v1/cvs { projects: string lama }             → 201  # backward compat
 ```
 
+**Preview (Fase 3):** ubah field form → preview update tanpa lag; switch `modern` ↔ `classic` → header/heading/accent berubah; cek di mobile (stack/tab).
+
 **AI (Fase 4):** `POST /api/v1/ai/summary` → `200`; request ke-6 dalam 1 menit → `429`.
 
-**PDF (Fase 5):** `GET /api/v1/cvs/{id}/pdf` → binary PDF; cek nama file di header `Content-Disposition`.
+**PDF (Fase 5):** `GET /api/v1/cvs/{id}/pdf` → binary PDF; cek nama file di header `Content-Disposition`; bandingkan visual dengan preview (harus identik).
 
 ## 2. SPA (browser)
 

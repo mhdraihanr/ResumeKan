@@ -54,8 +54,9 @@ Index: `user_id`. Tidak perlu index lain.
     "email": "email",
     "phone": "string ≤30",
     "address": "string ≤200",
-    "linkedin": "url, opsional",
-    "website": "url, opsional",
+    "linkedin": "string ≤500, opsional — dukung www. tanpa https:// (dinormalisasi ke https://)",
+    "website": "string ≤500, opsional — dukung www. tanpa https:// (dinormalisasi ke https://)",
+    "github": "string ≤500, opsional — dukung www./github.com tanpa https:// (dinormalisasi ke https://)",
   },
   "summary": "string ≤600",
   "experiences": [
@@ -76,6 +77,7 @@ Index: `user_id`. Tidak perlu index lain.
       "degree": "string",
       "major": "string, opsional",
       "year": "string",
+      "gpa": "string ≤10, opsional — format 3.85 atau 3.85/4.00, tampil sebagai IPK: ...",
       "achievements": "string, opsional",
     },
   ],
@@ -92,6 +94,15 @@ Index: `user_id`. Tidak perlu index lain.
       "role": "string ≤100 — peran Anda di proyek",
       "objective": "string ≤500 — tujuan / apa yang diselesaikan",
       "techStack": "string ≤200 — comma-separated, mis. React, Go, PostgreSQL",
+    },
+  ],
+  "organizations": [
+    {
+      // array, max 5 item, opsional — heading ATS Organisasi
+      "organization": "string ≤100 — nama organisasi",
+      "role": "string ≤100 — jabatan/peran",
+      "period": "string ≤30 — mis. 2022 — 2024",
+      "description": "string ≤800, opsional — bullet dipisah newline",
     },
   ],
 }
