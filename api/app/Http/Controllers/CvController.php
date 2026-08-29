@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCvRequest;
 use App\Http\Resources\CvResource;
 use App\Models\Cv;
+use App\Services\PdfService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CvController extends Controller
 {
@@ -55,6 +57,19 @@ class CvController extends Controller
         $cv->delete();
 
         return response()->json(null, 204);
+    }
+
+    public function pdf(Request $request, Cv $cv): StreamedResponse
+    {
+        $this->authorizeOwner($request, $cv);
+
+        $name = preg_replace('/[^\p{L}\p{N} _-]/u', '', $cv->data['personal']['name'] ?? 'CV') ?: 'CV';
+
+        return response()->streamDownload(function () use ($cv) {
+            echo app(PdfService::class)->render($cv);
+        }, $name . '_CV.pdf', [
+            'Content-Type' => 'application/pdf',
+        ]);
     }
 
     private function authorizeOwner(Request $request, Cv $cv): void

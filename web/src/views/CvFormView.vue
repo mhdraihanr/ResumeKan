@@ -10,6 +10,7 @@ import CvPreview from "@/components/cv/CvPreview.vue";
 const props = defineProps<{ id?: string }>();
 const router = useRouter();
 const cvStore = useCvStore();
+const win = window;
 
 const isEdit = !!props.id;
 const title = ref("");
@@ -114,9 +115,18 @@ async function submit() {
               class="text-xs font-semibold uppercase tracking-widest text-slate-500"
               >Preview · {{ template }}</span
             >
-            <span class="text-xs text-slate-400"
-              >ATS-friendly · single-column</span
-            >
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-slate-400"
+                >ATS-friendly · single-column</span
+              >
+              <button
+                v-if="isEdit"
+                @click="win.open(`/api/v1/cvs/${props.id}/pdf`, '_blank')"
+                class="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
+              >
+                Download PDF
+              </button>
+            </div>
           </div>
           <div
             class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"

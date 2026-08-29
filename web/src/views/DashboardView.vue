@@ -20,6 +20,10 @@ async function handleDelete(id: number) {
   await cvStore.remove(id);
 }
 
+function downloadPdf(id: number) {
+  window.open(`/api/v1/cvs/${id}/pdf`, "_blank");
+}
+
 function fmtDate(s: string) {
   try {
     return new Date(s).toLocaleDateString("id-ID", {
@@ -133,6 +137,12 @@ function fmtDate(s: string) {
               class="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
             >
               Edit
+            </button>
+            <button
+              @click="downloadPdf(cv.id)"
+              class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              PDF
             </button>
             <button
               @click="handleDelete(cv.id)"

@@ -33,11 +33,11 @@
 - [x] `AiService` (OpenAI-compatible) + endpoint `/ai/summary` + throttle 5/menit — prompt anti-slop fokus posisi dominan (proyek hanya techStack)
 - [x] Tombol "Generate AI" di Ringkasan; hasil bisa diedit
 
-## Fase 5 — PDF (1 hari) [detail](phases/phase-5-pdf.md)
+## Fase 5 — PDF (1 hari) ✅ [detail](phases/phase-5-pdf.md)
 
-- [ ] `PdfService` (Browsershot) render template yang sama dengan preview
-- [ ] Endpoint `/cvs/{id}/pdf` + tombol download
-- [ ] Install Chromium lokal untuk testing
+- [x] `PdfService` (Browsershot) render template yang sama dengan preview
+- [x] Endpoint `/cvs/{id}/pdf` + tombol download
+- [x] Install Chromium lokal untuk testing (Edge via `useChrome()->setChromePath()`, fallback puppeteer)
 
 ## Fase 6 — Landing & Polish (1 hari) [detail](phases/phase-6-landing-polish.md)
 
