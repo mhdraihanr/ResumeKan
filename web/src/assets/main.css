@@ -30,18 +30,17 @@
 }
 
 .dark {
-  --background: #0b0e14; /* void-navy, bukan hitam murni */
-  --secondary-background: #1e293b; /* surface gelap */
+  --background: #18181b; /* zinc-900 abu standar (ganti #0b0e14) */
+  --secondary-background: #27272a; /* zinc-800 surface */
   --foreground: #f8fafc; /* teks terang */
   --main: #3b82f6; /* navy lebih terang agar kontras */
   --main-foreground: #ffffff;
-  --border: #f8fafc; /* border terang agar terlihat */
+  --border: #f4f4f5; /* zinc-100 border terang */
   --ring: #3b82f6;
-  /* Shadow ink gelap tetap terbaca di atas surface gelap (pilihan user).
-     Pair dengan surface lebih terang, elevation tetap terasa. */
-  --shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px #04060a;
+  /* Shadow zinc-950 tetap terbaca di atas surface abu */
+  --shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px #09090b;
   --reverse-shadow: var(--reverse-box-shadow-x) var(--reverse-box-shadow-y) 0px
-    0px #04060a;
+    0px #09090b;
 }
 .dark {
   color-scheme: dark;

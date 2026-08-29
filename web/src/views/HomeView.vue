@@ -131,7 +131,7 @@ const features = [
           }"
         >
           <div
-            class="overflow-hidden rounded-base border-3 border-ink bg-white shadow-[8px_8px_0_0_#0f172a] dark:border-border dark:bg-secondary-background dark:shadow-[8px_8px_0_0_#04060a]"
+            class="overflow-hidden rounded-base border-3 border-ink bg-white shadow-[8px_8px_0_0_#0f172a] dark:border-border dark:bg-secondary-background dark:shadow-[8px_8px_0_0_#09090b]"
           >
             <!-- Title bar -->
             <div
@@ -188,13 +188,13 @@ const features = [
               y: 0,
               transition: { delay: 100, duration: 300 },
             }"
-            class="border-foreground/20 bg-secondary-background"
+            class="border-2 border-ink bg-secondary-background dark:border-border"
           >
             <CardHeader>
               <div
-                class="flex size-11 items-center justify-center rounded-base border-2 border-ink bg-powder"
+                class="flex size-11 items-center justify-center rounded-base border-2 border-ink bg-powder dark:border-border"
               >
-                <component :is="f.icon" class="size-5 text-foreground" />
+                <component :is="f.icon" class="size-5 text-ink" />
               </div>
               <CardTitle class="text-lg font-black text-foreground">{{
                 f.title
