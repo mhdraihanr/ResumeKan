@@ -50,7 +50,7 @@
 
 → `201 { cv }`. Gagal jika user sudah punya 10 CV → `422`.
 
-> `data.projects` terstruktur: array objek `{ title, role, objective, techStack }` (max 5). Nilai lama `string` masih diterima (backward compat, dikonversi ke 1 item). `data.education[].gpa` opsional `≤10`, `data.organizations` array max 5 — lihat `DATA_MODEL.md`.
+> `data.projects` terstruktur: array objek `{ title, role, objective, techStack }` (max 5). Nilai lama `string` masih diterima (backward compat, dikonversi ke 1 item). `data.education[].gpa` opsional `≤10`, `data.education[].location` opsional, `data.education[].degree` = gelar & jurusan digabung (field `major` dihapus), `data.education[].achievements` opsional `≤1000` (bullet newline), `data.organizations` array max 5, `data.experiences[].employmentType` opsional `in: Full-time,Part-time,Internship,Contract,Freelance` — lihat `DATA_MODEL.md`.
 
 ### `GET /cvs/{id}` → `200 { cv }` (lengkap dengan `data`)
 
@@ -70,8 +70,8 @@
 { "summary": "Backend engineer dengan pengalaman 3 tahun ..." }
 ```
 
-Server membaca data CV milik user dari DB — FE tidak mengirim ulang isi CV.
-Error Gemini → `502 { "message": "AI service unavailable" }`.
+Server membaca data CV milik user dari DB — FE tidak mengirim ulang isi CV. Ringkasan fokus posisi dominan/terbaru dari `experiences` (bukan deskripsi proyek); `projects[].techStack` hanya konteks tambahan.
+Error AI gateway → `502 { "message": "AI service unavailable" }`.
 
 ## PDF
 

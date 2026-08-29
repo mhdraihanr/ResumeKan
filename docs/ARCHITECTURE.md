@@ -7,7 +7,7 @@
 ```
 ┌─────────────┐  HTTP (cookie Sanctum)  ┌──────────────────┐
 │  web/ (SPA) │ ───────────────────────▶│  api/ (Laravel)  │──▶ SQLite / Neon Postgres
-│  Vue 3+Vite │ ◀───────────────────────│  API-only        │──▶ Gemini API
+│  Vue 3+Vite │ ◀───────────────────────│  API-only        │──▶ AI Gateway (OpenAI-compatible)
 └─────────────┘   JSON                  └────────┬─────────┘
                                                  │ Browsershot
                                                  ▼
@@ -39,10 +39,10 @@
 - **Prasyarat deploy:** binary Chromium tersedia di server.
 - **Template Fase 3:** `modern` = VitaeKit Modern (sans-serif, navy `#1e40af` underline, A4 print CSS) — https://vitaekit.com/resume-templates/modern · `classic` = LumiCV Minimal (whitespace, `border-b-[1.5px] border-slate-900` 8 section, monochrome) — https://lumicv.com/resume-templates/minimal. Keduanya single-column ATS-friendly, HTML/CSS murni yang sama untuk preview & PDF. Skills pisah `Hard skills:` / `Soft skills:` di kedua template. LinkedIn/Website/GitHub dukung `www.` tanpa scheme (normalisasi `https://` di `StoreCvRequest`). IPK di dalam Education, Organisasi section terpisah.
 
-### ADR-5: Gemini via `Http::post()`, tanpa SDK
+### ADR-5: AI Gateway (OpenAI-compatible) via `Http::post()`, tanpa SDK
 
-- **Keputusan:** Satu class `GeminiService` membungkus HTTP call.
-- **Alasan:** Satu endpoint REST; SDK resmi hanya menambah dependency untuk hal yang 15 baris curl bisa.
+- **Keputusan:** Satu class `AiService` membungkus HTTP call ke gateway OpenAI-compatible (model ganti via `.env` `AI_MODEL`, tidak lock-in 1 provider). Prompt anti-slop: K1/K2/K3 fokus posisi dominan, proyek hanya techStack background, banned buzzwords, hanya fakta CV.
+- **Alasan:** Satu endpoint `POST /v1/chat/completions` untuk semua model; ganti model cuma ganti string di `.env` tanpa ubah kode. Tanpa SDK, 15 baris `Http::post()` cukup. Prompt mengikuti antislop-copywriting + Exa ATS (40-60 kata, tools konkret, angka hanya jika ada di data, tanpa judul proyek).
 
 ### ADR-6: SQLite lokal → Neon Postgres produksi
 
@@ -59,7 +59,7 @@ api/
 │   │   ├── Requests/        # StoreCvRequest (validasi skema JSON)
 │   │   └── Resources/       # CvResource
 │   ├── Services/
-│   │   ├── GeminiService.php
+│   │   ├── AiService.php
 │   │   └── PdfService.php
 │   └── Models/              # User, Cv
 ├── routes/api.php

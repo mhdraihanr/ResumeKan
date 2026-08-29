@@ -66,4 +66,15 @@ export const cvApi = {
     ),
   remove: (id: number) =>
     csrf().then(() => req<void>(`/api/v1/cvs/${id}`, { method: "DELETE" })),
+  aiSummary: (cvId: number, language?: string, data?: CvData) =>
+    csrf().then(() =>
+      req<{ summary: string }>("/api/v1/ai/summary", {
+        method: "POST",
+        body: JSON.stringify({
+          cv_id: cvId,
+          ...(language ? { language } : {}),
+          ...(data ? { data } : {}),
+        }),
+      }),
+    ),
 };

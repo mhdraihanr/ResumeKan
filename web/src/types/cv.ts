@@ -13,6 +13,7 @@ export interface CvData {
     company: string;
     position: string;
     location?: string;
+    employmentType?: string;
     startDate: string;
     endDate: string;
     description?: string;
@@ -20,7 +21,7 @@ export interface CvData {
   education?: {
     institution: string;
     degree: string;
-    major?: string;
+    location?: string;
     year: string;
     gpa?: string;
     achievements?: string;

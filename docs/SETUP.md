@@ -25,8 +25,9 @@ DB_CONNECTION=sqlite            # produksi: pgsql + DATABASE_URL Neon
 SESSION_DOMAIN=localhost
 SANCTUM_STATEFUL_DOMAINS=localhost:5173
 
-GEMINI_API_KEY=                 # dari https://aistudio.google.com/apikey
-GEMINI_MODEL=gemini-2.0-flash   # model gratis, cukup untuk summary
+AI_API_KEY=                    # dari dashboard AI gateway kamu
+AI_BASE_URL=https://api.example.com/v1  # OpenAI-compatible gateway (ganti sesuai provider)
+AI_MODEL=provider/model-name   # mis. anthropic/claude-3-haiku, openai/gpt-4o-mini — ganti tanpa ubah kode
 
 CV_MAX_PER_USER=10
 AI_THROTTLE_PER_MINUTE=5
@@ -67,4 +68,4 @@ cd web && pnpm i -D tailwindcss @tailwindcss/vite
 ## Checklist sebelum commit pertama
 
 - [ ] `.env` di `.gitignore` kedua project (default sudah)
-- [ ] `GEMINI_API_KEY` tidak pernah masuk git
+- [ ] `AI_API_KEY` tidak pernah masuk git

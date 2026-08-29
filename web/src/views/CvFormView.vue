@@ -34,7 +34,7 @@ onMounted(async () => {
           (d as unknown as Record<string, unknown>).projects as string
         ).trim();
         d.projects = s
-          ? [{ title: s, role: "—", objective: "", techStack: "" }]
+          ? [{ title: s, role: "", objective: "", techStack: "" }]
           : [];
       }
       data.value = d;
@@ -97,6 +97,7 @@ async function submit() {
             v-model:title="title"
             v-model:template="template"
             v-model:language="language"
+            :cv-id="isEdit ? Number(props.id) : undefined"
             @submit="submit"
           />
           <p v-if="saving" class="mt-3 text-center text-xs text-slate-400">
@@ -111,7 +112,7 @@ async function submit() {
           <div class="mb-2 flex items-center justify-between">
             <span
               class="text-xs font-semibold uppercase tracking-widest text-slate-500"
-              >Preview — {{ template }}</span
+              >Preview · {{ template }}</span
             >
             <span class="text-xs text-slate-400"
               >ATS-friendly · single-column</span

@@ -149,14 +149,9 @@ const sortedExperiences = computed(() => {
           </p>
         </header>
 
-        <!-- Summary -->
+        <!-- Summary — tanpa title, langsung teks -->
         <section v-if="data.summary" class="mb-5">
-          <h2
-            class="border-b-2 border-[#1e40af] pb-1 text-[10pt] font-bold uppercase tracking-widest text-slate-900"
-          >
-            Ringkasan
-          </h2>
-          <p class="mt-2 text-[10pt] leading-relaxed text-slate-700">
+          <p class="text-[10pt] leading-relaxed text-slate-700">
             {{ data.summary }}
           </p>
         </section>
@@ -171,10 +166,16 @@ const sortedExperiences = computed(() => {
           <div v-for="(e, i) in sortedExperiences" :key="i" class="mt-3">
             <div class="flex items-baseline justify-between gap-4">
               <p class="text-[10pt] font-semibold text-slate-900">
-                {{ e.position || "Posisi" }} — {{ e.company || "Perusahaan" }}
+                {{ e.position || "Posisi" }} · {{ e.company || "Perusahaan" }}
+                <span
+                  v-if="e.employmentType"
+                  class="font-normal text-slate-500"
+                >
+                  · {{ e.employmentType }}
+                </span>
               </p>
               <p class="shrink-0 text-[9pt] text-slate-500">
-                {{ e.startDate }} — {{ e.endDate }}
+                {{ e.startDate }} - {{ e.endDate }}
               </p>
             </div>
             <p v-if="e.location" class="text-[9pt] text-slate-500">
@@ -195,31 +196,41 @@ const sortedExperiences = computed(() => {
           </div>
         </section>
 
-        <!-- Education — IPK di dalam Education (ATS) -->
+        <!-- Education — struktur sama Experience: flex row gelar+tahun, konten full-width -->
         <section v-if="data.education?.length" class="mb-5">
           <h2
             class="border-b-2 border-[#1e40af] pb-1 text-[10pt] font-bold uppercase tracking-widest text-slate-900"
           >
             Pendidikan
           </h2>
-          <div
-            v-for="(ed, i) in data.education"
-            :key="i"
-            class="mt-3 flex justify-between gap-4"
-          >
-            <div>
+          <div v-for="(ed, i) in data.education" :key="i" class="mt-3">
+            <div class="flex items-baseline justify-between gap-4">
               <p class="text-[10pt] font-semibold text-slate-900">
-                {{ ed.degree }}{{ ed.major ? ` — ${ed.major}` : "" }}
+                {{ ed.degree }}
               </p>
-              <p class="text-[10pt] text-slate-700">{{ ed.institution }}</p>
-              <p v-if="ed.gpa" class="text-[9pt] text-slate-500">
-                IPK: {{ ed.gpa }}
-              </p>
-              <p v-if="ed.achievements" class="text-[9pt] text-slate-500">
-                {{ ed.achievements }}
-              </p>
+              <p class="shrink-0 text-[9pt] text-slate-500">{{ ed.year }}</p>
             </div>
-            <p class="shrink-0 text-[9pt] text-slate-500">{{ ed.year }}</p>
+            <p class="text-[10pt] text-slate-700">
+              {{ ed.institution }}
+              <span v-if="ed.location" class="text-slate-700">
+                · {{ ed.location }}</span
+              >
+            </p>
+            <p v-if="ed.gpa" class="text-[9pt] text-slate-700">
+              IPK: {{ ed.gpa }}
+            </p>
+            <ul
+              v-if="bullets(ed.achievements).length"
+              class="mt-1 list-disc pl-5 text-[10pt] text-slate-700"
+            >
+              <li
+                v-for="(b, j) in bullets(ed.achievements)"
+                :key="j"
+                class="leading-relaxed"
+              >
+                {{ b }}
+              </li>
+            </ul>
           </div>
         </section>
 
@@ -233,7 +244,7 @@ const sortedExperiences = computed(() => {
           <div v-for="(o, i) in data.organizations" :key="i" class="mt-3">
             <div class="flex items-baseline justify-between gap-4">
               <p class="text-[10pt] font-semibold text-slate-900">
-                {{ o.role || "Peran" }} — {{ o.organization || "Organisasi" }}
+                {{ o.role || "Peran" }} · {{ o.organization || "Organisasi" }}
               </p>
               <p class="shrink-0 text-[9pt] text-slate-500">{{ o.period }}</p>
             </div>
@@ -280,7 +291,7 @@ const sortedExperiences = computed(() => {
             <p class="text-[10pt] font-semibold text-slate-900">
               {{ p.title
               }}<span v-if="p.role" class="font-normal text-slate-600">
-                — {{ p.role }}</span
+                · {{ p.role }}</span
               >
             </p>
             <p v-if="p.objective" class="text-[10pt] text-slate-700">
@@ -385,14 +396,9 @@ const sortedExperiences = computed(() => {
           </p>
         </header>
 
-        <!-- Summary — sejajar, garis berwarna di bawah title -->
+        <!-- Summary — tanpa title, langsung teks -->
         <section v-if="data.summary" class="mb-5">
-          <h2
-            class="border-b-[1.5px] border-slate-900 pb-1 text-[11pt] font-bold uppercase tracking-widest text-slate-900"
-          >
-            Ringkasan
-          </h2>
-          <p class="mt-2 text-[10pt] leading-relaxed text-slate-700">
+          <p class="text-[10pt] leading-relaxed text-slate-700">
             {{ data.summary }}
           </p>
         </section>
@@ -407,10 +413,16 @@ const sortedExperiences = computed(() => {
           <div v-for="(e, i) in sortedExperiences" :key="i" class="mt-3">
             <div class="flex items-baseline justify-between gap-4">
               <p class="text-[10pt] font-semibold text-slate-900">
-                {{ e.position || "Posisi" }} — {{ e.company || "Perusahaan" }}
+                {{ e.position || "Posisi" }} · {{ e.company || "Perusahaan" }}
+                <span
+                  v-if="e.employmentType"
+                  class="font-normal text-slate-500"
+                >
+                  · {{ e.employmentType }}
+                </span>
               </p>
               <p class="shrink-0 text-[9pt] tabular-nums text-slate-500">
-                {{ e.startDate }} — {{ e.endDate }}
+                {{ e.startDate }} - {{ e.endDate }}
               </p>
             </div>
             <p v-if="e.location" class="text-[9pt] text-slate-500">
@@ -431,33 +443,43 @@ const sortedExperiences = computed(() => {
           </div>
         </section>
 
-        <!-- Education — IPK di dalam Education -->
+        <!-- Education — struktur sama Experience: flex row gelar+tahun, konten full-width -->
         <section v-if="data.education?.length" class="mb-5">
           <h2
             class="border-b-[1.5px] border-slate-900 pb-1 text-[11pt] font-bold uppercase tracking-widest text-slate-900"
           >
             Pendidikan
           </h2>
-          <div
-            v-for="(ed, i) in data.education"
-            :key="i"
-            class="mt-3 flex justify-between gap-4"
-          >
-            <div>
+          <div v-for="(ed, i) in data.education" :key="i" class="mt-3">
+            <div class="flex items-baseline justify-between gap-4">
               <p class="text-[10pt] font-semibold text-slate-900">
-                {{ ed.degree }}{{ ed.major ? ` — ${ed.major}` : "" }}
+                {{ ed.degree }}
               </p>
-              <p class="text-[10pt] text-slate-700">{{ ed.institution }}</p>
-              <p v-if="ed.gpa" class="text-[9pt] text-slate-500">
-                IPK: {{ ed.gpa }}
-              </p>
-              <p v-if="ed.achievements" class="text-[9pt] text-slate-500">
-                {{ ed.achievements }}
+              <p class="shrink-0 text-[9pt] tabular-nums text-slate-500">
+                {{ ed.year }}
               </p>
             </div>
-            <p class="shrink-0 text-[9pt] tabular-nums text-slate-500">
-              {{ ed.year }}
+            <p class="text-[10pt] text-slate-700">
+              {{ ed.institution }}
+              <span v-if="ed.location" class="text-slate-700">
+                · {{ ed.location }}</span
+              >
             </p>
+            <p v-if="ed.gpa" class="text-[9pt] text-slate-700">
+              IPK: {{ ed.gpa }}
+            </p>
+            <ul
+              v-if="bullets(ed.achievements).length"
+              class="mt-1 list-disc pl-5 text-[10pt] text-slate-700"
+            >
+              <li
+                v-for="(b, j) in bullets(ed.achievements)"
+                :key="j"
+                class="leading-relaxed"
+              >
+                {{ b }}
+              </li>
+            </ul>
           </div>
         </section>
 
@@ -471,7 +493,7 @@ const sortedExperiences = computed(() => {
           <div v-for="(o, i) in data.organizations" :key="i" class="mt-3">
             <div class="flex items-baseline justify-between gap-4">
               <p class="text-[10pt] font-semibold text-slate-900">
-                {{ o.role || "Peran" }} — {{ o.organization || "Organisasi" }}
+                {{ o.role || "Peran" }} · {{ o.organization || "Organisasi" }}
               </p>
               <p class="shrink-0 text-[9pt] tabular-nums text-slate-500">
                 {{ o.period }}
@@ -526,7 +548,7 @@ const sortedExperiences = computed(() => {
             <p class="text-[10pt] font-semibold text-slate-900">
               {{ p.title
               }}<span v-if="p.role" class="font-normal text-slate-600">
-                — {{ p.role }}</span
+                · {{ p.role }}</span
               >
             </p>
             <p v-if="p.objective" class="text-[10pt] text-slate-700">

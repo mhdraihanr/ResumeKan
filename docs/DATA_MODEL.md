@@ -65,6 +65,7 @@ Index: `user_id`. Tidak perlu index lain.
       "company": "string",
       "position": "string",
       "location": "string, opsional",
+      "employmentType": "string, opsional — Full-time | Part-time | Internship | Contract | Freelance",
       "startDate": "YYYY-MM atau teks bebas",
       "endDate": "YYYY-MM | Present",
       "description": "string ≤1500, bullet dipisah newline",
@@ -74,11 +75,11 @@ Index: `user_id`. Tidak perlu index lain.
     {
       // array, max 5 item
       "institution": "string",
-      "degree": "string",
-      "major": "string, opsional",
+      "degree": "string — gelar & jurusan digabung, mis. 'S1 Teknik Informatika' / 'Bachelor of Science in Computer Science'",
+      "location": "string, opsional — kota/lokasi kampus",
       "year": "string",
       "gpa": "string ≤10, opsional — format 3.85 atau 3.85/4.00, tampil sebagai IPK: ...",
-      "achievements": "string, opsional",
+      "achievements": "string ≤1000, opsional — prestasi/deskripsi/ekstrakurikuler, bullet dipisah newline",
     },
   ],
   "skills": {

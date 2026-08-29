@@ -1,7 +1,7 @@
 # Roadmap — ResumeKan
 
 > Urutan pengerjaan MVP. Setiap fase = bisa diuji manual sebelum lanjut. Alur uji: [TESTING.md](TESTING.md).
-> Ringkasan detail tiap fase: [docs/phases/](phases/) — [Fase 0](phases/phase-0-scaffold.md) · [1](phases/phase-1-auth.md) · [2](phases/phase-2-crud-cv.md) · [3](phases/phase-3-preview-template.md) · [4](phases/phase-4-ai-summary.md) · [5](phases/phase-5-pdf.md) · [6](phases/phase-6-landing-polish.md)
+> Ringkasan detail tiap fase: [docs/phases/](phases/) — [Fase 0](phases/phase-0-scaffold.md) · [1](phases/phase-1-auth.md) · [2](phases/phase-2-crud-cv.md) · [3](phases/phase-3-preview-template.md) · [4](phases/phase-4-ai-summary.md) · [5](phases/phase-5-pdf.md) · [6](phases/phase-6-landing-polish.md) · [7 Post-MVP](phases/phase-7-post-mvp.md) (backlog, ditahan)
 
 ## Fase 0 — Scaffold (½ hari) ✅ [detail](phases/phase-0-scaffold.md)
 
@@ -28,10 +28,10 @@
 - [x] Komponen `CvPreview` dengan 2 template (modern, classic) — VitaeKit Modern / LumiCV Minimal
 - [x] Preview real-time saat mengisi form (computed dari store)
 
-## Fase 4 — AI Summary (½ hari) [detail](phases/phase-4-ai-summary.md)
+## Fase 4 — AI Summary (½ hari) ✅ [detail](phases/phase-4-ai-summary.md)
 
-- [ ] `GeminiService` + endpoint `/ai/summary` + throttle 5/menit
-- [ ] Tombol "Generate" di bagian ringkasan; hasil bisa diedit
+- [x] `AiService` (OpenAI-compatible) + endpoint `/ai/summary` + throttle 5/menit — prompt anti-slop fokus posisi dominan (proyek hanya techStack)
+- [x] Tombol "Generate AI" di Ringkasan; hasil bisa diedit
 
 ## Fase 5 — PDF (1 hari) [detail](phases/phase-5-pdf.md)
 
@@ -43,6 +43,10 @@
 
 - [ ] Landing page (hero, fitur, CTA) + animasi ringan (@vueuse/motion)
 - [ ] Dark mode, responsive check, empty states
+
+## Fase 7 — Post-MVP Backlog (ditahan) [detail](phases/phase-7-post-mvp.md)
+
+- [ ] Import CV dari PDF/DOCX → auto-isi form (hybrid pdfparser + AiService, ditahan sampai MVP selesai)
 
 ## Deploy (nanti, bukan MVP)
 

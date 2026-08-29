@@ -47,7 +47,7 @@ function fmtDate(s: string) {
             <span class="font-semibold text-slate-900">{{
               auth.user?.name
             }}</span>
-            — {{ auth.user?.email }}
+            · {{ auth.user?.email }}
           </p>
         </div>
         <div class="flex items-center gap-2">
@@ -94,7 +94,7 @@ function fmtDate(s: string) {
         </div>
         <h2 class="mt-4 text-sm font-semibold text-slate-900">Belum ada CV</h2>
         <p class="mx-auto mt-1 max-w-sm text-sm leading-relaxed text-slate-500">
-          Buat CV pertama Anda — isi form terstruktur, pilih template, dan siap
+          Buat CV pertama Anda, isi form terstruktur, pilih template, dan siap
           untuk ATS.
         </p>
         <button

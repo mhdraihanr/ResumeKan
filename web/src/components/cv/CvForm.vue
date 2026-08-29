@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import type { CvData } from "@/types/cv";
+import { cvApi } from "@/api/cv";
 
 const props = defineProps<{
   modelValue: CvData;
   title: string;
   template: string;
   language: string;
+  cvId?: number;
 }>();
 const emit = defineEmits<{
   "update:modelValue": [v: CvData];
@@ -45,6 +47,8 @@ function addExp() {
   local.value.experiences.push({
     company: "",
     position: "",
+    location: "",
+    employmentType: "",
     startDate: "",
     endDate: "",
     description: "",
@@ -55,7 +59,14 @@ function removeExp(i: number) {
 }
 function addEdu() {
   local.value.education ??= [];
-  local.value.education.push({ institution: "", degree: "", year: "" });
+  local.value.education.push({
+    institution: "",
+    degree: "",
+    location: "",
+    year: "",
+    gpa: "",
+    achievements: "",
+  });
 }
 function removeEdu(i: number) {
   local.value.education?.splice(i, 1);
@@ -96,7 +107,7 @@ function normalizeProjects() {
   if (typeof p === "string") {
     const s = (p as string).trim();
     local.value.projects = s
-      ? [{ title: s, role: "—", objective: "", techStack: "" }]
+      ? [{ title: s, role: "", objective: "", techStack: "" }]
       : [];
   }
 }
@@ -107,6 +118,30 @@ function autoResize(e: Event) {
   if (CSS.supports("field-sizing", "content")) return;
   el.style.height = "auto";
   el.style.height = el.scrollHeight + "px";
+}
+
+const aiLoading = ref(false);
+const aiError = ref("");
+async function generateSummary() {
+  if (!props.cvId) {
+    aiError.value = "Simpan CV dulu sebelum generate.";
+    return;
+  }
+  aiLoading.value = true;
+  aiError.value = "";
+  try {
+    const res = await cvApi.aiSummary(props.cvId, props.language, local.value);
+    local.value.summary = res.summary;
+  } catch (e: unknown) {
+    const err = e as { status?: number; message?: string };
+    if (err.status === 429)
+      aiError.value = "Terlalu sering, coba lagi 1 menit.";
+    else if (err.status === 502 || err.status === 503)
+      aiError.value = err.message || "AI tidak tersedia.";
+    else aiError.value = err.message || "Gagal generate.";
+  } finally {
+    aiLoading.value = false;
+  }
 }
 </script>
 
@@ -248,17 +283,29 @@ function autoResize(e: Event) {
 
     <!-- Summary -->
     <section class="space-y-2.5">
-      <h2
-        class="text-sm font-semibold uppercase tracking-widest text-slate-500"
-      >
-        Ringkasan
-      </h2>
+      <div class="flex items-center justify-between">
+        <h2
+          class="text-sm font-semibold uppercase tracking-widest text-slate-500"
+        >
+          Ringkasan
+        </h2>
+        <button
+          v-if="cvId"
+          type="button"
+          @click="generateSummary"
+          :disabled="aiLoading"
+          class="rounded-lg bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800 disabled:opacity-40"
+        >
+          {{ aiLoading ? "Memproses..." : "Generate AI" }}
+        </button>
+      </div>
+      <p v-if="aiError" class="text-xs text-red-600">{{ aiError }}</p>
       <textarea
         v-model="local.summary"
         maxlength="600"
         rows="3"
-        placeholder="Ringkasan profesional singkat..."
-        class="auto-expand w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
+        placeholder="Ringkasan profesional singkat... (klik Generate AI jika CV sudah tersimpan)"
+        class="auto-expand w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
         @input="autoResize($event)"
       ></textarea>
       <p class="text-right text-xs text-slate-400">
@@ -321,9 +368,25 @@ function autoResize(e: Event) {
             <span class="text-xs font-medium text-slate-700">Lokasi</span>
             <input
               v-model="exp.location"
-              placeholder="Jakarta"
+              placeholder="Jakarta, Indonesia"
               class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
             />
+          </label>
+          <label class="space-y-1">
+            <span class="text-xs font-medium text-slate-700"
+              >Employment Type</span
+            >
+            <select
+              v-model="exp.employmentType"
+              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            >
+              <option value="">Pilih</option>
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Internship">Internship</option>
+              <option value="Contract">Contract</option>
+              <option value="Freelance">Freelance</option>
+            </select>
           </label>
           <div class="grid grid-cols-2 gap-2.5">
             <label class="space-y-1">
@@ -348,7 +411,7 @@ function autoResize(e: Event) {
         </div>
         <label class="space-y-1 block">
           <span class="text-xs font-medium text-slate-700"
-            >Deskripsi — 1 baris = 1 bullet</span
+            >Deskripsi (1 baris = 1 bullet)</span
           >
           <textarea
             v-model="exp.description"
@@ -412,19 +475,21 @@ function autoResize(e: Event) {
             />
           </label>
           <label class="space-y-1">
-            <span class="text-xs font-medium text-slate-700">Gelar *</span>
+            <span class="text-xs font-medium text-slate-700"
+              >Gelar &amp; Jurusan *</span
+            >
             <input
               v-model="edu.degree"
-              placeholder="S1"
+              placeholder="S1 Teknik Informatika / Bachelor of Science in Computer Science"
               required
               class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
             />
           </label>
           <label class="space-y-1">
-            <span class="text-xs font-medium text-slate-700">Jurusan</span>
+            <span class="text-xs font-medium text-slate-700">Lokasi</span>
             <input
-              v-model="edu.major"
-              placeholder="Teknik Informatika"
+              v-model="edu.location"
+              placeholder="Depok, Indonesia"
               class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
             />
           </label>
@@ -432,7 +497,7 @@ function autoResize(e: Event) {
             <span class="text-xs font-medium text-slate-700">Tahun *</span>
             <input
               v-model="edu.year"
-              placeholder="2020 — 2024"
+              placeholder="2020 - 2024"
               required
               class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
             />
@@ -448,15 +513,24 @@ function autoResize(e: Event) {
               class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
             />
           </label>
-          <label class="space-y-1">
-            <span class="text-xs font-medium text-slate-700">Prestasi</span>
-            <input
-              v-model="edu.achievements"
-              placeholder="Cum Laude"
-              class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
-            />
-          </label>
         </div>
+        <label class="space-y-1 block">
+          <span class="text-xs font-medium text-slate-700"
+            >Prestasi / Deskripsi (1 baris = 1 bullet)</span
+          >
+          <textarea
+            v-model="edu.achievements"
+            maxlength="1000"
+            rows="2"
+            placeholder="Cum Laude&#10;Anggota Himpan Mahasiswa Informatika 2021-2023"
+            class="auto-expand w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+            @input="autoResize($event)"
+          ></textarea>
+        </label>
+        <p class="text-right text-xs text-slate-400">
+          {{ (edu.achievements ?? "").split("\n").filter(Boolean).length }}
+          bullet · {{ (edu.achievements ?? "").length }}/1000
+        </p>
       </div>
       <p v-if="!local.education?.length" class="text-xs text-slate-400">
         Belum ada pendidikan. Klik Tambah.
@@ -518,7 +592,7 @@ function autoResize(e: Event) {
             <span class="text-xs font-medium text-slate-700">Periode *</span>
             <input
               v-model="org.period"
-              placeholder="2022 — 2024"
+              placeholder="2022 - 2024"
               required
               class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
             />
@@ -526,7 +600,7 @@ function autoResize(e: Event) {
         </div>
         <label class="space-y-1 block">
           <span class="text-xs font-medium text-slate-700"
-            >Deskripsi — 1 baris = 1 bullet</span
+            >Deskripsi (1 baris = 1 bullet)</span
           >
           <textarea
             v-model="org.description"
@@ -677,7 +751,7 @@ function autoResize(e: Event) {
             v-model="proj.objective"
             maxlength="500"
             rows="2"
-            placeholder="ATS-friendly CV builder — isi form → preview → PDF"
+            placeholder="ATS-friendly CV builder, isi form lalu preview dan PDF"
             class="auto-expand w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
             @input="autoResize($event)"
           ></textarea>
