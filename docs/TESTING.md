@@ -62,6 +62,8 @@ POST   /api/v1/cvs { projects: string lama }             → 201  # backward com
 
 **Preview (Fase 3):** ubah field form → preview update tanpa lag; switch `modern` ↔ `classic` → header/heading/accent berubah; cek di mobile (stack/tab).
 
+**Simpan Draft (Fase 3):** di halaman `/cvs/new` isi minimal (judul + data pribadi) → klik `Simpan Draft` → toast `Draft tersimpan` muncul, URL tetap `/cvs/new`, heading berubah jadi "Edit CV", tombol `Download PDF` muncul; refresh halaman → data masih ada. Di halaman edit: ubah field → `Simpan Draft` → toast muncul tanpa keluar halaman; cek DB `updated_at` berubah.
+
 **AI (Fase 4):** `POST /api/v1/ai/summary` → `200`; request ke-6 dalam 1 menit → `429`.
 
 **PDF (Fase 5):** `GET /api/v1/cvs/{id}/pdf` → binary PDF; cek nama file di header `Content-Disposition`; bandingkan visual dengan preview (harus identik).

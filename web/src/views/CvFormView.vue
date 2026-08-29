@@ -91,10 +91,7 @@ async function draftSave() {
     }
     showToast("Draft tersimpan");
   } catch (e) {
-    showToast(
-      e instanceof Error ? e.message : "Gagal menyimpan draft",
-      false,
-    );
+    showToast(e instanceof Error ? e.message : "Gagal menyimpan draft", false);
   } finally {
     drafting.value = false;
   }
