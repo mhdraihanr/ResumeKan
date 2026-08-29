@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useCvStore } from "@/stores/cv";
 import { emptyCvData } from "@/types/cv";
@@ -12,17 +12,27 @@ const router = useRouter();
 const cvStore = useCvStore();
 const win = window;
 
-const isEdit = !!props.id;
+const isEdit = computed(() => !!cvId.value);
+const cvId = ref<number | undefined>(props.id ? Number(props.id) : undefined);
 const title = ref("");
 const template = ref("modern");
 const language = ref("id");
 const data = ref<CvData>(emptyCvData());
 const error = ref<string | null>(null);
 const saving = ref(false);
+const drafting = ref(false);
+const toast = ref<{ msg: string; ok: boolean } | null>(null);
+let toastTimer: ReturnType<typeof setTimeout> | undefined;
+
+function showToast(msg: string, ok = true) {
+  toast.value = { msg, ok };
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => (toast.value = null), 2600);
+}
 
 onMounted(async () => {
-  if (isEdit) {
-    await cvStore.fetchOne(Number(props.id));
+  if (isEdit.value && cvId.value) {
+    await cvStore.fetchOne(cvId.value);
     if (cvStore.current) {
       title.value = cvStore.current.title;
       template.value = cvStore.current.template;
@@ -53,13 +63,40 @@ async function submit() {
       language: language.value,
       data: data.value,
     };
-    if (isEdit) await cvStore.update(Number(props.id), payload);
+    if (cvId.value) await cvStore.update(cvId.value, payload);
     else await cvStore.create(payload);
     router.push("/dashboard");
   } catch (e) {
     error.value = e instanceof Error ? e.message : "Gagal menyimpan CV";
   } finally {
     saving.value = false;
+  }
+}
+
+async function draftSave() {
+  error.value = null;
+  drafting.value = true;
+  try {
+    const payload = {
+      title: title.value,
+      template: template.value,
+      language: language.value,
+      data: data.value,
+    };
+    if (cvId.value) {
+      await cvStore.update(cvId.value, payload);
+    } else {
+      const cv = await cvStore.create(payload);
+      cvId.value = cv.id;
+    }
+    showToast("Draft tersimpan");
+  } catch (e) {
+    showToast(
+      e instanceof Error ? e.message : "Gagal menyimpan draft",
+      false,
+    );
+  } finally {
+    drafting.value = false;
   }
 }
 </script>
@@ -98,7 +135,7 @@ async function submit() {
             v-model:title="title"
             v-model:template="template"
             v-model:language="language"
-            :cv-id="isEdit ? Number(props.id) : undefined"
+            :cv-id="cvId"
             @submit="submit"
           />
           <p v-if="saving" class="mt-3 text-center text-xs text-slate-400">
@@ -120,8 +157,15 @@ async function submit() {
                 >ATS-friendly · single-column</span
               >
               <button
+                @click="draftSave"
+                :disabled="drafting"
+                class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+              >
+                {{ drafting ? "Menyimpan..." : "Simpan Draft" }}
+              </button>
+              <button
                 v-if="isEdit"
-                @click="win.open(`/api/v1/cvs/${props.id}/pdf`, '_blank')"
+                @click="win.open(`/api/v1/cvs/${cvId}/pdf`, '_blank')"
                 class="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
               >
                 Download PDF
@@ -136,5 +180,21 @@ async function submit() {
         </div>
       </div>
     </div>
+
+    <!-- Toast draft tersimpan -->
+    <transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="opacity-0 translate-y-1"
+      leave-active-class="transition duration-150 ease-in"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="toast"
+        class="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg px-4 py-2 text-sm font-medium text-white shadow-lg"
+        :class="toast.ok ? 'bg-slate-900' : 'bg-red-600'"
+      >
+        {{ toast.msg }}
+      </div>
+    </transition>
   </main>
 </template>
