@@ -39,10 +39,10 @@
 - [x] Endpoint `/cvs/{id}/pdf` + tombol download
 - [x] Install Chromium lokal untuk testing (Edge via `useChrome()->setChromePath()`, fallback puppeteer)
 
-## Fase 6 — Landing & Polish (1 hari) [detail](phases/phase-6-landing-polish.md)
+## Fase 6 — Landing & Polish (1 hari) ✅ [detail](phases/phase-6-landing-polish.md)
 
-- [ ] Landing page (hero, fitur, CTA) + animasi ringan (@vueuse/motion)
-- [ ] Dark mode, responsive check, empty states
+- [x] Landing page (hero, fitur, CTA) + animasi ringan (@vueuse/motion)
+- [x] Dark mode, responsive check, empty states
 
 ## Fase 7 — Post-MVP Backlog (ditahan) [detail](phases/phase-7-post-mvp.md)
 

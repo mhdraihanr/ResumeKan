@@ -1,1 +1,82 @@
 @import "tailwindcss";
+
+/* Dark mode class-based (Tailwind v4) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ===== ResumeKan Design Tokens (docs/DESIGN.md) ===== */
+:root {
+  /* Neo-brutalism structural tokens (neobrutalism-vue) */
+  --border-radius: 8px;
+  --box-shadow-x: 4px;
+  --box-shadow-y: 4px;
+  --reverse-box-shadow-x: -4px;
+  --reverse-box-shadow-y: -4px;
+  --heading-font-weight: 900;
+  --base-font-weight: 500;
+
+  /* Ink & Navy palette (light) */
+  --background: #f8fafc; /* paper */
+  --secondary-background: #ffffff; /* white surface */
+  --foreground: #0f172a; /* ink */
+  --main: #1e40af; /* navy */
+  --main-foreground: #ffffff;
+  --border: #0f172a; /* ink */
+  --ring: #1e40af;
+  --shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px var(--border);
+  --reverse-shadow: var(--reverse-box-shadow-x) var(--reverse-box-shadow-y) 0px
+    0px var(--border);
+}
+
+.dark {
+  --background: #0b0e14; /* void-navy, bukan hitam murni */
+  --secondary-background: #1e293b; /* surface gelap */
+  --foreground: #f8fafc; /* teks terang */
+  --main: #3b82f6; /* navy lebih terang agar kontras */
+  --main-foreground: #ffffff;
+  --border: #f8fafc; /* border terang agar terlihat */
+  --ring: #3b82f6;
+  --shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px var(--border);
+  --reverse-shadow: var(--reverse-box-shadow-x) var(--reverse-box-shadow-y) 0px
+    0px var(--border);
+}
+
+/* Map tokens ke Tailwind v4 theme */
+@theme inline {
+  --color-main: var(--main);
+  --color-main-foreground: var(--main-foreground);
+  --color-background: var(--background);
+  --color-secondary-background: var(--secondary-background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --radius-base: var(--border-radius);
+  --shadow-shadow: var(--shadow);
+  --shadow-reverse-shadow: var(--reverse-shadow);
+  --font-weight-base: var(--base-font-weight);
+  --font-weight-heading: var(--heading-font-weight);
+  /* Spacing namespace untuk translate-x-boxShadowX / translate-y-boxShadowY */
+  --spacing-boxShadowX: var(--box-shadow-x);
+  --spacing-boxShadowY: var(--box-shadow-y);
+  --spacing-reverseBoxShadowX: var(--reverse-box-shadow-x);
+  --spacing-reverseBoxShadowY: var(--reverse-box-shadow-y);
+}
+
+/* Powder blue accent (docs/DESIGN.md) */
+@theme {
+  --color-powder: #b0e0e6;
+  --color-ink: #0f172a;
+  --color-navy: #1e40af;
+  --color-paper: #f8fafc;
+}
+
+/* Scroll-reveal base (MOTION 1, hormati prefers-reduced-motion) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

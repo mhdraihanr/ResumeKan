@@ -24,7 +24,7 @@ ResumeKan adalah web app yang membantu pencari kerja (fokus: Indonesia) membuat 
 | F1  | Auth              | Register, login, logout via email+password                                                                                                                                                                                                             |
 | F2  | Form CV           | Data pribadi, ringkasan, pengalaman kerja (employment type Full-time/Part-time/Internship, bullet per baris), pendidikan (IPK opsional), organisasi (max 5), hard/soft skills, bahasa, sertifikat, proyek terstruktur (title/role/objective/techStack) |
 | F3  | Preview real-time | Render CV saat form diisi, 2 template (modern, classic)                                                                                                                                                                                                |
-| F4  | Simpan draft      | CRUD CV per user; satu user punya banyak CV; tombol `Simpan Draft` di editor menyimpan tanpa keluar form (toast konfirmasi)                                                                                                                                    |
+| F4  | Simpan draft      | CRUD CV per user; satu user punya banyak CV; tombol `Simpan Draft` di editor menyimpan tanpa keluar form (toast konfirmasi)                                                                                                                            |
 | F5  | AI summary        | Generate ringkasan profesional fokus posisi dominan/terbaru dari data form (proyek hanya konteks tech, tidak dijelaskan) via AI gateway OpenAI-compatible, bisa diedit manual                                                                          |
 | F6  | Download PDF      | Server-side render HTML → PDF, nama file `{nama}_CV.pdf`                                                                                                                                                                                               |
 | F7  | Multi-bahasa CV   | Konten CV ID/EN (pilihan user per CV)                                                                                                                                                                                                                  |
@@ -47,7 +47,7 @@ ResumeKan adalah web app yang membantu pencari kerja (fokus: Indonesia) membuat 
 
 ## 7. Kriteria Selesai MVP
 
-- [ ] User bisa register → login → buat CV → preview → download PDF.
-- [ ] Draft tersimpan dan bisa dibuka lagi dari device lain.
+- [x] User bisa register → login → buat CV → preview → download PDF.
+- [x] Draft tersimpan dan bisa dibuka lagi dari device lain.
 - [ ] AI summary menghasilkan teks relevan ≤ 5 detik.
-- [ ] PDF identik dengan preview.
+- [x] PDF identik dengan preview.

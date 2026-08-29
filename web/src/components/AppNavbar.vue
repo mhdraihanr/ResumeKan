@@ -1,0 +1,127 @@
+<script setup lang="ts">
+import { useAuthStore } from "@/stores/auth";
+import { useRouter } from "vue-router";
+import { useDarkMode } from "@/composables/useDarkMode";
+import { Moon, Sun, Menu, X } from "lucide-vue-next";
+import { ref } from "vue";
+
+const auth = useAuthStore();
+const router = useRouter();
+const { isDark, toggle } = useDarkMode();
+const open = ref(false);
+</script>
+
+<template>
+  <nav
+    class="sticky top-0 z-40 border-b-2 border-ink bg-paper/95 backdrop-blur-sm"
+  >
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
+      <RouterLink
+        to="/"
+        class="text-lg font-black tracking-tight text-ink"
+      >
+        ResumeKan
+      </RouterLink>
+
+      <!-- Desktop -->
+      <div class="hidden items-center gap-4 sm:flex">
+        <RouterLink
+          to="/"
+          class="text-sm font-medium text-ink/70 hover:text-ink"
+        >
+          Beranda
+        </RouterLink>
+        <RouterLink
+          v-if="auth.isAuthenticated"
+          to="/dashboard"
+          class="text-sm font-medium text-ink/70 hover:text-ink"
+        >
+          Dashboard
+        </RouterLink>
+        <template v-if="!auth.isAuthenticated">
+          <RouterLink
+            to="/login"
+            class="rounded-base border-2 border-ink bg-white px-3 py-1.5 text-sm font-medium text-ink shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none"
+          >
+            Masuk
+          </RouterLink>
+          <RouterLink
+            to="/register"
+            class="rounded-base border-2 border-ink bg-navy px-3 py-1.5 text-sm font-medium text-white shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none"
+          >
+            Daftar
+          </RouterLink>
+        </template>
+        <button
+          v-else
+          @click="auth.logout(); router.push('/')"
+          class="rounded-base border-2 border-ink bg-white px-3 py-1.5 text-sm font-medium text-ink shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none"
+        >
+          Logout
+        </button>
+        <button
+          @click="toggle()"
+          class="flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none"
+          :title="isDark ? 'Mode terang' : 'Mode gelap'"
+        >
+          <Sun v-if="isDark" class="size-4 text-ink" />
+          <Moon v-else class="size-4 text-ink" />
+        </button>
+      </div>
+
+      <!-- Mobile toggle -->
+      <button
+        @click="open = !open"
+        class="flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white sm:hidden"
+      >
+        <X v-if="open" class="size-4 text-ink" />
+        <Menu v-else class="size-4 text-ink" />
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div v-if="open" class="border-t-2 border-ink bg-paper px-4 pb-4 pt-2 sm:hidden">
+      <div class="flex flex-col gap-2">
+        <RouterLink
+          to="/"
+          class="rounded-base px-3 py-2 text-sm font-medium text-ink hover:bg-ink/5"
+          @click="open = false"
+        >
+          Beranda
+        </RouterLink>
+        <RouterLink
+          v-if="auth.isAuthenticated"
+          to="/dashboard"
+          class="rounded-base px-3 py-2 text-sm font-medium text-ink hover:bg-ink/5"
+          @click="open = false"
+        >
+          Dashboard
+        </RouterLink>
+        <template v-if="!auth.isAuthenticated">
+          <RouterLink
+            to="/login"
+            class="rounded-base border-2 border-ink bg-white px-3 py-2 text-center text-sm font-medium text-ink"
+            @click="open = false"
+          >
+            Masuk
+          </RouterLink>
+          <RouterLink
+            to="/register"
+            class="rounded-base border-2 border-ink bg-navy px-3 py-2 text-center text-sm font-medium text-white"
+            @click="open = false"
+          >
+            Daftar
+          </RouterLink>
+        </template>
+        <button
+          @click="toggle()"
+          class="flex items-center gap-2 rounded-base px-3 py-2 text-sm font-medium text-ink hover:bg-ink/5"
+        >
+          <Sun v-if="isDark" class="size-4" />
+          <Moon v-else class="size-4" />
+          {{ isDark ? "Mode terang" : "Mode gelap" }}
+        </button>
+      </div>
+    </div>
+  </nav>
+</template>
