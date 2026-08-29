@@ -30,12 +30,12 @@
 }
 
 .dark {
-  --background: #18181b; /* zinc-900 abu standar (ganti #0b0e14) */
+  --background: #18181b; /* zinc-900 abu standar, bukan hitam murni */
   --secondary-background: #27272a; /* zinc-800 surface */
   --foreground: #f8fafc; /* teks terang */
   --main: #3b82f6; /* navy lebih terang agar kontras */
   --main-foreground: #ffffff;
-  --border: #f4f4f5; /* zinc-100 border terang */
+  --border: #f4f4f5; /* zinc-100 agar terlihat di abu */
   --ring: #3b82f6;
   /* Shadow zinc-950 tetap terbaca di atas surface abu */
   --shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px #09090b;

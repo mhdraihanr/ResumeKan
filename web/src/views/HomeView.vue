@@ -278,7 +278,7 @@ const features = [
           <RouterLink to="/register">
             <Button
               size="lg"
-              class="border-ink bg-paper text-ink shadow-[4px_4px_0_0_#0f172a] hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:bg-secondary-background dark:text-foreground dark:shadow-[4px_4px_0_0_#04060a]"
+              class="border-ink bg-paper text-ink shadow-[4px_4px_0_0_#0f172a] hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:bg-secondary-background dark:text-foreground dark:shadow-[4px_4px_0_0_#09090b]"
             >
               Coba sekarang, gratis
             </Button>

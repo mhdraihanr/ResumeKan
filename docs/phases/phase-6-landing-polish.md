@@ -42,7 +42,7 @@
 
 ### Files modified
 
-- `web/src/assets/main.css`: @custom-variant dark, CSS variable tokens (--main, --border, --shadow, --box-shadow-x), @theme inline mapping, powder/ink/navy/paper utility, dark tokens (--background #18181b zinc-900, --secondary-background #27272a zinc-800, --foreground #f8fafc, --main #3b82f6, --border #f4f4f5, --shadow #09090b), color-scheme light/dark
+- `web/src/assets/main.css`: @custom-variant dark, CSS variable tokens (--main, --border, --shadow, --box-shadow-x), @theme inline mapping, powder/ink/navy/paper utility, dark tokens (--background #18181b, --secondary-background #27272a, --foreground #f8fafc, --main #3b82f6, --border #f4f4f5, --shadow #09090b), color-scheme light/dark
 - `web/src/main.ts`: register MotionPlugin
 - `web/src/App.vue`: AppNavbar + AppFooter + initTheme() + bg-paper/text-ink wrapper
 - `web/src/router/index.ts`: "/" → HomeView (redirect /dashboard dihapus)
@@ -56,15 +56,14 @@
 - Login/Register tetap standalone (bukan partial di landing)
 - CvPreview di hero menggunakan data contoh `sample` (bukan fake stats/testimonial, per R-17/R-18)
 
-### Dark mode — perbaikan all-pages (commit e4201b4) + abu standar (Exa 2025)
+### Dark mode — perbaikan all-pages (commit e4201b4)
 
 - FOUC guard inline script di `index.html` head (baca `resumekan-theme` + `prefers-color-scheme` sebelum stylesheet).
 - `useDarkMode.ts` 3-way: `auto → light → dark → auto` (`choice` ref, `isDark()` function, `cycle()`, `colorScheme` sync, `matchMedia` listener). `auto` hapus key localStorage.
-- Token dark: `--background #18181b` (zinc-900), `--secondary-background #27272a` (zinc-800), `--foreground #f8fafc`, `--main #3b82f6`, `--border #f4f4f5`, `--shadow #09090b` (ganti #0b0e14/#1e293b/#04060a — abu standar Material/zinc, bukan hitam pekat).
-- Card fitur landing: `border-2 border-ink dark:border-border`, icon `bg-powder border-ink dark:border-border` + `text-ink` fixed (kontras 12.46:1 PASS di kedua mode, sebelumnya `text-foreground` di powder gagal).
+- Token dark: `--background #18181b`, `--secondary-background #27272a`, `--foreground #f8fafc`, `--main #3b82f6`, `--border #f4f4f5`, `--shadow #09090b`.
 - Semua halaman dark-mode: landing, navbar, footer, login, register, dashboard, CV form. `CvPreview`/PDF tetap putih (dokumen kertas).
 - `CvForm.vue` pakai scoped CSS dark untuk 40+ field agar tidak duplikasi `dark:` per-field.
-- Verifikasi browser dark: login/register `main rgb(24,24,27)` card `rgb(39,39,42)` input `dark:text-foreground` button `rgb(59,130,246)`, navbar logo/link `rgb(248,250,252)` border `rgb(244,244,245)`. Kontras 16.93:1/14.24:1 PASS AA.
+- Verifikasi browser dark: login/register `main rgb(11,14,20)` card `rgb(30,41,59)` input `dark:text-foreground` button `rgb(59,130,246)`, navbar logo/link `rgb(248,250,252)` border `rgb(248,250,252)`.
 
 ## Hasil Verifikasi
 

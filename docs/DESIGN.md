@@ -50,7 +50,7 @@ tanpa blur, warna flat, tapi tetap rapi dan profesional untuk audiens pencari ke
 | Error  | `#dc2626` | Alert error                                  | Konvensi darurat.                                                                                                          |
 
 - Powder `#b0e0e6` untuk teks di atas paper kontrasnya 1.43:1, gagal AA. Selalu pasangkan dengan ink.
-- Dark mode: background `#18181b` (zinc-900 abu standar), surface `#27272a` (zinc-800), teks `#f8fafc`, navy `#3b82f6` (lebih terang agar kontras), powder `#b0e0e6` tetap. Border `#f4f4f5` (zinc-100) agar terlihat, shadow `#09090b` (zinc-950) tetap terbaca di atas surface abu. Latar gelap bukan hitam murni (Material #121212 / zinc-900, Exa 2025). Kontras teks 16.93:1 (bg) / 14.24:1 (surface) PASS AA.
+- Dark mode: background `#18181b` (zinc-900 abu standar, bukan hitam murni), surface `#27272a` (zinc-800), teks `#f8fafc`, navy `#3b82f6` (lebih terang agar kontras), powder `#b0e0e6` tetap. Border `#f4f4f5` (zinc-100) agar terlihat di abu, shadow `#09090b` (zinc-950) tetap terbaca di atas surface abu. Latar gelap bukan hitam murni (alexmayhew.dev).
 - CTA utama harus navy. Powder hanya untuk highlight dan dekorasi.
 
 ## 4. Tipografi
@@ -105,7 +105,7 @@ palet Ink & Navy. Komponen yang diperlukan untuk Fase 6: button, card, badge.
 
 - Strategy: class-based. Tailwind v4: `@custom-variant dark (&:where(.dark, .dark *));` di `main.css`, class `.dark` di `<html>`. FOUC guard inline script di `index.html` head (baca `localStorage` + `prefers-color-scheme` sebelum stylesheet load).
 - Toggle 3-way di navbar: `auto → light → dark → auto` (`useDarkMode.ts` — `choice` ref, `isDark()` function, `cycle()`, `colorScheme` sync, `matchMedia` listener). `auto` = ikuti sistem (hapus key `resumekan-theme`), `light`/`dark` = simpan eksplisit. Default light (81.3% startup default light, audience B2B/trust lebih nyaman light).
-- Token dark di `main.css`: `--background #18181b` (zinc-900), `--secondary-background #27272a` (zinc-800), `--foreground #f8fafc`, `--main #3b82f6`, `--border #f4f4f5`, `--shadow #09090b`, `color-scheme: dark`. Card fitur: `border-2 border-ink dark:border-border`, icon `bg-powder border-ink dark:border-border` + `text-ink` (fixed, kontras 12.46:1 di kedua mode).
+- Token dark di `main.css`: `--background #18181b`, `--secondary-background #27272a`, `--foreground #f8fafc`, `--main #3b82f6`, `--border #f4f4f5`, `--shadow #09090b`, `color-scheme: dark`.
 - Cakupan: semua halaman dark-mode (landing, navbar, footer, login, register, dashboard, CV form). `CvPreview` dan template PDF tetap putih (dokumen kertas). `CvForm.vue` pakai scoped CSS dark untuk 40+ field (input/select/textarea/label/h2/p) agar tidak duplikasi `dark:` per-field.
 - Kontras teks di kedua mode minimal AA (R-25). Tidak pakai warna yang sama untuk text dan background di dark mode (R-34).
 
