@@ -97,7 +97,9 @@ const features = [
         class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:py-24"
       >
         <div>
-          <Badge class="bg-powder text-ink" variant="neutral">Generator CV ATS</Badge>
+          <Badge class="bg-powder text-ink" variant="neutral"
+            >Generator CV ATS</Badge
+          >
           <h1
             class="mt-4 text-4xl font-black leading-tight tracking-tight text-ink dark:text-foreground sm:text-5xl"
             v-motion
@@ -106,7 +108,9 @@ const features = [
           >
             Buat CV yang dibaca ATS dan manusia.
           </h1>
-          <p class="mt-4 max-w-md text-base leading-relaxed text-ink/70 dark:text-foreground/70">
+          <p
+            class="mt-4 max-w-md text-base leading-relaxed text-ink/70 dark:text-foreground/70"
+          >
             Isi form terstruktur, pilih template, dan unduh PDF siap lamar.
             Tanpa ribet, tanpa template aneh.
           </p>
@@ -131,7 +135,7 @@ const features = [
           }"
         >
           <div
-            class="overflow-hidden rounded-base border-3 border-ink bg-white shadow-[8px_8px_0_0_#0f172a] dark:border-border dark:bg-secondary-background dark:shadow-[8px_8px_0_0_#09090b]"
+            class="overflow-hidden rounded-base border-3 border-ink bg-white shadow-[8px_8px_0_0_#0f172a] dark:border-border dark:bg-secondary-background dark:shadow-[8px_8px_0_0_#f4f4f5]"
           >
             <!-- Title bar -->
             <div
@@ -162,9 +166,11 @@ const features = [
                 {{ t === "modern" ? "Modern" : "Classic" }}
               </button>
             </div>
-            <!-- Live preview -->
-            <div class="max-h-[480px] overflow-auto p-4">
-              <CvPreview :data="sample" :template="template" />
+            <!-- Live preview: zoom-out tanpa scroll, tinggi simetris dengan kolom kiri (~360px) -->
+            <div class="h-[360px] overflow-hidden bg-white p-3">
+              <div class="origin-top scale-[0.72] sm:scale-[0.75]">
+                <CvPreview :data="sample" :template="template" />
+              </div>
             </div>
           </div>
         </div>
@@ -209,9 +215,13 @@ const features = [
     </section>
 
     <!-- TEMPLATE -->
-    <section class="border-b-2 border-ink dark:border-border bg-paper dark:bg-background">
+    <section
+      class="border-b-2 border-ink dark:border-border bg-paper dark:bg-background"
+    >
       <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <h2 class="text-3xl font-black tracking-tight text-ink dark:text-foreground">
+        <h2
+          class="text-3xl font-black tracking-tight text-ink dark:text-foreground"
+        >
           Dua template, satu standar ATS.
         </h2>
         <p class="mt-2 max-w-lg text-base text-ink/70 dark:text-foreground/70">
