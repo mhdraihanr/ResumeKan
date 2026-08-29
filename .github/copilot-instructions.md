@@ -1,6 +1,6 @@
 <!-- antislop:start -->
 
-## antislop
+## Antislop Rules
 
 Before starting or executing **anything**, check whether Antislop applies.
 
@@ -19,6 +19,16 @@ If it applies:
 
 <!-- antislop:end -->
 
+### Testing Rules
+
+- When testing is required, **prioritize testing through GitHub Copilot Web in VS Code**.
+- Only use alternative testing methods when Copilot Web in VS Code is unavailable or unsuitable.
+
+### Git Rules
+
+- Do **not** commit changes without explicit user permission.
+- Do **not** create commits automatically after completing a task.
+
 ### Editing Restriction
 
-Do **not** use `sed -i` or any equivalent in-place `sed` editing command.
+- Do **not** use `sed -i` or any equivalent in-place `sed` editing command.

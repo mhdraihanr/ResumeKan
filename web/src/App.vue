@@ -9,7 +9,9 @@ initTheme();
 </script>
 
 <template>
-  <div class="min-h-screen bg-paper text-ink dark:bg-background dark:text-foreground">
+  <div
+    class="min-h-screen bg-paper text-ink dark:bg-background dark:text-foreground"
+  >
     <AppNavbar />
     <RouterView />
     <AppFooter />

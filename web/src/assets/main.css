@@ -5,6 +5,8 @@
 
 /* ===== ResumeKan Design Tokens (docs/DESIGN.md) ===== */
 :root {
+  color-scheme: light;
+
   /* Neo-brutalism structural tokens (neobrutalism-vue) */
   --border-radius: 8px;
   --box-shadow-x: 4px;
@@ -35,9 +37,14 @@
   --main-foreground: #ffffff;
   --border: #f8fafc; /* border terang agar terlihat */
   --ring: #3b82f6;
-  --shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px var(--border);
+  /* Shadow ink gelap tetap terbaca di atas surface gelap (pilihan user).
+     Pair dengan surface lebih terang, elevation tetap terasa. */
+  --shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px #04060a;
   --reverse-shadow: var(--reverse-box-shadow-x) var(--reverse-box-shadow-y) 0px
-    0px var(--border);
+    0px #04060a;
+}
+.dark {
+  color-scheme: dark;
 }
 
 /* Map tokens ke Tailwind v4 theme */

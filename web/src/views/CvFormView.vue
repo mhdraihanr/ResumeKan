@@ -99,19 +99,19 @@ async function draftSave() {
 </script>
 
 <template>
-  <main class="min-h-screen bg-slate-50">
+  <main class="min-h-screen bg-slate-50 dark:bg-background">
     <div class="mx-auto max-w-[1600px] px-4 py-6 sm:px-6">
       <div class="mb-4 flex items-center gap-3">
         <button
           @click="router.push('/dashboard')"
-          class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20"
         >
           ← Kembali
         </button>
-        <h1 class="text-xl font-bold text-slate-900">
+        <h1 class="text-xl font-bold text-slate-900 dark:text-foreground">
           {{ isEdit ? "Edit CV" : "Buat CV Baru" }}
         </h1>
-        <span class="ml-auto hidden text-xs text-slate-400 sm:inline"
+        <span class="ml-auto hidden text-xs text-slate-400 dark:text-foreground/50 sm:inline">
           >Preview update otomatis saat mengetik</span
         >
       </div>
@@ -119,11 +119,11 @@ async function draftSave() {
       <div class="grid gap-5 lg:grid-cols-[480px_1fr] xl:grid-cols-[520px_1fr]">
         <!-- Form -->
         <div
-          class="rounded-2xl bg-white p-5 shadow-sm sm:p-6 lg:max-h-[calc(100vh-6rem)] lg:overflow-auto"
+          class="rounded-2xl bg-white p-5 shadow-sm sm:p-6 lg:max-h-[calc(100vh-6rem)] lg:overflow-auto dark:bg-secondary-background"
         >
           <p
             v-if="error"
-            class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+            class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400"
           >
             {{ error }}
           </p>
@@ -135,7 +135,7 @@ async function draftSave() {
             :cv-id="cvId"
             @submit="submit"
           />
-          <p v-if="saving" class="mt-3 text-center text-xs text-slate-400">
+          <p v-if="saving" class="mt-3 text-center text-xs text-slate-400 dark:text-foreground/50">
             Menyimpan...
           </p>
         </div>
@@ -146,31 +146,31 @@ async function draftSave() {
         >
           <div class="mb-2 flex items-center justify-between">
             <span
-              class="text-xs font-semibold uppercase tracking-widest text-slate-500"
+              class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-foreground/70"
               >Preview · {{ template }}</span
             >
             <div class="flex items-center gap-3">
-              <span class="text-xs text-slate-400"
+              <span class="text-xs text-slate-400 dark:text-foreground/50">
                 >ATS-friendly · single-column</span
               >
               <button
                 @click="draftSave"
                 :disabled="drafting"
-                class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20"
               >
                 {{ drafting ? "Menyimpan..." : "Simpan Draft" }}
               </button>
               <button
                 v-if="isEdit"
                 @click="win.open(`/api/v1/cvs/${cvId}/pdf`, '_blank')"
-                class="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
+                class="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-main dark:hover:bg-blue-500"
               >
                 Download PDF
               </button>
             </div>
           </div>
           <div
-            class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+            class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-border dark:bg-secondary-background"
           >
             <CvPreview :data="data" :template="template" />
           </div>
@@ -188,7 +188,7 @@ async function draftSave() {
       <div
         v-if="toast"
         class="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg px-4 py-2 text-sm font-medium text-white shadow-lg"
-        :class="toast.ok ? 'bg-slate-900' : 'bg-red-600'"
+        :class="toast.ok ? 'bg-slate-900 dark:bg-secondary-background dark:text-foreground' : 'bg-red-600 dark:bg-red-900'"
       >
         {{ toast.msg }}
       </div>

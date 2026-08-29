@@ -294,12 +294,12 @@ async function generateSummary() {
           type="button"
           @click="generateSummary"
           :disabled="aiLoading"
-          class="rounded-lg bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800 disabled:opacity-40"
+          class="rounded-lg bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800 disabled:opacity-40 dark:bg-main dark:hover:bg-blue-500"
         >
           {{ aiLoading ? "Memproses..." : "Generate AI" }}
         </button>
       </div>
-      <p v-if="aiError" class="text-xs text-red-600">{{ aiError }}</p>
+      <p v-if="aiError" class="text-xs text-red-600 dark:text-red-400">{{ aiError }}</p>
       <textarea
         v-model="local.summary"
         maxlength="600"
@@ -776,7 +776,7 @@ async function generateSummary() {
 
     <button
       type="submit"
-      class="w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
+      class="w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-main dark:hover:bg-blue-500"
     >
       Simpan CV
     </button>
@@ -795,5 +795,32 @@ async function generateSummary() {
   .auto-expand {
     min-height: 72px;
   }
+}
+
+/* Dark: field & teks form ikut tema (dokumen CvPreview tetap putih) */
+.dark input,
+.dark select,
+.dark textarea {
+  border-color: var(--border);
+  background-color: color-mix(in srgb, var(--foreground) 12%, transparent);
+  color: var(--foreground);
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: color-mix(in srgb, var(--foreground) 40%, transparent);
+}
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: var(--ring);
+}
+.dark label > span {
+  color: color-mix(in srgb, var(--foreground) 75%, transparent);
+}
+.dark h2 {
+  color: color-mix(in srgb, var(--foreground) 70%, transparent);
+}
+.dark p {
+  color: color-mix(in srgb, var(--foreground) 55%, transparent);
 }
 </style>
