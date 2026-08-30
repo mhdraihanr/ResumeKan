@@ -38,7 +38,7 @@
 | `web/src/views/RegisterView.vue`     | Register split panel (2026-08-30): mirror login — aside ink pitch panel + form card neobrutalism, label eksplisit, autocomplete name/email/new-password, show/hide password, error aria-live, toggle dark di card, bg-dots panel kanan                |
 | `web/src/views/DashboardView.vue`    | Dashboard + dark variants (bg/card/button/error/empty)                                                                                                                                                                                                |
 | `web/src/views/CvFormView.vue`       | CV form + preview + dark variants (main/card/h1/back/draft/pdf/preview/toast)                                                                                                                                                                         |
-| `web/src/components/cv/CvForm.vue`   | Scoped dark CSS untuk 40+ field (input/select/textarea/label/h2/p) + dark button Generate AI/Simpan CV + dark variants elemen non-field (2026-08-30: `+ Tambah`, `#N`, `Hapus`, card section)                                                         |
+| `web/src/components/cv/CvForm.vue`   | Scoped dark CSS untuk 40+ field (input/select/textarea/label/h2/p) + dark button Generate AI/Simpan CV + dark variants elemen non-field (2026-08-30: `+ Tambah`, `#N`, `Hapus`, card section) + stepper tabs 9 langkah (2026-08-30)                   |
 
 ### Files modified
 
@@ -92,6 +92,13 @@
 - Audit computed style di browser: elemen non-field masih gaya light di atas card zinc-700 — `+ Tambah` (slate-700, kontras 1.01:1), label `#N` (slate-500, 2.19:1), `Hapus` (red-600, 2.16:1), card section (border-slate-200 tanpa token). Field/label/h2/counter/empty state sudah benar via scoped CSS.
 - Fix: `dark:` variant dengan token, pola sama dengan tombol header `CvFormView.vue` — `+ Tambah` → `dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20` (5.86:1), `#N` → `dark:text-foreground/50` (3.85:1), `Hapus` → `dark:text-red-400` (3.78:1), card → `dark:border-border`.
 - Verifikasi browser: dark (semua elemen terbaca, kontras AA) + light (tidak ada regresi). vue-tsc 0 error.
+
+### CvForm — stepper tabs 9 langkah (2026-08-30, uncommitted)
+
+- Form panjang 9 section satu scroll (scrollHeight 4107px) terlalu overwhelm. Inspirasi: FlowCV (multi-step wizard, `currentStep` state, Next/Back, progress tracking), Rezi UX audit (Exa: "maze-like navigation without clear indicators of progress" — fix: visual progress indicators, step-by-step guided navigation, Next button). Implementasi Opsi A: stepper tabs horizontal di atas form.
+- 9 langkah: Info, Pribadi, Ringkasan, Pengalaman, Pendidikan, Organisasi, Keahlian, Proyek, Lainnya. Chip bernomor 3 state: active (`bg-slate-900`/`dark:bg-main`), completed (`✓` emerald), upcoming (`text-slate-400`). Klikable — user bisa lompat ke step mana saja. `v-show` per section (bukan `v-if`) agar state field tidak hilang saat pindah step. Prev/Next button di bawah form + "Langkah N/9" indicator. Di step terakhir Next berubah jadi Simpan CV.
+- Implementasi: `activeStep` ref + `steps` array, `v-show="activeStep === N"` per section, nav HTML + scoped CSS `.dark nav`. ~60 baris baru, tidak ada file/dependency baru, tidak split komponen. Preview kanan tetap real-time.
+- Verifikasi browser: light (step 1→2→3, jump ke 4, jump ke 9 Simpan CV muncul) + dark (stepper nav terbaca, active chip navy, completed ✓ hijau, upcoming muted). vue-tsc 0 error.
 
 ### Tekstur landing — dot grid + powder tint (2026-08-30)
 

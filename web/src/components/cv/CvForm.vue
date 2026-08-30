@@ -122,6 +122,19 @@ function autoResize(e: Event) {
 
 const aiLoading = ref(false);
 const aiError = ref("");
+
+const activeStep = ref(0);
+const steps = [
+  { label: "Info", key: "meta" },
+  { label: "Pribadi", key: "personal" },
+  { label: "Ringkasan", key: "summary" },
+  { label: "Pengalaman", key: "experience" },
+  { label: "Pendidikan", key: "education" },
+  { label: "Organisasi", key: "organization" },
+  { label: "Keahlian", key: "skills" },
+  { label: "Proyek", key: "projects" },
+  { label: "Lainnya", key: "other" },
+];
 async function generateSummary() {
   if (!props.cvId) {
     aiError.value = "Simpan CV dulu sebelum generate.";
@@ -147,8 +160,41 @@ async function generateSummary() {
 
 <template>
   <form @submit.prevent="emit('submit')" class="space-y-6">
+    <!-- Stepper nav -->
+    <nav
+      class="flex flex-wrap gap-1.5 border-b border-slate-200 pb-3 dark:border-border"
+    >
+      <button
+        v-for="(step, i) in steps"
+        :key="step.key"
+        type="button"
+        @click="activeStep = i"
+        class="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition"
+        :class="
+          i === activeStep
+            ? 'bg-slate-900 text-white dark:bg-main'
+            : i < activeStep
+              ? 'text-slate-700 hover:bg-slate-100 dark:text-foreground/70 dark:hover:bg-ink/20'
+              : 'text-slate-400 hover:bg-slate-50 dark:text-foreground/40 dark:hover:bg-ink/10'
+        "
+      >
+        <span
+          class="size-4 rounded-full text-center text-[10px] leading-4"
+          :class="
+            i < activeStep
+              ? 'bg-emerald-500 text-white'
+              : i === activeStep
+                ? 'bg-white/20'
+                : 'bg-slate-200 dark:bg-ink/30'
+          "
+          >{{ i < activeStep ? "✓" : i + 1 }}</span
+        >
+        {{ step.label }}
+      </button>
+    </nav>
+
     <!-- Meta -->
-    <section class="space-y-2.5">
+    <section v-show="activeStep === 0" class="space-y-2.5">
       <h2
         class="text-sm font-semibold uppercase tracking-widest text-slate-500"
       >
@@ -204,7 +250,7 @@ async function generateSummary() {
     </section>
 
     <!-- Personal -->
-    <section class="space-y-2.5">
+    <section v-show="activeStep === 1" class="space-y-2.5">
       <h2
         class="text-sm font-semibold uppercase tracking-widest text-slate-500"
       >
@@ -282,7 +328,7 @@ async function generateSummary() {
     </section>
 
     <!-- Summary -->
-    <section class="space-y-2.5">
+    <section v-show="activeStep === 2" class="space-y-2.5">
       <div class="flex items-center justify-between">
         <h2
           class="text-sm font-semibold uppercase tracking-widest text-slate-500"
@@ -316,7 +362,7 @@ async function generateSummary() {
     </section>
 
     <!-- Experiences -->
-    <section class="space-y-2.5">
+    <section v-show="activeStep === 3" class="space-y-2.5">
       <div class="flex items-center justify-between">
         <h2
           class="text-sm font-semibold uppercase tracking-widest text-slate-500"
@@ -438,7 +484,7 @@ async function generateSummary() {
     </section>
 
     <!-- Education -->
-    <section class="space-y-2.5">
+    <section v-show="activeStep === 4" class="space-y-2.5">
       <div class="flex items-center justify-between">
         <h2
           class="text-sm font-semibold uppercase tracking-widest text-slate-500"
@@ -546,7 +592,7 @@ async function generateSummary() {
     </section>
 
     <!-- Organisasi -->
-    <section class="space-y-2.5">
+    <section v-show="activeStep === 5" class="space-y-2.5">
       <div class="flex items-center justify-between">
         <h2
           class="text-sm font-semibold uppercase tracking-widest text-slate-500"
@@ -633,7 +679,7 @@ async function generateSummary() {
     </section>
 
     <!-- Skills -->
-    <section class="space-y-2.5">
+    <section v-show="activeStep === 6" class="space-y-2.5">
       <h2
         class="text-sm font-semibold uppercase tracking-widest text-slate-500"
       >
@@ -666,7 +712,7 @@ async function generateSummary() {
     </section>
 
     <!-- Lainnya -->
-    <section class="space-y-2.5">
+    <section v-show="activeStep === 8" class="space-y-2.5">
       <h2
         class="text-sm font-semibold uppercase tracking-widest text-slate-500"
       >
@@ -694,7 +740,7 @@ async function generateSummary() {
     </section>
 
     <!-- Proyek -->
-    <section class="space-y-2.5">
+    <section v-show="activeStep === 7" class="space-y-2.5">
       <div class="flex items-center justify-between">
         <h2
           class="text-sm font-semibold uppercase tracking-widest text-slate-500"
@@ -788,12 +834,37 @@ async function generateSummary() {
       </p>
     </section>
 
-    <button
-      type="submit"
-      class="w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-main dark:hover:bg-blue-500"
-    >
-      Simpan CV
-    </button>
+    <!-- Step navigation -->
+    <div class="flex items-center justify-between gap-3 pt-2">
+      <button
+        v-if="activeStep > 0"
+        type="button"
+        @click="activeStep--"
+        class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20"
+      >
+        ← Sebelumnya
+      </button>
+      <div v-else></div>
+      <span class="text-xs text-slate-400 dark:text-foreground/50">
+        Langkah {{ activeStep + 1 }} / {{ steps.length }}
+      </span>
+      <button
+        v-if="activeStep < steps.length - 1"
+        type="button"
+        @click="activeStep++"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-main dark:hover:bg-blue-500"
+      >
+        Selanjutnya →
+      </button>
+      <button
+        v-else
+        type="submit"
+        :disabled="aiLoading"
+        class="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-40 dark:bg-main dark:hover:bg-blue-500"
+      >
+        Simpan CV
+      </button>
+    </div>
   </form>
 </template>
 
@@ -836,5 +907,8 @@ async function generateSummary() {
 }
 .dark p {
   color: color-mix(in srgb, var(--foreground) 55%, transparent);
+}
+.dark nav {
+  border-color: var(--border);
 }
 </style>

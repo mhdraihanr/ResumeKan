@@ -23,14 +23,14 @@
 
 ### Frontend
 
-| File                               | Isi                                                                                       |
-| ---------------------------------- | ----------------------------------------------------------------------------------------- |
-| `web/src/types/cv.ts`              | Tipe `Cv`, `CvData`, `emptyCvData()`                                                      |
-| `web/src/api/cv.ts`                | Wrapper fetch + CSRF                                                                      |
-| `web/src/stores/cv.ts`             | `fetchList/fetchOne/create/update/remove`                                                 |
-| `web/src/components/cv/CvForm.vue` | Form lengkap: personal, summary, experiences (max 10), education (max 5), skills, lainnya |
-| `web/src/views/CvFormView.vue`     | Halaman buat/edit — load data saat edit                                                   |
-| `web/src/views/DashboardView.vue`  | Grid card CV + empty state + hapus (confirm)                                              |
+| File                               | Isi                                                                                                                                                                                                                                                               |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `web/src/types/cv.ts`              | Tipe `Cv`, `CvData`, `emptyCvData()`                                                                                                                                                                                                                              |
+| `web/src/api/cv.ts`                | Wrapper fetch + CSRF                                                                                                                                                                                                                                              |
+| `web/src/stores/cv.ts`             | `fetchList/fetchOne/create/update/remove`                                                                                                                                                                                                                         |
+| `web/src/components/cv/CvForm.vue` | Form lengkap: personal, summary, experiences (max 10), education (max 5), skills, lainnya. Stepper tabs 9 langkah (2026-08-30: Info→Pribadi→Ringkasan→Pengalaman→Pendidikan→Organisasi→Keahlian→Proyek→Lainnya, `v-show` per step, Prev/Next, progress indicator) |
+| `web/src/views/CvFormView.vue`     | Halaman buat/edit — load data saat edit                                                                                                                                                                                                                           |
+| `web/src/views/DashboardView.vue`  | Grid card CV + empty state + hapus (confirm)                                                                                                                                                                                                                      |
 
 ## Hasil Verifikasi
 
