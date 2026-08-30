@@ -296,13 +296,13 @@ const sortedExperiences = computed(() => {
           </h2>
           <div v-for="(p, i) in data.projects" :key="i" class="mt-3">
             <p class="text-[10pt] font-semibold text-slate-900">
-              {{ p.title
-              }}<span v-if="p.role" class="font-normal text-slate-600">
-                · {{ p.role }}</span
-              >
+              {{ p.title }}
             </p>
             <p v-if="p.objective" class="text-[10pt] text-slate-700">
               {{ p.objective }}
+            </p>
+            <p v-if="p.role" class="text-[9pt] text-slate-500">
+              <span class="font-semibold">Peran:</span> {{ p.role }}
             </p>
             <p v-if="p.techStack" class="text-[9pt] text-slate-500">
               <span class="font-semibold">Tech Stack:</span> {{ p.techStack }}
@@ -560,13 +560,13 @@ const sortedExperiences = computed(() => {
           </h2>
           <div v-for="(p, i) in data.projects" :key="i" class="mt-3">
             <p class="text-[10pt] font-semibold text-slate-900">
-              {{ p.title
-              }}<span v-if="p.role" class="font-normal text-slate-600">
-                · {{ p.role }}</span
-              >
+              {{ p.title }}
             </p>
             <p v-if="p.objective" class="text-[10pt] text-slate-700">
               {{ p.objective }}
+            </p>
+            <p v-if="p.role" class="text-[9pt] text-slate-500">
+              <span class="font-semibold">Peran:</span> {{ p.role }}
             </p>
             <p v-if="p.techStack" class="text-[9pt] text-slate-500">
               <span class="font-semibold">Tech Stack:</span> {{ p.techStack }}
