@@ -172,19 +172,18 @@ const sortedExperiences = computed(() => {
             <div class="flex items-baseline justify-between gap-4">
               <p class="text-[10pt] font-semibold text-slate-900">
                 {{ e.position || "Posisi" }} · {{ e.company || "Perusahaan" }}
-                <span
-                  v-if="e.employmentType"
-                  class="font-normal text-slate-500"
-                >
-                  · {{ e.employmentType }}
-                </span>
               </p>
               <p class="shrink-0 text-[9pt] text-slate-500">
                 {{ e.startDate }} - {{ e.endDate }}
               </p>
             </div>
-            <p v-if="e.location" class="text-[9pt] text-slate-500">
-              {{ e.location }}
+            <p
+              v-if="e.employmentType || e.location"
+              class="text-[9pt] text-slate-500"
+            >
+              <span v-if="e.employmentType">{{ e.employmentType }}</span>
+              <span v-if="e.employmentType && e.location"> · </span>
+              <span v-if="e.location">{{ e.location }}</span>
             </p>
             <ul
               v-if="bullets(e.description).length"
@@ -249,10 +248,13 @@ const sortedExperiences = computed(() => {
           <div v-for="(o, i) in data.organizations" :key="i" class="mt-3">
             <div class="flex items-baseline justify-between gap-4">
               <p class="text-[10pt] font-semibold text-slate-900">
-                {{ o.role || "Peran" }} · {{ o.organization || "Organisasi" }}
+                {{ o.organization || "Organisasi" }}
               </p>
               <p class="shrink-0 text-[9pt] text-slate-500">{{ o.period }}</p>
             </div>
+            <p v-if="o.role" class="text-[9pt] text-slate-500">
+              {{ o.role }}
+            </p>
             <ul
               v-if="bullets(o.description).length"
               class="mt-1 list-disc pl-5 text-[10pt] text-slate-700"
@@ -424,19 +426,18 @@ const sortedExperiences = computed(() => {
             <div class="flex items-baseline justify-between gap-4">
               <p class="text-[10pt] font-semibold text-slate-900">
                 {{ e.position || "Posisi" }} · {{ e.company || "Perusahaan" }}
-                <span
-                  v-if="e.employmentType"
-                  class="font-normal text-slate-500"
-                >
-                  · {{ e.employmentType }}
-                </span>
               </p>
               <p class="shrink-0 text-[9pt] tabular-nums text-slate-500">
                 {{ e.startDate }} - {{ e.endDate }}
               </p>
             </div>
-            <p v-if="e.location" class="text-[9pt] text-slate-500">
-              {{ e.location }}
+            <p
+              v-if="e.employmentType || e.location"
+              class="text-[9pt] text-slate-500"
+            >
+              <span v-if="e.employmentType">{{ e.employmentType }}</span>
+              <span v-if="e.employmentType && e.location"> · </span>
+              <span v-if="e.location">{{ e.location }}</span>
             </p>
             <ul
               v-if="bullets(e.description).length"
@@ -503,12 +504,15 @@ const sortedExperiences = computed(() => {
           <div v-for="(o, i) in data.organizations" :key="i" class="mt-3">
             <div class="flex items-baseline justify-between gap-4">
               <p class="text-[10pt] font-semibold text-slate-900">
-                {{ o.role || "Peran" }} · {{ o.organization || "Organisasi" }}
+                {{ o.organization || "Organisasi" }}
               </p>
               <p class="shrink-0 text-[9pt] tabular-nums text-slate-500">
                 {{ o.period }}
               </p>
             </div>
+            <p v-if="o.role" class="text-[9pt] text-slate-500">
+              {{ o.role }}
+            </p>
             <ul
               v-if="bullets(o.description).length"
               class="mt-1 list-disc pl-5 text-[10pt] text-slate-700"

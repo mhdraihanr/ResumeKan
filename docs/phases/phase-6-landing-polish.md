@@ -38,7 +38,7 @@
 | `web/src/views/RegisterView.vue`     | Register split panel (2026-08-30): mirror login — aside ink pitch panel + form card neobrutalism, label eksplisit, autocomplete name/email/new-password, show/hide password, error aria-live, toggle dark di card, bg-dots panel kanan                |
 | `web/src/views/DashboardView.vue`    | Dashboard + dark variants (bg/card/button/error/empty)                                                                                                                                                                                                |
 | `web/src/views/CvFormView.vue`       | CV form + preview + dark variants (main/card/h1/back/draft/pdf/preview/toast)                                                                                                                                                                         |
-| `web/src/components/cv/CvForm.vue`   | Scoped dark CSS untuk 40+ field (input/select/textarea/label/h2/p) + dark button Generate AI/Simpan CV                                                                                                                                                |
+| `web/src/components/cv/CvForm.vue`   | Scoped dark CSS untuk 40+ field (input/select/textarea/label/h2/p) + dark button Generate AI/Simpan CV + dark variants elemen non-field (2026-08-30: `+ Tambah`, `#N`, `Hapus`, card section)                                                         |
 
 ### Files modified
 
@@ -86,6 +86,12 @@
 ### Dark mode — abu Opsi A (2026-08-30, uncommitted)
 
 - Token dark `main.css`: `#18181b` (zinc-900) → `#27272a` (zinc-800) page, `#27272a` (zinc-800) → `#3f3f46` (zinc-700) surface, shadow `#09090b` (zinc-950) → `#18181b` (zinc-900). Light tetap. Kontras `14.2:1`/`10.0:1` AAA, border `13.6:1`, elevation `1.4:1`. Exa: never pure black, elevation via lightness.
+
+### CvForm — audit dark mode elemen non-field (2026-08-30, uncommitted)
+
+- Audit computed style di browser: elemen non-field masih gaya light di atas card zinc-700 — `+ Tambah` (slate-700, kontras 1.01:1), label `#N` (slate-500, 2.19:1), `Hapus` (red-600, 2.16:1), card section (border-slate-200 tanpa token). Field/label/h2/counter/empty state sudah benar via scoped CSS.
+- Fix: `dark:` variant dengan token, pola sama dengan tombol header `CvFormView.vue` — `+ Tambah` → `dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20` (5.86:1), `#N` → `dark:text-foreground/50` (3.85:1), `Hapus` → `dark:text-red-400` (3.78:1), card → `dark:border-border`.
+- Verifikasi browser: dark (semua elemen terbaca, kontras AA) + light (tidak ada regresi). vue-tsc 0 error.
 
 ### Tekstur landing — dot grid + powder tint (2026-08-30)
 

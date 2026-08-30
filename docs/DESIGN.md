@@ -80,6 +80,8 @@ tanpa blur, warna flat, tapi tetap rapi dan profesional untuk audiens pencari ke
 ## 7. Hero
 
 - Mock browser window (border ink 2px, hard shadow `6px` terang di dark `#f4f4f5`, title bar ink dengan 3 dot) berisi preview CV asli dari komponen `CvPreview` yang dipakai di editor. Bukan ilustrasi, bukan screenshot palsu (C-5).
+- Struktur entry Experience di preview (kedua template): baris 1 `Posisi · Perusahaan` + tanggal kanan, baris 2 metadata `Employment Type · Lokasi`, lalu bullets. Metadata tidak campur title line (konsisten pola Education).
+- Struktur entry Organisasi di preview (kedua template): baris 1 `Nama Organisasi` (bold) + periode kanan, baris 2 `Peran` (slate-500), lalu bullets. Organisasi sebagai entitas utama di baris 1, peran sebagai detail di baris 2, kontras dengan pola Experience (peran di atas) karena organisasi lebih penting untuk identitas.
 - Di atas preview: toggle Modern / Classic yang mengubah template preview live (bukti fitur template).
 - Toggle preview full render, bukan gambar. Ini juga membuktikan template asli, bukan mock.
 - Tanpa badge/eyebrow pill di atas headline (AI slop — pill badge, Exa pols.dev/slop.md, antislop-ui). Headline langsung tanpa `mt-4` kompensasi.
@@ -108,7 +110,7 @@ palet Ink & Navy. Komponen yang diperlukan untuk Fase 6: button, card, badge.
 - Strategy: class-based. Tailwind v4: `@custom-variant dark (&:where(.dark, .dark *));` di `main.css`, class `.dark` di `<html>`. FOUC guard inline script di `index.html` head (hanya `localStorage resumekan-theme === "dark"`, tanpa `prefers-color-scheme`).
 - Toggle 2-way di navbar: `light ↔ dark` (`useDarkMode.ts` — `choice` ref `light|dark`, `isDark()` function, `cycle()`, `colorScheme` sync). Default `light` untuk semua user (tanpa auto/device). Pilihan disimpan `localStorage`. Ikon `Moon` (ke dark) / `Sun` (ke light).
 - Token dark di `main.css`: `--background #27272a` (zinc-800), `--secondary-background #3f3f46` (zinc-700), `--foreground #f8fafc`, `--main #3b82f6`, `--border #f4f4f5`, `--shadow #18181b` (zinc-900), `color-scheme: dark`.
-- Cakupan: semua halaman dark-mode (landing, navbar, footer, login, register, dashboard, CV form). `CvPreview` dan template PDF tetap putih (dokumen kertas). `CvForm.vue` pakai scoped CSS dark untuk 40+ field (input/select/textarea/label/h2/p) agar tidak duplikasi `dark:` per-field.
+- Cakupan: semua halaman dark-mode (landing, navbar, footer, login, register, dashboard, CV form). `CvPreview` dan template PDF tetap putih (dokumen kertas). `CvForm.vue` pakai scoped CSS dark untuk 40+ field (input/select/textarea/label/h2/p) agar tidak duplikasi `dark:` per-field. Elemen non-field (tombol `+ Tambah`, label `#N`, `Hapus`, card section) pakai `dark:` variant dengan token (`foreground/70`, `foreground/50`, `red-400`, `border`) — kontras di atas surface zinc-700 minimal AA (audit 2026-08-30: sebelumnya slate-700/slate-500/red-600 kontras 1.01-2.19:1, gagal).
 - Kontras teks di kedua mode minimal AA (R-25). Tidak pakai warna yang sama untuk text dan background di dark mode (R-34).
 
 ## 11. Accessibility & Delivery Gate

@@ -299,7 +299,9 @@ async function generateSummary() {
           {{ aiLoading ? "Memproses..." : "Generate AI" }}
         </button>
       </div>
-      <p v-if="aiError" class="text-xs text-red-600 dark:text-red-400">{{ aiError }}</p>
+      <p v-if="aiError" class="text-xs text-red-600 dark:text-red-400">
+        {{ aiError }}
+      </p>
       <textarea
         v-model="local.summary"
         maxlength="600"
@@ -325,7 +327,7 @@ async function generateSummary() {
           type="button"
           @click="addExp"
           :disabled="(local.experiences?.length ?? 0) >= 10"
-          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20"
         >
           + Tambah
         </button>
@@ -333,14 +335,17 @@ async function generateSummary() {
       <div
         v-for="(exp, i) in local.experiences"
         :key="i"
-        class="rounded-xl border border-slate-200 p-3 space-y-2.5"
+        class="rounded-xl border border-slate-200 p-3 space-y-2.5 dark:border-border"
       >
         <div class="flex justify-between">
-          <span class="text-xs font-semibold text-slate-500">#{{ i + 1 }}</span>
+          <span
+            class="text-xs font-semibold text-slate-500 dark:text-foreground/50"
+            >#{{ i + 1 }}</span
+          >
           <button
             type="button"
             @click="removeExp(i)"
-            class="text-xs text-red-600 hover:underline"
+            class="text-xs text-red-600 hover:underline dark:text-red-400"
           >
             Hapus
           </button>
@@ -444,7 +449,7 @@ async function generateSummary() {
           type="button"
           @click="addEdu"
           :disabled="(local.education?.length ?? 0) >= 5"
-          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20"
         >
           + Tambah
         </button>
@@ -452,14 +457,17 @@ async function generateSummary() {
       <div
         v-for="(edu, i) in local.education"
         :key="i"
-        class="rounded-xl border border-slate-200 p-3 space-y-2.5"
+        class="rounded-xl border border-slate-200 p-3 space-y-2.5 dark:border-border"
       >
         <div class="flex justify-between">
-          <span class="text-xs font-semibold text-slate-500">#{{ i + 1 }}</span>
+          <span
+            class="text-xs font-semibold text-slate-500 dark:text-foreground/50"
+            >#{{ i + 1 }}</span
+          >
           <button
             type="button"
             @click="removeEdu(i)"
-            class="text-xs text-red-600 hover:underline"
+            class="text-xs text-red-600 hover:underline dark:text-red-400"
           >
             Hapus
           </button>
@@ -549,7 +557,7 @@ async function generateSummary() {
           type="button"
           @click="addOrg"
           :disabled="(local.organizations?.length ?? 0) >= 5"
-          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20"
         >
           + Tambah
         </button>
@@ -557,14 +565,17 @@ async function generateSummary() {
       <div
         v-for="(org, i) in local.organizations"
         :key="i"
-        class="rounded-xl border border-slate-200 p-3 space-y-2.5"
+        class="rounded-xl border border-slate-200 p-3 space-y-2.5 dark:border-border"
       >
         <div class="flex justify-between">
-          <span class="text-xs font-semibold text-slate-500">#{{ i + 1 }}</span
-          ><button
+          <span
+            class="text-xs font-semibold text-slate-500 dark:text-foreground/50"
+            >#{{ i + 1 }}</span
+          >
+          <button
             type="button"
             @click="removeOrg(i)"
-            class="text-xs text-red-600 hover:underline"
+            class="text-xs text-red-600 hover:underline dark:text-red-400"
           >
             Hapus
           </button>
@@ -696,7 +707,7 @@ async function generateSummary() {
           :disabled="
             ((local.projects as unknown as unknown[])?.length ?? 0) >= 5
           "
-          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20"
         >
           + Tambah
         </button>
@@ -709,14 +720,17 @@ async function generateSummary() {
           techStack?: string;
         }[]"
         :key="i"
-        class="rounded-xl border border-slate-200 p-3 space-y-2.5"
+        class="rounded-xl border border-slate-200 p-3 space-y-2.5 dark:border-border"
       >
         <div class="flex justify-between">
-          <span class="text-xs font-semibold text-slate-500">#{{ i + 1 }}</span>
+          <span
+            class="text-xs font-semibold text-slate-500 dark:text-foreground/50"
+            >#{{ i + 1 }}</span
+          >
           <button
             type="button"
             @click="removeProject(i)"
-            class="text-xs text-red-600 hover:underline"
+            class="text-xs text-red-600 hover:underline dark:text-red-400"
           >
             Hapus
           </button>
