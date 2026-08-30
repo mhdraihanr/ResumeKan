@@ -28,6 +28,7 @@ tanpa blur, warna flat, tapi tetap rapi dan profesional untuk audiens pencari ke
 - Tombol: tekan turun (translate 2px, shadow mengecil) saat hover/active, kembali saat lepas.
   Tombol utama navy dengan teks putih. Interaksi wajib di semua tombol brutal (referensi tema Slab).
 - Card fitur: border ink + hard shadow, tanpa gradien, ikon garis 24px.
+- Tekstur dot grid halftone (`.bg-dots` di `main.css`): dot 1px size 20px, light `rgba(15,23,42,.46)`, dark `rgba(248,250,252,.24)`. Motif kertas CV (identitas produk). Dose cap: hero + FAQ + panel kanan auth (login & register, 4 permukaan paper); section ink & navy tetap flat untuk hierarki (R-07, R-12).
 
 ### Dilarang (antislop)
 
@@ -86,12 +87,12 @@ tanpa blur, warna flat, tapi tetap rapi dan profesional untuk audiens pencari ke
 
 ## 8. Rhythm Landing
 
-| Bagian    | Background | Isi                                         |
-| --------- | ---------- | ------------------------------------------- |
-| Hero      | paper      | Judul + CTA + mock browser dengan CvPreview |
-| Fitur     | ink        | 4 card fitur, teks putih, ikon garis        |
-| FAQ       | paper      | 6 Q accordion, jawaban umum, CTA di Q3      |
-| CTA akhir | navy       | Tombol "Coba sekarang, gratis"              |
+| Bagian    | Background       | Isi                                         |
+| --------- | ---------------- | ------------------------------------------- |
+| Hero      | paper + dot grid | Judul + CTA + mock browser dengan CvPreview |
+| Fitur     | ink              | 4 card fitur, teks putih, ikon garis        |
+| FAQ       | powder/40 + dots | 6 Q accordion, jawaban umum, CTA di Q3      |
+| CTA akhir | navy             | Tombol "Coba sekarang, gratis"              |
 
 Variasi background mencegah modul identik beruntun (R-08, RHYTHM 2).
 

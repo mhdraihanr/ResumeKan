@@ -23,6 +23,7 @@ If it applies:
 
 - When testing is required, **prioritize testing through GitHub Copilot Web in VS Code**.
 - Only use alternative testing methods when Copilot Web in VS Code is unavailable or unsuitable.
+- Do not use external testing tools or methods unless explicitly instructed by the user.
 
 ### Git Rules
 

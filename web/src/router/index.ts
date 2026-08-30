@@ -8,8 +8,18 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: "/", name: "landing", component: HomeView },
-    { path: "/login", name: "login", component: LoginView },
-    { path: "/register", name: "register", component: RegisterView },
+    {
+      path: "/login",
+      name: "login",
+      component: LoginView,
+      meta: { authLayout: true },
+    },
+    {
+      path: "/register",
+      name: "register",
+      component: RegisterView,
+      meta: { authLayout: true },
+    },
     {
       path: "/dashboard",
       name: "dashboard",

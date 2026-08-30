@@ -119,7 +119,7 @@ const openFaq = ref<number | null>(0);
 <template>
   <main class="bg-paper dark:bg-background">
     <!-- HERO -->
-    <section class="border-b-2 border-ink dark:border-border">
+    <section class="bg-dots border-b-2 border-ink dark:border-border">
       <div
         class="mx-auto grid max-w-6xl items-center gap-8 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:py-14"
       >
@@ -247,7 +247,7 @@ const openFaq = ref<number | null>(0);
 
     <!-- FAQ -->
     <section
-      class="border-b-2 border-ink dark:border-border bg-paper dark:bg-background"
+      class="bg-dots border-b-2 border-ink dark:border-border bg-powder/40 dark:bg-background"
     >
       <div class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
         <h2

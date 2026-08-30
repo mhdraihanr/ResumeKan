@@ -74,6 +74,22 @@
   --color-paper: #f8fafc;
 }
 
+/* Dot grid halftone: motif kertas CV (docs/DESIGN.md §2). Dose cap: hero + FAQ saja.
+   Alpha lebih tinggi di light (dot gelap di bg terang butuh lebih pekat) — Exa 0.09-0.14. */
+.bg-dots {
+  background-image: radial-gradient(
+    rgba(15, 23, 42, 0.46) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
+}
+.dark .bg-dots {
+  background-image: radial-gradient(
+    rgba(248, 250, 252, 0.24) 1px,
+    transparent 1px
+  );
+}
+
 /* Scroll-reveal base (MOTION 1, hormati prefers-reduced-motion) */
 @media (prefers-reduced-motion: reduce) {
   *,
