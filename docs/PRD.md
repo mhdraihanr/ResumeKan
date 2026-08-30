@@ -49,5 +49,5 @@ ResumeKan adalah web app yang membantu pencari kerja (fokus: Indonesia) membuat 
 
 - [x] User bisa register → login → buat CV → preview → download PDF.
 - [x] Draft tersimpan dan bisa dibuka lagi dari device lain.
-- [ ] AI summary menghasilkan teks relevan ≤ 5 detik.
+- [x] AI summary menghasilkan teks relevan ≤ 5 detik.
 - [x] PDF identik dengan preview.

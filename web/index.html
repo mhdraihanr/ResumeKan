@@ -5,19 +5,13 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ResumeKan</title>
-    <!-- Guard FOUC: set class dark sebelum paint pertama (fascination.works, pola Tailwind) -->
+    <!-- Guard FOUC: default light, hanya dark jika user pernah pilih dark -->
     <script>
       (function () {
         try {
-          var t = localStorage.getItem("resumekan-theme");
-          var dark =
-            t === "dark" ||
-            (t !== "light" &&
-              window.matchMedia("(prefers-color-scheme: dark)").matches);
-          if (dark) document.documentElement.classList.add("dark");
-        } catch (e) {
-          /* localStorage bisa terblokir (iframe/private mode), abaikan */
-        }
+          if (localStorage.getItem("resumekan-theme") === "dark")
+            document.documentElement.classList.add("dark");
+        } catch (e) {}
       })();
     </script>
   </head>

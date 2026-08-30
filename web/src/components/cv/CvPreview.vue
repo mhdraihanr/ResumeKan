@@ -2,7 +2,12 @@
 import { computed } from "vue";
 import type { CvData } from "@/types/cv";
 
-const props = defineProps<{ data: CvData; template: string }>();
+const props = withDefaults(
+  defineProps<{ data: CvData; template: string; compact?: boolean }>(),
+  {
+    compact: false,
+  },
+);
 
 const bullets = (s?: string) =>
   (s ?? "")
@@ -78,7 +83,7 @@ const sortedExperiences = computed(() => {
   >
     <!-- MODERN: VitaeKit — sans, header kiri, navy underline — PDF-like A4 -->
     <template v-if="template === 'modern'">
-      <div class="cv-page px-8 py-8 sm:px-10">
+      <div :class="['cv-page', compact ? 'px-0 py-4' : 'px-8 py-8 sm:px-10']">
         <!-- Header -->
         <header class="mb-6">
           <h1 class="text-2xl font-bold tracking-tight text-slate-900">
@@ -323,7 +328,12 @@ const sortedExperiences = computed(() => {
 
     <!-- CLASSIC: image.png — uppercase nama, garis section, monochrome -->
     <template v-else>
-      <div class="cv-page px-8 py-8 sm:px-10 font-serif">
+      <div
+        :class="[
+          'cv-page font-serif',
+          compact ? 'px-0 py-4' : 'px-8 py-8 sm:px-10',
+        ]"
+      >
         <!-- Header centered — tanpa garis, spacing rapat ke summary -->
         <header class="mb-3 text-center">
           <h1

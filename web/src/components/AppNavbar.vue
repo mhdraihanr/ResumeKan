@@ -2,19 +2,16 @@
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 import { useDarkMode } from "@/composables/useDarkMode";
-import { Moon, Sun, Monitor, Menu, X } from "lucide-vue-next";
+import { Moon, Sun, Menu, X } from "lucide-vue-next";
 import { ref } from "vue";
 
 const auth = useAuthStore();
 const router = useRouter();
-const { choice, isDark, cycle } = useDarkMode();
+const { isDark, cycle } = useDarkMode();
 const open = ref(false);
 
-// Label ikut pilihan aktif, bukan hasil: ikon & aria mencerminkan state saat ini (a11y R-27)
-const icon = () =>
-  choice.value === "auto" ? Monitor : isDark() ? Moon : Sun;
-const label = () =>
-  choice.value === "auto" ? "Mode: ikuti sistem" : isDark() ? "Mode gelap" : "Mode terang";
+const icon = () => (isDark() ? Sun : Moon);
+const label = () => (isDark() ? "Ganti ke mode terang" : "Ganti ke mode gelap");
 </script>
 
 <template>
@@ -24,7 +21,10 @@ const label = () =>
     <div
       class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6"
     >
-      <RouterLink to="/" class="text-lg font-black tracking-tight text-ink dark:text-foreground">
+      <RouterLink
+        to="/"
+        class="text-lg font-black tracking-tight text-ink dark:text-foreground"
+      >
         ResumeKan
       </RouterLink>
 
@@ -63,7 +63,7 @@ const label = () =>
             auth.logout();
             router.push('/');
           "
-            class="rounded-base border-2 border-ink bg-white px-3 py-1.5 text-sm font-medium text-ink shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:border-border dark:bg-secondary-background dark:text-foreground"
+          class="rounded-base border-2 border-ink bg-white px-3 py-1.5 text-sm font-medium text-ink shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:border-border dark:bg-secondary-background dark:text-foreground"
         >
           Logout
         </button>
@@ -72,9 +72,12 @@ const label = () =>
           class="flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:border-border dark:bg-secondary-background"
           :title="label()"
           :aria-label="label()"
-          :aria-pressed="choice !== 'auto' ? 'true' : 'false'"
+          :aria-pressed="isDark() ? 'true' : 'false'"
         >
-          <component :is="icon()" class="size-4 text-ink dark:text-foreground" />
+          <component
+            :is="icon()"
+            class="size-4 text-ink dark:text-foreground"
+          />
         </button>
       </div>
 

@@ -69,5 +69,5 @@ cd web && pnpm i -D tailwindcss @tailwindcss/vite
 
 ## Checklist sebelum commit pertama
 
-- [ ] `.env` di `.gitignore` kedua project (default sudah)
-- [ ] `AI_API_KEY` tidak pernah masuk git
+- [x] `.env` di `.gitignore` kedua project (default sudah)
+- [x] `AI_API_KEY` tidak pernah masuk git
