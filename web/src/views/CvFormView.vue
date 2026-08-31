@@ -37,18 +37,7 @@ onMounted(async () => {
       title.value = cvStore.current.title;
       template.value = cvStore.current.template;
       language.value = cvStore.current.language;
-      const d = cvStore.current.data ?? emptyCvData();
-      if (
-        typeof (d as unknown as Record<string, unknown>).projects === "string"
-      ) {
-        const s = (
-          (d as unknown as Record<string, unknown>).projects as string
-        ).trim();
-        d.projects = s
-          ? [{ title: s, role: "", objective: "", techStack: "" }]
-          : [];
-      }
-      data.value = d;
+      data.value = cvStore.current.data ?? emptyCvData();
     }
   }
 });
