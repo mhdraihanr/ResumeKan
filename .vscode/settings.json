@@ -1,5 +1,13 @@
 {
   "chat.tools.terminal.autoApprove": {
-    "pnpm": true
+    "pnpm": true,
+    "/^python \"d:\\\\ResumeKan\\\\\\.github\\\\skills\\\\antislop-human\\\\contrast-check\\.py\" \"#3b82f6\" \"#ffffff\"$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^python \"d:\\\\ResumeKan\\\\\\.github\\\\skills\\\\antislop-human\\\\contrast-check\\.py\" \"#1e40af\" \"#ffffff\" && echo \"---\" && python \"d:\\\\ResumeKan\\\\\\.github\\\\skills\\\\antislop-human\\\\contrast-check\\.py\" \"#c0c1c5\" \"#3f3f46\" && echo \"---\" && python \"d:\\\\ResumeKan\\\\\\.github\\\\skills\\\\antislop-human\\\\contrast-check\\.py\" \"#f8fafc\" \"#3b82f6\" && echo \"---\" && python \"d:\\\\ResumeKan\\\\\\.github\\\\skills\\\\antislop-human\\\\contrast-check\\.py\" \"#f8fafc\" \"#27272a\" && echo \"---\" && python \"d:\\\\ResumeKan\\\\\\.github\\\\skills\\\\antislop-human\\\\contrast-check\\.py\" \"#a1a1aa\" \"#3f3f46\"$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
   }
 }

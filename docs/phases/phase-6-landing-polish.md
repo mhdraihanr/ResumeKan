@@ -90,13 +90,14 @@
 ### CvForm — audit dark mode elemen non-field (2026-08-30, uncommitted)
 
 - Audit computed style di browser: elemen non-field masih gaya light di atas card zinc-700 — `+ Tambah` (slate-700, kontras 1.01:1), label `#N` (slate-500, 2.19:1), `Hapus` (red-600, 2.16:1), card section (border-slate-200 tanpa token). Field/label/h2/counter/empty state sudah benar via scoped CSS.
-- Fix: `dark:` variant dengan token, pola sama dengan tombol header `CvFormView.vue` — `+ Tambah` → `dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20` (5.86:1), `#N` → `dark:text-foreground/50` (3.85:1), `Hapus` → `dark:text-red-400` (3.78:1), card → `dark:border-border`.
-- Verifikasi browser: dark (semua elemen terbaca, kontras AA) + light (tidak ada regresi). vue-tsc 0 error.
+- Fix: `dark:` variant dengan token, pola sama dengan tombol header `CvFormView.vue` — `+ Tambah` → `dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground` (6.42:1), `#N` → `dark:text-foreground/60` (5.29:1), `Hapus` → `dark:text-red-300` (5.50:1), card → `dark:border-border`.
+- Hover states disinkronkan kedua mode (R-27): light `hover:bg-slate-200 hover:text-slate-700` (delta jelas, teks 8.40:1), dark `dark:hover:bg-white/15 dark:hover:text-foreground` (overlay terang di atas zinc-700, 6.35-7.44:1). Hover adalah treatment suplemen (pointer = state indicator, SC 1.4.11 tidak wajib 3:1 untuk bg), tapi teks tetap ≥4.5:1.
+- Verifikasi browser: dark (semua elemen terbaca, kontras AA) + light (hover slate-200 terlihat, teks slate-700, tidak ada regresi). vue-tsc 0 error.
 
 ### CvForm — stepper tabs 9 langkah (2026-08-30, uncommitted)
 
 - Form panjang 9 section satu scroll (scrollHeight 4107px) terlalu overwhelm. Inspirasi: FlowCV (multi-step wizard, `currentStep` state, Next/Back, progress tracking), Rezi UX audit (Exa: "maze-like navigation without clear indicators of progress" — fix: visual progress indicators, step-by-step guided navigation, Next button). Implementasi Opsi A: stepper tabs horizontal di atas form.
-- 9 langkah: Info, Pribadi, Ringkasan, Pengalaman, Pendidikan, Organisasi, Keahlian, Proyek, Lainnya. Chip bernomor 3 state: active (`bg-slate-900`/`dark:bg-main`), completed (`✓` emerald), upcoming (`text-slate-400`). Klikable — user bisa lompat ke step mana saja. `v-show` per section (bukan `v-if`) agar state field tidak hilang saat pindah step. Prev/Next button di bawah form + "Langkah N/9" indicator. Di step terakhir Next berubah jadi Simpan CV.
+- 9 langkah: Info, Pribadi, Ringkasan, Pengalaman, Pendidikan, Organisasi, Keahlian, Proyek, Lainnya. Chip bernomor 3 state: active (`bg-slate-900`/`dark:bg-main`), completed (`✓` emerald), upcoming (`text-slate-500`, 4.76:1 PASS; sebelumnya slate-400 2.56:1 gagal). Klikable — user bisa lompat ke step mana saja. `v-show` per section (bukan `v-if`) agar state field tidak hilang saat pindah step. Prev/Next button di bawah form + "Langkah N/9" indicator. Di step terakhir Next berubah jadi Simpan CV.
 - Implementasi: `activeStep` ref + `steps` array, `v-show="activeStep === N"` per section, nav HTML + scoped CSS `.dark nav`. ~60 baris baru, tidak ada file/dependency baru, tidak split komponen. Preview kanan tetap real-time.
 - Verifikasi browser: light (step 1→2→3, jump ke 4, jump ke 9 Simpan CV muncul) + dark (stepper nav terbaca, active chip navy, completed ✓ hijau, upcoming muted). vue-tsc 0 error.
 

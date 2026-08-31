@@ -33,6 +33,24 @@ const contactLine = computed(() => {
     .join(" · ");
 });
 
+// 2 baris semantik di header: kontak langsung, lalu link online.
+// Wrap terprediksi & tahan jumlah item berapa pun (1-3 baris tetap rapi).
+const contactDirect = computed(() => {
+  const p = props.data.personal;
+  return [p.email, p.phone, p.address].filter(Boolean);
+});
+const contactLinks = computed(() => {
+  const p = props.data.personal;
+  return [
+    { label: displayUrl(p.linkedin), href: hrefUrl(p.linkedin) },
+    { label: displayUrl(p.website), href: hrefUrl(p.website) },
+    { label: displayUrl(p.github), href: hrefUrl(p.github) },
+  ].filter((x) => x.label);
+});
+const hasAnyContact = computed(
+  () => contactDirect.value.length > 0 || contactLinks.value.length > 0,
+);
+
 const hardList = computed(() =>
   (props.data.skills?.hard ?? "")
     .split(",")
@@ -89,68 +107,38 @@ const sortedExperiences = computed(() => {
           <h1 class="text-2xl font-bold tracking-tight text-slate-900">
             {{ data.personal.name || "Nama Anda" }}
           </h1>
-          <p
-            class="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-[10pt] text-slate-600"
+          <!-- 2 baris semantik: kontak langsung, lalu link online -->
+          <div
+            v-if="hasAnyContact"
+            class="mt-1 space-y-0.5 text-[10pt] text-slate-600"
           >
-            <span v-if="data.personal.email">{{ data.personal.email }}</span>
-            <span
-              v-if="data.personal.email && data.personal.phone"
-              class="text-slate-300"
-              >·</span
+            <p
+              v-if="contactDirect.length"
+              class="flex flex-wrap gap-x-2 text-[10pt]"
             >
-            <span v-if="data.personal.phone">{{ data.personal.phone }}</span>
-            <span
-              v-if="
-                (data.personal.email || data.personal.phone) &&
-                data.personal.address
-              "
-              class="text-slate-300"
-              >·</span
+              <template v-for="(item, i) in contactDirect" :key="item">
+                <span v-if="i > 0" class="text-slate-300">·</span>
+                <span>{{ item }}</span>
+              </template>
+            </p>
+            <p
+              v-if="contactLinks.length"
+              class="flex flex-wrap gap-x-2 text-[10pt]"
             >
-            <span v-if="data.personal.address">{{
-              data.personal.address
-            }}</span>
-            <template v-if="data.personal.linkedin">
-              <span class="text-slate-300">·</span>
-              <a
-                :href="hrefUrl(data.personal.linkedin)"
-                target="_blank"
-                rel="noopener"
-                class="text-[#1e40af] underline decoration-slate-300 underline-offset-2 hover:decoration-[#1e40af]"
-                >{{ displayUrl(data.personal.linkedin) }}</a
-              >
-            </template>
-            <template v-if="data.personal.website">
-              <span class="text-slate-300">·</span>
-              <a
-                :href="hrefUrl(data.personal.website)"
-                target="_blank"
-                rel="noopener"
-                class="text-[#1e40af] underline decoration-slate-300 underline-offset-2 hover:decoration-[#1e40af]"
-                >{{ displayUrl(data.personal.website) }}</a
-              >
-            </template>
-            <template v-if="data.personal.github">
-              <span class="text-slate-300">·</span>
-              <a
-                :href="hrefUrl(data.personal.github)"
-                target="_blank"
-                rel="noopener"
-                class="text-[#1e40af] underline decoration-slate-300 underline-offset-2 hover:decoration-[#1e40af]"
-                >{{ displayUrl(data.personal.github) }}</a
-              >
-            </template>
-            <span
-              v-if="
-                !data.personal.email &&
-                !data.personal.phone &&
-                !data.personal.address &&
-                !data.personal.linkedin &&
-                !data.personal.website &&
-                !data.personal.github
-              "
-              >email · phone · alamat</span
-            >
+              <template v-for="(item, i) in contactLinks" :key="item.href">
+                <span v-if="i > 0" class="text-slate-300">·</span>
+                <a
+                  :href="item.href"
+                  target="_blank"
+                  rel="noopener"
+                  class="text-[#1e40af] underline decoration-slate-300 underline-offset-2 hover:decoration-[#1e40af]"
+                  >{{ item.label }}</a
+                >
+              </template>
+            </p>
+          </div>
+          <p v-else class="mt-1 text-[10pt] text-slate-600">
+            email · phone · alamat
           </p>
         </header>
 
@@ -187,12 +175,12 @@ const sortedExperiences = computed(() => {
             </p>
             <ul
               v-if="bullets(e.description).length"
-              class="mt-1 list-disc pl-5 text-[10pt] text-slate-700"
+              class="mt-1.5 list-disc space-y-1 pl-5 text-[10pt] text-slate-700 marker:text-slate-500"
             >
               <li
                 v-for="(b, j) in bullets(e.description)"
                 :key="j"
-                class="leading-relaxed"
+                class="leading-relaxed pl-1"
               >
                 {{ b }}
               </li>
@@ -225,12 +213,12 @@ const sortedExperiences = computed(() => {
             </p>
             <ul
               v-if="bullets(ed.achievements).length"
-              class="mt-1 list-disc pl-5 text-[10pt] text-slate-700"
+              class="mt-1.5 list-disc space-y-1 pl-5 text-[10pt] text-slate-700 marker:text-slate-500"
             >
               <li
                 v-for="(b, j) in bullets(ed.achievements)"
                 :key="j"
-                class="leading-relaxed"
+                class="leading-relaxed pl-1"
               >
                 {{ b }}
               </li>
@@ -257,12 +245,12 @@ const sortedExperiences = computed(() => {
             </p>
             <ul
               v-if="bullets(o.description).length"
-              class="mt-1 list-disc pl-5 text-[10pt] text-slate-700"
+              class="mt-1.5 list-disc space-y-1 pl-5 text-[10pt] text-slate-700 marker:text-slate-500"
             >
               <li
                 v-for="(b, j) in bullets(o.description)"
                 :key="j"
-                class="leading-relaxed"
+                class="leading-relaxed pl-1"
               >
                 {{ b }}
               </li>
@@ -343,68 +331,35 @@ const sortedExperiences = computed(() => {
           >
             {{ (data.personal.name || "Nama Anda").toUpperCase() }}
           </h1>
-          <p
-            class="mt-1 flex flex-wrap justify-center gap-x-2 gap-y-1 text-[10pt] text-slate-600"
-          >
-            <span v-if="data.personal.email">{{ data.personal.email }}</span>
-            <span
-              v-if="data.personal.email && data.personal.phone"
-              class="text-slate-300"
-              >·</span
+          <!-- 2 baris semantik: kontak langsung, lalu link online -->
+          <div v-if="hasAnyContact" class="mt-1 space-y-0.5">
+            <p
+              v-if="contactDirect.length"
+              class="flex flex-wrap justify-center gap-x-2 text-[10pt] text-slate-600"
             >
-            <span v-if="data.personal.phone">{{ data.personal.phone }}</span>
-            <span
-              v-if="
-                (data.personal.email || data.personal.phone) &&
-                data.personal.address
-              "
-              class="text-slate-300"
-              >·</span
+              <template v-for="(item, i) in contactDirect" :key="item">
+                <span v-if="i > 0" class="text-slate-300">·</span>
+                <span>{{ item }}</span>
+              </template>
+            </p>
+            <p
+              v-if="contactLinks.length"
+              class="flex flex-wrap justify-center gap-x-2 text-[10pt] text-slate-600"
             >
-            <span v-if="data.personal.address">{{
-              data.personal.address
-            }}</span>
-            <template v-if="data.personal.linkedin">
-              <span class="text-slate-300">·</span>
-              <a
-                :href="hrefUrl(data.personal.linkedin)"
-                target="_blank"
-                rel="noopener"
-                class="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-900"
-                >{{ displayUrl(data.personal.linkedin) }}</a
-              >
-            </template>
-            <template v-if="data.personal.website">
-              <span class="text-slate-300">·</span>
-              <a
-                :href="hrefUrl(data.personal.website)"
-                target="_blank"
-                rel="noopener"
-                class="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-900"
-                >{{ displayUrl(data.personal.website) }}</a
-              >
-            </template>
-            <template v-if="data.personal.github">
-              <span class="text-slate-300">·</span>
-              <a
-                :href="hrefUrl(data.personal.github)"
-                target="_blank"
-                rel="noopener"
-                class="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-900"
-                >{{ displayUrl(data.personal.github) }}</a
-              >
-            </template>
-            <span
-              v-if="
-                !data.personal.email &&
-                !data.personal.phone &&
-                !data.personal.address &&
-                !data.personal.linkedin &&
-                !data.personal.website &&
-                !data.personal.github
-              "
-              >email · phone · alamat</span
-            >
+              <template v-for="(item, i) in contactLinks" :key="item.href">
+                <span v-if="i > 0" class="text-slate-300">·</span>
+                <a
+                  :href="item.href"
+                  target="_blank"
+                  rel="noopener"
+                  class="underline decoration-slate-300 underline-offset-2 hover:decoration-slate-900"
+                  >{{ item.label }}</a
+                >
+              </template>
+            </p>
+          </div>
+          <p v-else class="mt-1 text-[10pt] text-slate-600">
+            email · phone · alamat
           </p>
         </header>
 
@@ -441,12 +396,12 @@ const sortedExperiences = computed(() => {
             </p>
             <ul
               v-if="bullets(e.description).length"
-              class="mt-1 list-disc pl-5 text-[10pt] text-slate-700"
+              class="mt-1.5 list-disc space-y-1 pl-5 text-[10pt] text-slate-700 marker:text-slate-500"
             >
               <li
                 v-for="(b, j) in bullets(e.description)"
                 :key="j"
-                class="leading-relaxed"
+                class="leading-relaxed pl-1"
               >
                 {{ b }}
               </li>
@@ -481,12 +436,12 @@ const sortedExperiences = computed(() => {
             </p>
             <ul
               v-if="bullets(ed.achievements).length"
-              class="mt-1 list-disc pl-5 text-[10pt] text-slate-700"
+              class="mt-1.5 list-disc space-y-1 pl-5 text-[10pt] text-slate-700 marker:text-slate-500"
             >
               <li
                 v-for="(b, j) in bullets(ed.achievements)"
                 :key="j"
-                class="leading-relaxed"
+                class="leading-relaxed pl-1"
               >
                 {{ b }}
               </li>
@@ -515,12 +470,12 @@ const sortedExperiences = computed(() => {
             </p>
             <ul
               v-if="bullets(o.description).length"
-              class="mt-1 list-disc pl-5 text-[10pt] text-slate-700"
+              class="mt-1.5 list-disc space-y-1 pl-5 text-[10pt] text-slate-700 marker:text-slate-500"
             >
               <li
                 v-for="(b, j) in bullets(o.description)"
                 :key="j"
-                class="leading-relaxed"
+                class="leading-relaxed pl-1"
               >
                 {{ b }}
               </li>

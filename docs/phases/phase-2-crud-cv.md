@@ -71,6 +71,16 @@
 | IPK (GPA)  | `education[].gpa?: string ≤10` — format `3.85` atau `3.85/4.00`, tampil `IPK: 3.85/4.00` di bawah institusi. ATS: di dalam Education, label jelas, hanya isi jika ≥3.50 & fresh graduate. Validasi `nullable\|string\|max:10`. Preview `text-[9pt] text-slate-500`. Kosong → tidak render.                                                                                                                                    |
 | Organisasi | `organizations?: { organization, role, period, description? }[]` max 5 — heading ATS `Organisasi`/`Organizations` terpisah (bukan di `education.achievements`). Form section baru setelah Pendidikan, card mirip experiences. Preview section dengan `border-b-[1.5px]` seragam, `role — organization` + `period` kanan, bullets newline. Kosong → section hilang. Backward compat: field opsional, payload lama tetap valid. |
 
+## Enhancement — UI Skills (2026-08-30)
+
+> Analisis Exa ATS: comma-separated sudah parseable; sweet spot 12–20 skill, urut sesuai JD, spesifik > umum.
+
+| Hal         | Detail                                                                                                                                      |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Input       | `skills.hard`/`skills.soft` dari `<input>` single-line → textarea auto-expand (pola `.auto-expand` yang sama) — isi panjang terlihat semua. |
+| Placeholder | Contoh lebih panjang (8 item) + `placeholder:text-slate-400` (konsisten input lain, WCAG 3.3.2).                                            |
+| Hint ATS    | Hard: urut sesuai JD, spesifik ("PostgreSQL" bukan "database"), ideal 12–20. Soft: hanya yang disebut JD, sisanya dibuktikan di bullet.     |
+
 ## Definisi Selesai
 
 - [x] Buat, lihat daftar, edit, hapus CV dari dashboard.

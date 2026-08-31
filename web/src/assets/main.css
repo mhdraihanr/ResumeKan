@@ -33,10 +33,10 @@
   --background: #27272a; /* zinc-800 abu medium Opsi A */
   --secondary-background: #3f3f46; /* zinc-700 surface terangkat */
   --foreground: #f8fafc;
-  --main: #3b82f6;
+  --main: #2563eb; /* blue-600: white-on-main 5.17:1 PASS (was #3b82f6 3.68 FAIL) */
   --main-foreground: #ffffff;
   --border: #f4f4f5;
-  --ring: #3b82f6;
+  --ring: #2563eb;
   --shadow: var(--box-shadow-x) var(--box-shadow-y) 0px 0px #09090b;
   --reverse-shadow: var(--reverse-box-shadow-x) var(--reverse-box-shadow-y) 0px
     0px #09090b;

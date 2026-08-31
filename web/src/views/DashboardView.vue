@@ -43,7 +43,9 @@ function fmtDate(s: string) {
       <!-- Header -->
       <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-foreground">
+          <h1
+            class="text-2xl font-bold tracking-tight text-slate-900 dark:text-foreground"
+          >
             CV Saya
           </h1>
           <p class="mt-1 text-sm text-slate-500 dark:text-foreground/70">
@@ -63,7 +65,7 @@ function fmtDate(s: string) {
           </button>
           <button
             @click="handleLogout"
-            class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-border dark:bg-secondary-background dark:text-foreground/70"
+            class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
           >
             Logout
           </button>
@@ -96,8 +98,14 @@ function fmtDate(s: string) {
         >
           📄
         </div>
-        <h2 class="mt-4 text-sm font-semibold text-slate-900 dark:text-foreground">Belum ada CV</h2>
-        <p class="mx-auto mt-1 max-w-sm text-sm leading-relaxed text-slate-500 dark:text-foreground/70">
+        <h2
+          class="mt-4 text-sm font-semibold text-slate-900 dark:text-foreground"
+        >
+          Belum ada CV
+        </h2>
+        <p
+          class="mx-auto mt-1 max-w-sm text-sm leading-relaxed text-slate-500 dark:text-foreground/70"
+        >
           Buat CV pertama Anda, isi form terstruktur, pilih template, dan siap
           untuk ATS.
         </p>
@@ -134,13 +142,13 @@ function fmtDate(s: string) {
           <div class="mt-4 flex gap-2">
             <button
               @click="router.push(`/cvs/${cv.id}/edit`)"
-              class="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-border dark:bg-secondary-background dark:text-foreground/70"
+              class="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
             >
               Edit
             </button>
             <button
               @click="downloadPdf(cv.id)"
-              class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-border dark:bg-secondary-background dark:text-foreground/70"
+              class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
             >
               PDF
             </button>

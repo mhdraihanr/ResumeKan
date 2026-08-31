@@ -174,15 +174,15 @@ async function generateSummary() {
           i === activeStep
             ? 'bg-slate-900 text-white dark:bg-main'
             : i < activeStep
-              ? 'text-slate-700 hover:bg-slate-100 dark:text-foreground/70 dark:hover:bg-ink/20'
-              : 'text-slate-400 hover:bg-slate-50 dark:text-foreground/40 dark:hover:bg-ink/10'
+              ? 'text-slate-700 hover:bg-slate-200 dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground'
+              : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:text-foreground/60 dark:hover:bg-white/15 dark:hover:text-foreground'
         "
       >
         <span
           class="size-4 rounded-full text-center text-[10px] leading-4"
           :class="
             i < activeStep
-              ? 'bg-emerald-500 text-white'
+              ? 'bg-emerald-700 text-white dark:bg-emerald-700'
               : i === activeStep
                 ? 'bg-white/20'
                 : 'bg-slate-200 dark:bg-ink/30'
@@ -340,7 +340,7 @@ async function generateSummary() {
           type="button"
           @click="generateSummary"
           :disabled="aiLoading"
-          class="rounded-lg bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800 disabled:opacity-40 dark:bg-main dark:hover:bg-blue-500"
+          class="rounded-lg bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800 disabled:opacity-40 dark:bg-main dark:hover:bg-blue-700"
         >
           {{ aiLoading ? "Memproses..." : "Generate AI" }}
         </button>
@@ -373,7 +373,7 @@ async function generateSummary() {
           type="button"
           @click="addExp"
           :disabled="(local.experiences?.length ?? 0) >= 10"
-          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20"
+          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
         >
           + Tambah
         </button>
@@ -385,13 +385,13 @@ async function generateSummary() {
       >
         <div class="flex justify-between">
           <span
-            class="text-xs font-semibold text-slate-500 dark:text-foreground/50"
+            class="text-xs font-semibold text-slate-500 dark:text-foreground/60"
             >#{{ i + 1 }}</span
           >
           <button
             type="button"
             @click="removeExp(i)"
-            class="text-xs text-red-600 hover:underline dark:text-red-400"
+            class="text-xs text-red-600 hover:underline dark:text-red-300"
           >
             Hapus
           </button>
@@ -495,7 +495,7 @@ async function generateSummary() {
           type="button"
           @click="addEdu"
           :disabled="(local.education?.length ?? 0) >= 5"
-          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20"
+          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
         >
           + Tambah
         </button>
@@ -507,13 +507,13 @@ async function generateSummary() {
       >
         <div class="flex justify-between">
           <span
-            class="text-xs font-semibold text-slate-500 dark:text-foreground/50"
+            class="text-xs font-semibold text-slate-500 dark:text-foreground/60"
             >#{{ i + 1 }}</span
           >
           <button
             type="button"
             @click="removeEdu(i)"
-            class="text-xs text-red-600 hover:underline dark:text-red-400"
+            class="text-xs text-red-600 hover:underline dark:text-red-300"
           >
             Hapus
           </button>
@@ -603,7 +603,7 @@ async function generateSummary() {
           type="button"
           @click="addOrg"
           :disabled="(local.organizations?.length ?? 0) >= 5"
-          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20"
+          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
         >
           + Tambah
         </button>
@@ -615,13 +615,13 @@ async function generateSummary() {
       >
         <div class="flex justify-between">
           <span
-            class="text-xs font-semibold text-slate-500 dark:text-foreground/50"
+            class="text-xs font-semibold text-slate-500 dark:text-foreground/60"
             >#{{ i + 1 }}</span
           >
           <button
             type="button"
             @click="removeOrg(i)"
-            class="text-xs text-red-600 hover:underline dark:text-red-400"
+            class="text-xs text-red-600 hover:underline dark:text-red-300"
           >
             Hapus
           </button>
@@ -685,30 +685,32 @@ async function generateSummary() {
       >
         Keahlian
       </h2>
-      <div class="grid gap-2.5 sm:grid-cols-2">
-        <label class="space-y-1">
-          <span class="text-xs font-medium text-slate-700"
-            >Hard skills (pisah koma)</span
-          >
-          <input
-            v-model="local.skills!.hard"
-            maxlength="500"
-            placeholder="Go, Laravel, PostgreSQL"
-            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
-          />
-        </label>
-        <label class="space-y-1">
-          <span class="text-xs font-medium text-slate-700"
-            >Soft skills (pisah koma)</span
-          >
-          <input
-            v-model="local.skills!.soft"
-            maxlength="300"
-            placeholder="Komunikasi, Leadership"
-            class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
-          />
-        </label>
-      </div>
+      <label class="space-y-1 block">
+        <span class="text-xs font-medium text-slate-700"
+          >Hard skills (pisah koma)</span
+        >
+        <textarea
+          v-model="local.skills!.hard"
+          maxlength="500"
+          rows="2"
+          placeholder="Go, Laravel, PostgreSQL, Docker, Redis, REST API, Git, CI/CD"
+          class="auto-expand w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+          @input="autoResize($event)"
+        ></textarea>
+      </label>
+      <label class="space-y-1 block">
+        <span class="text-xs font-medium text-slate-700"
+          >Soft skills (pisah koma)</span
+        >
+        <textarea
+          v-model="local.skills!.soft"
+          maxlength="300"
+          rows="2"
+          placeholder="Komunikasi, Leadership, Stakeholder Management, Problem Solving"
+          class="auto-expand w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+          @input="autoResize($event)"
+        ></textarea>
+      </label>
     </section>
 
     <!-- Lainnya -->
@@ -753,7 +755,7 @@ async function generateSummary() {
           :disabled="
             ((local.projects as unknown as unknown[])?.length ?? 0) >= 5
           "
-          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20"
+          class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
         >
           + Tambah
         </button>
@@ -770,13 +772,13 @@ async function generateSummary() {
       >
         <div class="flex justify-between">
           <span
-            class="text-xs font-semibold text-slate-500 dark:text-foreground/50"
+            class="text-xs font-semibold text-slate-500 dark:text-foreground/60"
             >#{{ i + 1 }}</span
           >
           <button
             type="button"
             @click="removeProject(i)"
-            class="text-xs text-red-600 hover:underline dark:text-red-400"
+            class="text-xs text-red-600 hover:underline dark:text-red-300"
           >
             Hapus
           </button>
@@ -840,19 +842,19 @@ async function generateSummary() {
         v-if="activeStep > 0"
         type="button"
         @click="activeStep--"
-        class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-ink/20"
+        class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
       >
         ← Sebelumnya
       </button>
       <div v-else></div>
-      <span class="text-xs text-slate-400 dark:text-foreground/50">
+      <span class="text-xs text-slate-400 dark:text-foreground/60">
         Langkah {{ activeStep + 1 }} / {{ steps.length }}
       </span>
       <button
         v-if="activeStep < steps.length - 1"
         type="button"
         @click="activeStep++"
-        class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-main dark:hover:bg-blue-500"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-main dark:hover:bg-blue-700"
       >
         Selanjutnya →
       </button>
@@ -860,7 +862,7 @@ async function generateSummary() {
         v-else
         type="submit"
         :disabled="aiLoading"
-        class="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-40 dark:bg-main dark:hover:bg-blue-500"
+        class="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-40 dark:bg-main dark:hover:bg-blue-700"
       >
         Simpan CV
       </button>
@@ -892,12 +894,24 @@ async function generateSummary() {
 }
 .dark input::placeholder,
 .dark textarea::placeholder {
-  color: color-mix(in srgb, var(--foreground) 40%, transparent);
+  color: color-mix(in srgb, var(--foreground) 65%, transparent);
 }
 .dark input:focus,
 .dark select:focus,
 .dark textarea:focus {
   border-color: var(--ring);
+}
+.dark select option {
+  background-color: var(--secondary-background);
+  color: var(--foreground);
+}
+.dark select:hover {
+  background-color: color-mix(in srgb, var(--foreground) 18%, transparent);
+}
+.dark select option:hover,
+.dark select option:checked {
+  background-color: var(--main);
+  color: var(--main-foreground);
 }
 .dark label > span {
   color: color-mix(in srgb, var(--foreground) 75%, transparent);
@@ -906,7 +920,7 @@ async function generateSummary() {
   color: color-mix(in srgb, var(--foreground) 70%, transparent);
 }
 .dark p {
-  color: color-mix(in srgb, var(--foreground) 55%, transparent);
+  color: color-mix(in srgb, var(--foreground) 60%, transparent);
 }
 .dark nav {
   border-color: var(--border);
