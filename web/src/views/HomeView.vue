@@ -17,8 +17,9 @@ import {
   ChevronDown,
 } from "lucide-vue-next";
 import type { CvData } from "@/types/cv";
+import { CV_TEMPLATES, type CvTemplateId } from "@/lib/cv-templates";
 
-const template = ref<"modern" | "classic">("modern");
+const template = ref<CvTemplateId>("modern");
 
 // Data contoh (bukan fake stats/testimonial, hanya isi CV demo untuk preview asli)
 const sample: CvData = {
@@ -182,17 +183,17 @@ const openFaq = ref<number | null>(0);
               class="flex items-center justify-center gap-2 border-b-2 border-ink bg-paper px-4 py-2.5 dark:bg-secondary-background"
             >
               <button
-                v-for="t in ['modern', 'classic'] as const"
-                :key="t"
-                @click="template = t"
+                v-for="t in Object.values(CV_TEMPLATES)"
+                :key="t.id"
+                @click="template = t.id"
                 class="rounded-base border-2 border-ink px-3 py-1 text-xs font-medium transition"
                 :class="
-                  template === t
+                  template === t.id
                     ? 'bg-navy text-white shadow-[2px_2px_0_0_#0f172a]'
                     : 'bg-white text-ink hover:bg-paper dark:bg-secondary-background dark:text-foreground dark:hover:bg-main/20'
                 "
               >
-                {{ t === "modern" ? "Modern" : "Classic" }}
+                {{ t.label }}
               </button>
             </div>
             <!-- Live preview: tinggi lebih besar di phone kecil agar tidak kepotong, scale tetap -->
