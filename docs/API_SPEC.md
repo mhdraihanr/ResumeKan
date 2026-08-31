@@ -86,7 +86,7 @@ Timeout render 30s → `504`.
 # login
 curl -c jar.txt -X POST http://localhost:8000/api/v1/login \
   -H "Content-Type: application/json" -H "Accept: application/json" \
-  -d '{"email":"a@b.c","password":"secret"}'
+  -d '{"email":"test@example.com","password":"secret"}'
 
 # download pdf
 curl -b jar.txt -o cv.pdf http://localhost:8000/api/v1/cvs/1/pdf

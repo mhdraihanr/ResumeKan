@@ -39,6 +39,7 @@
 - **Prasyarat deploy:** binary Chromium tersedia di server. Lokal: `PdfService` otomatis memakai Microsoft Edge (Chromium) via `useChrome()->setChromePath()`; fallback Puppeteer (`npm i puppeteer` di `api/`).
 - **Template Fase 3:** `modern` = VitaeKit Modern (sans-serif, navy `#1e40af` underline, A4 print CSS) — https://vitaekit.com/resume-templates/modern · `classic` = LumiCV Minimal (whitespace, `border-b-[1.5px] border-slate-900` 8 section, monochrome) — https://lumicv.com/resume-templates/minimal. Keduanya single-column ATS-friendly, HTML/CSS murni yang sama untuk preview & PDF. Skills pisah `Hard skills:` / `Soft skills:` di kedua template. LinkedIn/Website/GitHub dukung `www.` tanpa scheme (normalisasi `https://` di `StoreCvRequest`). IPK di dalam Education, Organisasi section terpisah.
 - **Implementasi:** `PdfService` render `resources/views/pdf/cv.blade.php` (Blade mandiri, CSS inline meniru markup `CvPreview.vue`) → A4, margin 14/16mm, `showBackground()`. Endpoint `GET /api/v1/cvs/{cv}/pdf` → `CvController@pdf` (owner check, `{nama}_CV.pdf`).
+- **Sinkronisasi markup (2026-08-31):** Preview Vue dipecah jadi `sections/` (`PreviewSection`, `EntryRow`, `BulletList`) + token `web/src/lib/cv-templates.ts` (font, headerAlign, h1Class, linkClass, otherMode per template) — markup hasil render identik dengan sebelum refactor. Nambah template = tambah 1 entry `CV_TEMPLATES` (select form, toggle landing, preview otomatis ikut). Blade PDF tetap file mandiri; **perubahan layout CV wajib disinkronkan ke 2 tempat** (`CvPreview.vue` + `cv.blade.php`). Drift yang diketahui: header kontak Blade masih 1 baris (preview sudah 2 baris semantik sejak 2026-08-30) — perbaiki saat menyentuh PDF berikutnya. Opsi single-source (Browsershot load URL SPA print) ditunda: butuh route print + auth headless, terlalu besar untuk refactor tanpa perubahan perilaku.
 
 ### ADR-5: AI Gateway (OpenAI-compatible) via `Http::post()`, tanpa SDK
 
@@ -50,7 +51,7 @@
 - **Keputusan:** Driver via `.env`; migration ditulis agnostik.
 - **Alasan:** Zero-setup lokal; Neon free tier permanen untuk produksi.
 
-## 3. Struktur Folder Rencana
+## 3. Struktur Folder
 
 ```
 api/
@@ -71,12 +72,28 @@ web/
 ├── src/
 │   ├── api/                 # fetch wrapper + endpoint functions
 │   ├── stores/              # auth.ts, cv.ts (Pinia)
-│   ├── views/               # Landing, BuatCv, PreviewCv, Dashboard, Login, Register
+│   ├── views/               # HomeView, CvFormView, DashboardView, LoginView, RegisterView
+│   ├── composables/         # useDarkMode.ts
+│   ├── lib/                 # cv-templates.ts (token template), utils.ts
 │   ├── components/
-│   │   ├── cv/              # CvForm, CvPreview, template modern/classic
-│   │   └── ui/              # shadcn-vue
+│   │   ├── cv/              # CvForm (shell), CvPreview, form/, steps/, sections/
+│   │   └── ui/              # shadcn-vue (badge, button, card)
 │   └── router/index.ts
 └── vite.config.ts           # proxy /api → localhost:8000
+```
+
+Detail `components/cv/` (refactor 2026-08-31, lihat [REFACTOR_PLAN.md](phases/REFACTOR_PLAN.md)):
+
+```
+components/cv/
+├── CvForm.vue              # shell: stepper nav 9 langkah + state (~150 baris)
+├── form/                   # FormInput, FormTextarea, FormSelect, FormLabel (1 sumber kelas input)
+├── steps/                  # 9 langkah: Meta, Personal, Summary, Experience, Education,
+│                           # Organization, Skills, Projects, Other
+├── CvPreview.vue           # 1 sumber section, token-driven
+└── sections/               # PreviewSection, EntryRow, BulletList (dipakai semua template)
+
+lib/cv-templates.ts         # token per template: font, headerAlign, h1Class, linkClass, otherMode
 ```
 
 ## 4. Keamanan

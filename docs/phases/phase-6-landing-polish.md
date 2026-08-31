@@ -38,7 +38,7 @@
 | `web/src/views/RegisterView.vue`     | Register split panel (2026-08-30): mirror login — aside ink pitch panel + form card neobrutalism, label eksplisit, autocomplete name/email/new-password, show/hide password, error aria-live, toggle dark di card, bg-dots panel kanan                |
 | `web/src/views/DashboardView.vue`    | Dashboard + dark variants (bg/card/button/error/empty)                                                                                                                                                                                                |
 | `web/src/views/CvFormView.vue`       | CV form + preview + dark variants (main/card/h1/back/draft/pdf/preview/toast)                                                                                                                                                                         |
-| `web/src/components/cv/CvForm.vue`   | Scoped dark CSS untuk 40+ field (input/select/textarea/label/h2/p) + dark button Generate AI/Simpan CV + dark variants elemen non-field (2026-08-30: `+ Tambah`, `#N`, `Hapus`, card section) + stepper tabs 9 langkah (2026-08-30)                   |
+| `web/src/components/cv/CvForm.vue`   | Shell form (refactor 2026-08-31: isi pindah ke `steps/*.vue` + `form/*.vue`; dark CSS field pindah ke `<style>` non-scoped bernamespace `.cv-form` di `CvForm.vue`) + stepper tabs 9 langkah (2026-08-30)                                             |
 
 ### Files modified
 
@@ -62,7 +62,7 @@
 - `useDarkMode.ts` 2-way: `light ↔ dark` (`choice` ref `light|dark`, `isDark()` function, `cycle()`, `colorScheme` sync). Tanpa `auto`/`systemDark`/`matchMedia`.
 - Token dark: `--background #27272a` (zinc-800), `--secondary-background #3f3f46` (zinc-700), `--foreground #f8fafc`, `--main #3b82f6`, `--border #f4f4f5`, `--shadow #18181b` (zinc-900) — Opsi A abu medium 2026-08-30 (sebelumnya #18181b/#27272a/#09090b, kontras 14.2:1/10.0:1 AAA, elevation 1.4:1).
 - Semua halaman dark-mode: landing, navbar, footer, login, register, dashboard, CV form. `CvPreview`/PDF tetap putih (dokumen kertas).
-- `CvForm.vue` pakai scoped CSS dark untuk 40+ field agar tidak duplikasi `dark:` per-field.
+- `CvForm.vue` pakai CSS dark non-scoped bernamespace `.cv-form` untuk 40+ field agar tidak duplikasi `dark:` per-field (refactor 2026-08-31: scoped CSS tidak menembus child component `steps/`/`form/`).
 - Verifikasi browser dark: login/register `main rgb(11,14,20)` card `rgb(30,41,59)` input `dark:text-foreground` button `rgb(59,130,246)`, navbar logo/link `rgb(248,250,252)` border `rgb(248,250,252)`.
 
 ### Hero — polish lanjutan

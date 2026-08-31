@@ -31,7 +31,7 @@ curl -s -b /tmp/jar.txt -c /tmp/jar.txt -X POST $BASE/api/v1/login \
   -H "Content-Type: application/json" -H "Accept: application/json" \
   -H "Origin: http://localhost:5173" -H "Referer: http://localhost:5173/" \
   -H "X-XSRF-TOKEN: $TOKEN" \
-  -d '{"email":"a@b.c","password":"password123"}'
+  -d '{"email":"test@example.com","password":"password123"}'
 ```
 
 ### Skenario per fitur

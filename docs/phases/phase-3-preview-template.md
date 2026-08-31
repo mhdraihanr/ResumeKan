@@ -10,10 +10,10 @@
 
 ## Hasil Implementasi
 
-| File                                  | Isi                                                                                     |
-| ------------------------------------- | --------------------------------------------------------------------------------------- |
-| `web/src/components/cv/CvPreview.vue` | Props `data: CvData`, `template: string` — modern (VitaeKit) / classic (LumiCV Minimal) |
-| `web/src/views/CvFormView.vue`        | Grid form + preview, `CvPreview :data="data" :template="template"`                      |
+| File                                  | Isi                                                                                                                                                                                                     |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------- |
+| `web/src/components/cv/CvPreview.vue` | Props `data: CvData`, `template: string` — 1 sumber section, token-driven via `web/src/lib/cv-templates.ts` (refactor 2026-08-31: duplikasi modern/classic ~130 baris dihapus; `sections/PreviewSection | EntryRow | BulletList.vue` dipakai semua template) |
+| `web/src/views/CvFormView.vue`        | Grid form + preview, `CvPreview :data="data" :template="template"`                                                                                                                                      |
 
 ## Hasil Verifikasi
 
