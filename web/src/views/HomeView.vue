@@ -68,8 +68,8 @@ const sample: CvData = {
 const features = [
   {
     icon: LayoutTemplate,
-    title: "2 template ATS",
-    desc: "Modern dan classic, single-column, struktur paragraf yang dibaca mesin.",
+    title: "3 template ATS",
+    desc: "Modern, classic, dan neon — single dan mixed-column, struktur paragraf yang dibaca mesin.",
   },
   {
     icon: PenLine,

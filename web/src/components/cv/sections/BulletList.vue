@@ -6,9 +6,9 @@ defineProps<{ items: string[] }>();
 <template>
   <ul
     v-if="items.length"
-    class="mt-1.5 list-disc space-y-1 pl-5 text-[10pt] text-slate-700 marker:text-slate-500"
+    class="mt-1 list-disc space-y-0.5 pl-5 text-[10pt] text-slate-700 marker:text-slate-500"
   >
-    <li v-for="(b, j) in items" :key="j" class="leading-relaxed pl-1">
+    <li v-for="(b, j) in items" :key="j" class="leading-normal pl-1">
       {{ b }}
     </li>
   </ul>

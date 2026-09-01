@@ -7,6 +7,7 @@ export interface CvData {
     linkedin?: string;
     website?: string;
     github?: string;
+    photo?: string;
   };
   summary?: string;
   experiences?: {
@@ -46,7 +47,7 @@ export interface CvData {
 export interface Cv {
   id: number;
   title: string;
-  template: "modern" | "classic";
+  template: "modern" | "classic" | "neon";
   language: "id" | "en";
   data?: CvData;
   updated_at: string;

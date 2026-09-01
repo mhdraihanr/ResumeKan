@@ -20,4 +20,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/cvs/{cv}/pdf', [CvController::class, 'pdf'])->name('cvs.pdf');
 
     Route::post('/ai/summary', [AiController::class, 'summary'])->middleware('throttle:5,1')->name('ai.summary');
+
+    Route::post('/upload-signature', [CvController::class, 'uploadSignature'])->name('upload.signature');
 });
+
+// Print shell for PDF (signed URL, no auth cookie needed — Browsershot loads this)
+Route::get('/cvs/{cv}/print', [CvController::class, 'print'])->middleware('signed')->name('cvs.print');

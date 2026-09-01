@@ -36,7 +36,7 @@ async function submit() {
         <ul class="mt-8 space-y-3 text-sm text-paper/80">
           <li class="flex items-center gap-3">
             <span class="size-2 shrink-0 bg-powder"></span>
-            2 template ATS, preview real-time
+            3 template ATS, preview real-time
           </li>
           <li class="flex items-center gap-3">
             <span class="size-2 shrink-0 bg-powder"></span>

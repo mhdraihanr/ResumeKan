@@ -15,7 +15,7 @@ class StoreCvRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:100',
-            'template' => 'required|in:modern,classic',
+            'template' => 'required|in:modern,classic,neon',
             'language' => 'required|in:id,en',
             'data' => 'required|array',
             'data.personal' => 'required|array',
@@ -26,6 +26,7 @@ class StoreCvRequest extends FormRequest
             'data.personal.linkedin' => 'nullable|string|max:500',
             'data.personal.website' => 'nullable|string|max:500',
             'data.personal.github' => 'nullable|string|max:500',
+            'data.personal.photo' => 'nullable|string|max:2000',
             'data.summary' => 'nullable|string|max:600',
             'data.experiences' => 'nullable|array|max:10',
             'data.experiences.*.company' => 'required_with:data.experiences|string',
