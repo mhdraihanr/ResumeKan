@@ -23,7 +23,7 @@ defineEmits<{
           required
           maxlength="100"
           placeholder="CV Backend"
-          class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
+          class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus:border-ring"
           @input="
             $emit('update:title', ($event.target as HTMLInputElement).value)
           "
@@ -33,7 +33,7 @@ defineEmits<{
         <FormLabel label="Template" />
         <select
           :value="template"
-          class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
+          class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus:border-ring"
           @change="
             $emit('update:template', ($event.target as HTMLSelectElement).value)
           "
@@ -51,7 +51,7 @@ defineEmits<{
         <FormLabel label="Bahasa" />
         <select
           :value="language"
-          class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none"
+          class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus:border-ring"
           @change="
             $emit('update:language', ($event.target as HTMLSelectElement).value)
           "

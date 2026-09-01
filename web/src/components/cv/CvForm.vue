@@ -176,7 +176,7 @@ async function generateSummary() {
 }
 .dark .cv-form input::placeholder,
 .dark .cv-form textarea::placeholder {
-  color: color-mix(in srgb, var(--foreground) 65%, transparent);
+  color: color-mix(in srgb, var(--foreground) 80%, transparent);
 }
 .dark .cv-form input:focus,
 .dark .cv-form select:focus,

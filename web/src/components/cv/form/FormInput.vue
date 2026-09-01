@@ -16,6 +16,6 @@ const model = defineModel<string>();
     :required="required"
     :maxlength="maxlength as number | undefined"
     :placeholder="placeholder"
-    class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
+    class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs placeholder:text-slate-400 focus:border-slate-900 focus:outline-none dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus:border-ring"
   />
 </template>

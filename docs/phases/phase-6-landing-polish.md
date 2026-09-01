@@ -94,6 +94,13 @@
 - Hover states disinkronkan kedua mode (R-27): light `hover:bg-slate-200 hover:text-slate-700` (delta jelas, teks 8.40:1), dark `dark:hover:bg-white/15 dark:hover:text-foreground` (overlay terang di atas zinc-700, 6.35-7.44:1). Hover adalah treatment suplemen (pointer = state indicator, SC 1.4.11 tidak wajib 3:1 untuk bg), tapi teks tetap ≥4.5:1.
 - Verifikasi browser: dark (semua elemen terbaca, kontras AA) + light (hover slate-200 terlihat, teks slate-700, tidak ada regresi). vue-tsc 0 error.
 
+### CvForm — audit dark mode field & foto (2026-09-01, uncommitted)
+
+- Audit computed-style semua 9 step di dark mode: field (input/select/textarea), `FormLabel`, placeholder, tombol `Hapus foto`, teks error. Sebelumnya: input di step Meta/Pribadi tidak punya `dark:` variant (bg tetap light `#f8fafc/0.12` di atas card), `FormLabel` `text-slate-700` gagal 1.23:1 saat dipakai di luar `<label>` (foto), `Hapus foto` `red-600` 1.98:1 gagal, error upload `red-600` tanpa variant, placeholder `foreground/65` = 4.04:1 borderline.
+- Fix: field mendapat `dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus:border-ring` (MetaStep + FormInput/FormSelect/FormTextarea). Placeholder naik `65% → 80%` di `.dark .cv-form input::placeholder` (5.21:1). `FormLabel` → `dark:text-foreground/75` (6.44:1). `Hapus foto` → `dark:text-red-300` (5.44:1), error → `dark:text-red-400`, teks petunjuk foto → `dark:text-slate-400`. Buffer/override `dark:placeholder:` per-input yang mati dibuang (single-source di `.cv-form`).
+- Foto profil: thumbnail jadi tombol buka modal lightbox aksesibel (`role="dialog"`, `aria-modal`, `aria-label`, tutup via ✕/Esc/klik-luar). Container foto `<label>` → `<div>` agar klik area kosong tidak memicu delete. URL foto dihapus dari UI.
+- Verifikasi browser semua step: Pribadi 235 elemen, step lain 236 elemen — 0 fail (teks & placeholder ≥4.5:1). get_errors 0.
+
 ### CvForm — stepper tabs 9 langkah (2026-08-30, uncommitted)
 
 - Form panjang 9 section satu scroll (scrollHeight 4107px) terlalu overwhelm. Inspirasi: FlowCV (multi-step wizard, `currentStep` state, Next/Back, progress tracking), Rezi UX audit (Exa: "maze-like navigation without clear indicators of progress" — fix: visual progress indicators, step-by-step guided navigation, Next button). Implementasi Opsi A: stepper tabs horizontal di atas form.
