@@ -13,6 +13,7 @@ Generator CV ATS-friendly berbasis AI. Isi form → pilih template → download 
 | Database | SQLite (lokal) → Neon Postgres (produksi)                  |
 | PDF      | Spatie Browsershot (headless Chrome)                       |
 | AI       | AI gateway OpenAI-compatible via HTTP client biasa         |
+| Foto     | Cloudinary (signed upload dari browser)                    |
 
 ## Struktur Monorepo
 

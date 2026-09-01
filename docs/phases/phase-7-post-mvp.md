@@ -21,7 +21,6 @@ Menampung ide yang ditunda demi MVP ramping (YAGNI). Dieksekusi hanya jika ada s
 ### Ide lain (belum diprioritaskan)
 
 - Template premium / paywall
-- Upload foto profil
 - Share link publik CV
 - OAuth Google/LinkedIn
 - ATS score checker

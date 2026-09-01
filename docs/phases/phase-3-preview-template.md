@@ -4,35 +4,36 @@
 
 ## Yang Dikerjakan
 
-- [x] `CvPreview.vue` — 2 template ATS (modern/classic), HTML/CSS murni sama untuk preview & PDF (ADR-4)
+- [x] `CvPreview.vue` — 3 template ATS (modern/classic/neon), 1 template = 1 file (`CvModern.vue`/`CvClassic.vue`/`CvNeon.vue`, header include masing-masing), HTML/CSS murni sama untuk preview & PDF (ADR-4)
 - [x] Preview real-time — `v-model` data/template dari `CvFormView.vue`, update tanpa lag
 - [x] Layout split `lg:grid-cols-[520px_1fr]` — form kiri scroll, preview kanan sticky; stack di mobile
 
 ## Hasil Implementasi
 
-| File                                  | Isi                                                                                                                                                                                                     |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------- |
-| `web/src/components/cv/CvPreview.vue` | Props `data: CvData`, `template: string` — 1 sumber section, token-driven via `web/src/lib/cv-templates.ts` (refactor 2026-08-31: duplikasi modern/classic ~130 baris dihapus; `sections/PreviewSection | EntryRow | BulletList.vue` dipakai semua template) |
-| `web/src/views/CvFormView.vue`        | Grid form + preview, `CvPreview :data="data" :template="template"`                                                                                                                                      |
+| File                                  | Isi                                                                                                                                                                                                                              |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------------------- |
+| `web/src/components/cv/CvPreview.vue` | Props `data: CvData`, `template: string` — router ke `templates/CvModern.vue`/`CvClassic.vue`/`CvNeon.vue` via `comp` computed (refactor 2026-08-31: 1 template = 1 file, header include masing-masing; `sections/PreviewSection | EntryRow | BulletList.vue` shared) |
+| `web/src/views/CvFormView.vue`        | Grid form + preview, `CvPreview :data="data" :template="template"`                                                                                                                                                               |
 
 ## Hasil Verifikasi
 
-| Uji                                                      | Hasil   |
-| -------------------------------------------------------- | ------- |
-| `vue-tsc --build`                                        | 0 error |
-| `pnpm build`                                             | ok      |
-| Browser: ketik Nama → preview update                     | ✅      |
-| Browser: switch Modern ↔ Classic → header/accent berubah | ✅      |
-| Mobile: stack form di atas preview                       | ✅      |
+| Uji                                                                    | Hasil   |
+| ---------------------------------------------------------------------- | ------- |
+| `vue-tsc --build`                                                      | 0 error |
+| `pnpm build`                                                           | ok      |
+| Browser: ketik Nama → preview update                                   | ✅      |
+| Browser: switch Modern ↔ Classic ↔ Neon → header/accent/layout berubah | ✅      |
+| Mobile: stack form di atas preview                                     | ✅      |
 
 ## Referensi Template
 
 > Dipilih sebelum eksekusi — diverifikasi via Exa 2026-08-27.
 
-| Template  | Referensi                                             | URL                                          |
-| --------- | ----------------------------------------------------- | -------------------------------------------- |
-| `modern`  | VitaeKit Modern — Clean sans-serif with a blue accent | https://vitaekit.com/resume-templates/modern |
-| `classic` | LumiCV Minimal — Distraction-free, clean hierarchy    | https://lumicv.com/resume-templates/minimal  |
+| Template  | Referensi                                               | URL                                                                 |
+| --------- | ------------------------------------------------------- | ------------------------------------------------------------------- |
+| `modern`  | VitaeKit Modern — Clean sans-serif with a blue accent   | https://vitaekit.com/resume-templates/modern                        |
+| `classic` | LumiCV Minimal — Distraction-free, clean hierarchy      | https://lumicv.com/resume-templates/minimal                         |
+| `neon`    | Referensi HTML internal, dokumen profesional satu kolom | [gemini-code-1788187543370.html](../gemini-code-1788187543370.html) |
 
 ### Modern (VitaeKit) — PDF-like
 
@@ -53,13 +54,23 @@
 - LinkedIn/Website/GitHub: sama seperti modern — dukung `www.` tanpa scheme
 - Cocok: konservatif, ATS-heavy, lintas industri — "safest choice"
 
-### Aturan ATS (keduanya)
+### Neon (referensi HTML internal) - satu kolom
 
-Single-column, reading order = parsing order, heading standar (`Experience`, `Education`, `Skills`), kontak di body, font standar, tanpa tables/text boxes/columns/graphics/skill meters. Accent via CSS border, bukan image.
+- Dokumen putih satu kolom dengan teks utama `#111`, teks pendukung `#444`, dan divider mint `#6ee7b7` di setiap heading section
+- Header kiri: nama 42px, subjudul dari posisi pengalaman terbaru, grid kontak dua kolom yang menjadi satu kolom pada layar sempit
+- Foto persegi `110px × 135px` dari `personal.photo` bersifat opsional (di-upload via Cloudinary). Bila tidak ada foto, header tetap rapi. Tidak ada QR atau border luar
+- Bahasa dan sertifikat dapat berdampingan pada layar lebar, tetapi konten utama tetap mengalir linear
+- Cocok: CV profesional modern yang mengutamakan hierarchy visual dan keterbacaan ATS
+
+### Aturan ATS (semua template)
+
+Ketiga template memakai body satu kolom dengan reading order = parsing order, heading standar (`Ringkasan`, `Pengalaman Kerja`, `Pendidikan`, `Keahlian`), kontak berbentuk teks/link, font standar, tanpa tables, text boxes, QR, graphics, atau skill meters. Accent via CSS border, bukan image.
 
 ## Catatan
 
-- Template harus **HTML/CSS murni yang sama** dengan yang dirender PDF di Fase 5 (ADR-4) — jangan pakai fitur CSS yang tidak didukung headless Chrome print.
+Catatan enhancement historis di bawah yang menyebut "kedua template" merujuk Modern dan Classic sebelum Neon dibuat ulang. Neon mengikuti bagian referensi Neon di atas.
+
+- Template harus **HTML/CSS murni yang sama** dengan yang dirender PDF di Fase 5 (ADR-4). Jangan pakai fitur CSS yang tidak didukung headless Chrome print.
 - Preview = computed dari Pinia store `cv`, tanpa state terpisah.
 - Palet: 2–3 warna netral + 1 accent (antislop-ui R-29) — modern navy `#1e40af` border-b-2, classic `slate-900` border-b-[1.5px] (garis berwarna di bawah title, 8 section seragam incl. Organisasi).
 - Form value font `text-xs` (12px) — label `text-xs`, section title `text-sm` tetap; input `py-1.5` agar density pas di lebar 480/520.
@@ -80,7 +91,7 @@ Single-column, reading order = parsing order, heading standar (`Experience`, `Ed
 ## Definisi Selesai
 
 - Mengubah field form langsung tercermin di preview tanpa lag.
-- Switch template modern ↔ classic mengubah tampilan (header, heading, accent, divider).
+- Switch template modern ↔ classic ↔ neon mengubah tampilan header, heading, accent, dan divider tanpa mengubah body linear.
 - Preview identik dengan output PDF Fase 5 (HTML yang sama).
 
 ← [Fase 2](phase-2-crud-cv.md) · Lanjut ke [Fase 4](phase-4-ai-summary.md)

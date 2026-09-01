@@ -2,17 +2,17 @@
 
 > **Tujuan:** rapikan struktur kode yang menumpuk tanpa mengubah perilaku & tampilan.
 > **Prinsip:** deletion over addition, boring over clever, shortest diff. Tidak ada perubahan visual, tidak ada perubahan API, tidak ada dependency baru.
-> **Status:** ✅ selesai (2026-08-31) — semua fase dieksekusi & diverifikasi via browser (light+dark, classic+modern).
+> **Status:** ✅ selesai (2026-08-31), dengan Neon diperbarui dan diverifikasi ulang setelahnya. Verifikasi browser mencakup Modern, Classic, dan Neon.
 
 ## 1. Latar Belakang
 
 Audit 2026-08-31 menemukan 2 file menumpuk:
 
-| File                                  | Baris     | Masalah                                                                  |
-| ------------------------------------- | --------- | ------------------------------------------------------------------------ |
-| `web/src/components/cv/CvForm.vue`    | 928       | 9 section inline, duplikasi kelas 36×/26×/39×, hack `syncing` flag       |
-| `web/src/components/cv/CvPreview.vue` | 577       | 2 template duplikat penuh, dead code `contactLine`, 6× ul bullet identik |
-| `api/`                                | ≤121/file | ✅ sehat                                                                 |
+| File                                  | Baris     | Masalah                                                                                                                                 |
+| ------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `web/src/components/cv/CvForm.vue`    | 928       | 9 section inline, duplikasi kelas 36×/26×/39×, hack `syncing` flag                                                                      |
+| `web/src/components/cv/CvPreview.vue` | 577       | Template duplikat penuh, dead code `contactLine`, 6× ul bullet identik. Audit ini dibuat sebelum Neon disederhanakan menjadi satu kolom |
+| `api/`                                | ≤121/file | ✅ sehat                                                                                                                                |
 
 Duplikasi terukur: input class `rounded-lg border…` 36×, `placeholder:text-slate-400…` 26×, label span 39×, tombol `+ Tambah` 4×, `Hapus` 4×, heading h2 13×, `flex items-baseline…` 6×.
 
@@ -59,13 +59,14 @@ web/src/components/cv/
 │   ├── SkillsStep.vue
 │   ├── ProjectsStep.vue
 │   └── OtherStep.vue
-├── CvPreview.vue           # 1 sumber section, token-driven (header + otherMode)
-├── sections/               # dipakai semua template
-│   ├── PreviewSection.vue  # h2 + border via :modern
-│   ├── EntryRow.vue        # title kiri + tanggal kanan
-│   └── BulletList.vue
+├── CvPreview.vue           # router: pilih CvModern/CvClassic/CvNeon via comp computed
+├── templates/              # 1 template = 1 file (header include masing-masing)
+│   ├── CvModern.vue        # single-column, navy accent
+│   ├── CvClassic.vue       # single-column, serif, center header, split otherMode
+│   └── CvNeon.vue          # single-column, mint divider, foto persegi opsional
+├── sections/               # shared: PreviewSection, EntryRow, BulletList
 web/src/lib/
-└── cv-templates.ts         # token 1 sumber: font, headerAlign, h1Class, linkClass, otherMode
+└── cv-templates.ts         # token 1 sumber: font, headerAlign, h1Class, linkClass, otherMode, layout, accent, hasBorder, hasQr
 ```
 
 ## 4. Fase Eksekusi
@@ -99,12 +100,11 @@ web/src/lib/
 - `MetaStep.vue` & `HomeView.vue` baca `CV_TEMPLATES` untuk options (tambah template = tambah 1 entry token).
 - Verifikasi: preview modern & classic identik (browser), PDF Blade belum diubah.
 
-### Fase 4 — Sinkron PDF (Opsi C token-based)
+### Fase 4 — Sinkron PDF (Opsi A single-source, terealisasi 2026-08-31)
 
-- **Dilakukan (Opsi C):** token `cv-templates.ts` jadi 1 sumber keputusan untuk nambah template (tambah 1 entry, bukan copy 130 baris). `CvPreview.vue` single-source section.
-- **Opsi B tetap:** perubahan layout CV wajib sinkron `CvPreview.vue` + `cv.blade.php` (ADR-4). Drift kontak 1-baris vs 2-baris didokumentasikan.
-- **Ditunda (Opsi A):** Browsershot load URL SPA print — butuh route print + auth headless, terlalu besar untuk refactor tanpa perubahan perilaku. Upgrade path tercatat di ADR-4.
-- Verifikasi akhir: `get_errors` 0, `pnpm build` sukses, browser light+dark, preview modern & classic identik.
+- **Dilakukan (Opsi A):** `CvController@pdf` membangun `print.html` dan menyisipkan `window.__CV_DATA__`/`__CV_TEMPLATE__`, lalu `PdfService` memanggil `Browsershot::html($html)`. `web/print.html` dan `print-main.ts` adalah multi-input Vite. Blade `cv.blade.php` dihapus. Route `cvs.print` signed dipertahankan hanya untuk inspeksi shell internal. Detail → [PDF_SINGLE_SOURCE_PLAN.md](PDF_SINGLE_SOURCE_PLAN.md).
+- **1 template = 1 file (2026-08-31):** `CvPreview.vue` jadi router (`comp` computed → `CvModern`/`CvClassic`/`CvNeon`), header include masing-masing file. Nambah template = 1 entry `CV_TEMPLATES` + 1 file `templates/CvNamaBaru.vue` + 1 cabang `comp`.
+- Verifikasi akhir: `get_errors` 0, `pnpm build` sukses, browser light+dark, preview Modern/Classic/Neon, endpoint PDF `200 application/pdf` dan konten tidak blank. Neon diverifikasi ulang setelah redesign: body satu kolom, grid kontak satu kolom pada viewport sempit tanpa overflow, dan PDF valid.
 
 ## 5. Verifikasi Tiap Fase
 
@@ -129,7 +129,8 @@ web/src/lib/
 2. `refactor(cv-form): extract FormInput/Textarea/Select/Label`
 3. `refactor(cv-form): split 9 steps jadi komponen terpisah`
 4. `refactor(preview): extract PreviewSection/EntryRow/BulletList + token cv-templates`
-5. `docs: sinkron REFACTOR_PLAN + ADR-4 untuk Opsi C token-based`
+5. `feat(pdf): single-source via print.html shell + Browsershot::html (Opsi A)` — Blade dihapus
+6. `refactor(preview): 1 template = 1 file (CvModern/CvClassic/CvNeon, header include masing-masing)`
 
 ## 8. Referensi
 

@@ -25,7 +25,7 @@
 
 ## Fase 3 — Preview & Template (1 hari) ✅ [detail](phases/phase-3-preview-template.md)
 
-- [x] Komponen `CvPreview` dengan 2 template (modern, classic) — VitaeKit Modern / LumiCV Minimal
+- [x] Komponen `CvPreview` dengan 3 template (modern, classic, neon) — 1 template = 1 file (`CvModern`/`CvClassic`/`CvNeon`, header include masing-masing)
 - [x] Preview real-time saat mengisi form (computed dari store)
 
 ## Fase 4 — AI Summary (½ hari) ✅ [detail](phases/phase-4-ai-summary.md)
@@ -35,9 +35,9 @@
 
 ## Fase 5 — PDF (1 hari) ✅ [detail](phases/phase-5-pdf.md)
 
-- [x] `PdfService` (Browsershot) render template yang sama dengan preview
-- [x] Endpoint `/cvs/{id}/pdf` + tombol download
-- [x] Install Chromium lokal untuk testing (Edge via `useChrome()->setChromePath()`, fallback puppeteer)
+- [x] `PdfService` (Browsershot) render HTML `print.html` dengan template Vue yang sama seperti preview melalui `Browsershot::html()`
+- [x] Endpoint `/cvs/{id}/pdf` + tombol download, tanpa request balik ke API selama render
+- [x] Install Chromium lokal untuk testing (Edge via `useChrome()->setChromePath()`, fallback Puppeteer)
 
 ## Fase 6 — Landing & Polish (1 hari) ✅ [detail](phases/phase-6-landing-polish.md)
 

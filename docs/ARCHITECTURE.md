@@ -37,9 +37,9 @@
 - **Keputusan:** Spatie Browsershot render HTML template yang sama dengan preview → PDF.
 - **Alasan:** CV = HTML/CSS; hasil identik dengan preview. DomPDF/wkhtmltopdf rusak pada Tailwind modern (flex/grid/oklch).
 - **Prasyarat deploy:** binary Chromium tersedia di server. Lokal: `PdfService` otomatis memakai Microsoft Edge (Chromium) via `useChrome()->setChromePath()`; fallback Puppeteer (`npm i puppeteer` di `api/`).
-- **Template Fase 3:** `modern` = VitaeKit Modern (sans-serif, navy `#1e40af` underline, A4 print CSS) — https://vitaekit.com/resume-templates/modern · `classic` = LumiCV Minimal (whitespace, `border-b-[1.5px] border-slate-900` 8 section, monochrome) — https://lumicv.com/resume-templates/minimal. Keduanya single-column ATS-friendly, HTML/CSS murni yang sama untuk preview & PDF. Skills pisah `Hard skills:` / `Soft skills:` di kedua template. LinkedIn/Website/GitHub dukung `www.` tanpa scheme (normalisasi `https://` di `StoreCvRequest`). IPK di dalam Education, Organisasi section terpisah.
-- **Implementasi:** `PdfService` render `resources/views/pdf/cv.blade.php` (Blade mandiri, CSS inline meniru markup `CvPreview.vue`) → A4, margin 14/16mm, `showBackground()`. Endpoint `GET /api/v1/cvs/{cv}/pdf` → `CvController@pdf` (owner check, `{nama}_CV.pdf`).
-- **Sinkronisasi markup (2026-08-31):** Preview Vue dipecah jadi `sections/` (`PreviewSection`, `EntryRow`, `BulletList`) + token `web/src/lib/cv-templates.ts` (font, headerAlign, h1Class, linkClass, otherMode per template) — markup hasil render identik dengan sebelum refactor. Nambah template = tambah 1 entry `CV_TEMPLATES` (select form, toggle landing, preview otomatis ikut). Blade PDF tetap file mandiri; **perubahan layout CV wajib disinkronkan ke 2 tempat** (`CvPreview.vue` + `cv.blade.php`). Drift yang diketahui: header kontak Blade masih 1 baris (preview sudah 2 baris semantik sejak 2026-08-30) — perbaiki saat menyentuh PDF berikutnya. Opsi single-source (Browsershot load URL SPA print) ditunda: butuh route print + auth headless, terlalu besar untuk refactor tanpa perubahan perilaku.
+- **Template Fase 3:** `modern` memakai referensi VitaeKit Modern (sans-serif, navy `#1e40af` underline, A4 print CSS): https://vitaekit.com/resume-templates/modern. `classic` memakai referensi LumiCV Minimal (whitespace, `border-b-[1.5px] border-slate-900`, monochrome): https://lumicv.com/resume-templates/minimal. `neon` memakai referensi HTML internal `docs/gemini-code-1788187543370.html`: dokumen putih satu kolom, teks `#111`/`#444`, divider mint `#6ee7b7`, header kiri dengan grid kontak responsif, serta foto persegi opsional. Neon tidak memakai QR atau border luar. Body ketiga template tetap berurutan secara linear untuk pembacaan ATS; grid responsif Neon hanya dipakai untuk kontak dan blok Bahasa/Sertifikat. Skills pisah `Hard skills:` / `Soft skills:` di semua template. LinkedIn/Website/GitHub dukung `www.` tanpa scheme (normalisasi `https://` di `StoreCvRequest`). IPK di dalam Education, Organisasi section terpisah. Foto opsional hanya dipakai Neon; di-upload via **Cloudinary signed upload** (endpoint `POST /api/v1/upload-signature` menandatangani, browser langsung kirim ke Cloudinary, hasil `secure_url` disimpan ke `personal.photo`) — `api_secret` tidak pernah bocor ke klien (config `config/cloudinary.php` + `.env` `CLOUDINARY_*`).
+- **Implementasi (single-source, 2026-08-31):** `CvPreview.vue` adalah satu-satunya sumber markup (router ke `templates/CvModern.vue`/`CvClassic.vue`/`CvNeon.vue`, 1 template = 1 file, header include masing-masing). `CvController@pdf` memeriksa pemilik CV, membuat HTML dari print shell dengan `window.__CV_DATA__` + `window.__CV_TEMPLATE__`, lalu `PdfService` menjalankan `Browsershot::html($html)` dalam proses yang sama. Ini menghindari request balik ke server Laravel saat server development hanya menangani satu request. A4, margin 14/16mm, background, dan `waitUntilNetworkIdle()` tetap diterapkan. Karena shell HTML disimpan Browsershot sebagai `file://` sementara, Chromium diberi `disable-web-security` dan `allow-file-access-from-files` agar ES module Vite dapat dimuat. Blade `resources/views/pdf/cv.blade.php` **dihapus**. Endpoint `GET /api/v1/cvs/{cv}/print` tetap signed dan hanya untuk inspeksi shell internal, bukan jalur render PDF. Nambah template = tambah 1 entry `CV_TEMPLATES` + 1 file `templates/CvNamaBaru.vue` + 1 cabang di `CvPreview.vue` `comp` computed, PDF otomatis ikut tanpa duplikasi.
+- **Print shell:** `web/print.html` + `web/src/print-main.ts` (mount `CvPreview` dari `window.__CV_DATA__`, tanpa router/Pinia). `vite.config.ts` multi-input (`main` + `print`). Dev: `CvController@print` deteksi Vite dev (`@vite/client` 200) lalu memakai minimal shell (`/src/print-main.ts` via Vite). Produksi memakai `web/dist/print.html` dan me-rewrite URL aset ke `FRONTEND_URL`. Detail rencana → [PDF_SINGLE_SOURCE_PLAN.md](phases/PDF_SINGLE_SOURCE_PLAN.md) (status: terealisasi).
 
 ### ADR-5: AI Gateway (OpenAI-compatible) via `Http::post()`, tanpa SDK
 
@@ -66,7 +66,7 @@ api/
 │   └── Models/              # User, Cv
 ├── routes/api.php
 ├── database/migrations/
-└── config/cv.php            # batas 10 CV, rate limit AI
+└── config/                  # app.frontend_url, CORS, Sanctum, dan rate limiter
 
 web/
 ├── src/
@@ -82,7 +82,7 @@ web/
 └── vite.config.ts           # proxy /api → localhost:8000
 ```
 
-Detail `components/cv/` (refactor 2026-08-31, lihat [REFACTOR_PLAN.md](phases/REFACTOR_PLAN.md)):
+Detail `components/cv/` (refactor 2026-08-31, lihat [REFACTOR_PLAN.md](phases/REFACTOR_PLAN.md) + 1-template-1-file):
 
 ```
 components/cv/
@@ -90,10 +90,14 @@ components/cv/
 ├── form/                   # FormInput, FormTextarea, FormSelect, FormLabel (1 sumber kelas input)
 ├── steps/                  # 9 langkah: Meta, Personal, Summary, Experience, Education,
 │                           # Organization, Skills, Projects, Other
-├── CvPreview.vue           # 1 sumber section, token-driven
-└── sections/               # PreviewSection, EntryRow, BulletList (dipakai semua template)
+├── CvPreview.vue           # router: pilih CvModern/CvClassic/CvNeon via comp computed
+├── templates/              # 1 template = 1 file (header include masing-masing)
+│   ├── CvModern.vue        # single-column, navy accent
+│   ├── CvClassic.vue       # single-column, serif, center header, split otherMode
+│   └── CvNeon.vue          # single-column, mint divider, foto persegi opsional
+└── sections/               # PreviewSection, EntryRow, BulletList (shared)
 
-lib/cv-templates.ts         # token per template: font, headerAlign, h1Class, linkClass, otherMode
+lib/cv-templates.ts         # token per template: font, headerAlign, h1Class, linkClass, otherMode, layout, accent, hasBorder, hasQr
 ```
 
 ## 4. Keamanan

@@ -130,7 +130,7 @@
 ## Batasan (dari PRD)
 
 - Landing **statis** — tanpa blog/CMS.
-- Non-fitur v1 tetap berlaku: tanpa paywall, foto profil, share link, OAuth, ATS checker ([PRD §5](../PRD.md#5-non-fitur-v1-dilarang-dibangun-sekarang)).
+- Non-fitur v1 tetap berlaku: tanpa paywall, share link, OAuth, ATS checker ([PRD §5](../PRD.md#5-non-fitur-v1-dilarang-dibangun-sekarang)).
 
 ## Definisi Selesai
 

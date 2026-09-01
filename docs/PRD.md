@@ -19,20 +19,19 @@ ResumeKan adalah web app yang membantu pencari kerja (fokus: Indonesia) membuat 
 
 ## 4. Fitur MVP (v1)
 
-| #   | Fitur             | Deskripsi                                                                                                                                                                                                                                              |
-| --- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| F1  | Auth              | Register, login, logout via email+password                                                                                                                                                                                                             |
-| F2  | Form CV           | Data pribadi, ringkasan, pengalaman kerja (employment type Full-time/Part-time/Internship, bullet per baris), pendidikan (IPK opsional), organisasi (max 5), hard/soft skills, bahasa, sertifikat, proyek terstruktur (title/role/objective/techStack) |
-| F3  | Preview real-time | Render CV saat form diisi, 2 template (modern, classic)                                                                                                                                                                                                |
-| F4  | Simpan draft      | CRUD CV per user; satu user punya banyak CV; tombol `Simpan Draft` di editor menyimpan tanpa keluar form (toast konfirmasi)                                                                                                                            |
-| F5  | AI summary        | Generate ringkasan profesional fokus posisi dominan/terbaru dari data form (proyek hanya konteks tech, tidak dijelaskan) via AI gateway OpenAI-compatible, bisa diedit manual                                                                          |
-| F6  | Download PDF      | Server-side render HTML → PDF, nama file `{nama}_CV.pdf`                                                                                                                                                                                               |
-| F7  | Multi-bahasa CV   | Konten CV ID/EN (pilihan user per CV)                                                                                                                                                                                                                  |
+| #   | Fitur             | Deskripsi                                                                                                                                                                                                                                                                                                    |
+| --- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| F1  | Auth              | Register, login, logout via email+password                                                                                                                                                                                                                                                                   |
+| F2  | Form CV           | Data pribadi (termasuk foto profil opsional via upload Cloudinary), ringkasan, pengalaman kerja (employment type Full-time/Part-time/Internship, bullet per baris), pendidikan (IPK opsional), organisasi (max 5), hard/soft skills, bahasa, sertifikat, proyek terstruktur (title/role/objective/techStack) |
+| F3  | Preview real-time | Render CV saat form diisi, 3 template (modern, classic, neon)                                                                                                                                                                                                                                                |
+| F4  | Simpan draft      | CRUD CV per user; satu user punya banyak CV; tombol `Simpan Draft` di editor menyimpan tanpa keluar form (toast konfirmasi)                                                                                                                                                                                  |
+| F5  | AI summary        | Generate ringkasan profesional fokus posisi dominan/terbaru dari data form (proyek hanya konteks tech, tidak dijelaskan) via AI gateway OpenAI-compatible, bisa diedit manual                                                                                                                                |
+| F6  | Download PDF      | Server-side render HTML → PDF, nama file `{nama}_CV.pdf`                                                                                                                                                                                                                                                     |
+| F7  | Multi-bahasa CV   | Konten CV ID/EN (pilihan user per CV)                                                                                                                                                                                                                                                                        |
 
 ## 5. Non-Fitur v1 (dilarang dibangun sekarang)
 
 - ❌ Template premium / paywall
-- ❌ Upload foto profil
 - ❌ Share link publik CV
 - ❌ Blog CMS (landing statis saja)
 - ❌ OAuth Google/LinkedIn

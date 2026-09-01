@@ -31,6 +31,11 @@ AI_API_KEY=                    # dari dashboard AI gateway kamu
 AI_BASE_URL=https://api.example.com/v1  # OpenAI-compatible gateway (ganti sesuai provider)
 AI_MODEL=provider/model-name   # mis. anthropic/claude-3-haiku, openai/gpt-4o-mini — ganti tanpa ubah kode
 
+CLOUDINARY_CLOUD_NAME=dzqrr2ks  # dari Cloudinary Console → Dashboard
+CLOUDINARY_API_KEY=             # dari Settings → API Keys → baris `root`
+CLOUDINARY_API_SECRET=          # dari baris `root` yang sama (View/Reveal)
+CLOUDINARY_FOLDER=cvs           # folder penyimpanan foto CV
+
 CV_MAX_PER_USER=10
 AI_THROTTLE_PER_MINUTE=5
 ```

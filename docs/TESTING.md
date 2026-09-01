@@ -60,13 +60,13 @@ POST   /api/v1/cvs { projects: [{ title:"", role:"" }] } → 422  # title/role r
 POST   /api/v1/cvs { projects: string lama }             → 201  # backward compat
 ```
 
-**Preview (Fase 3):** ubah field form → preview update tanpa lag; switch `modern` ↔ `classic` → header/heading/accent berubah; cek di mobile (stack/tab).
+**Preview (Fase 3):** ubah field form → preview update tanpa lag; switch `modern` ↔ `classic` ↔ `neon` → header/heading/accent/layout berubah; cek di mobile (stack/tab).
 
 **Simpan Draft (Fase 3):** di halaman `/cvs/new` isi minimal (judul + data pribadi) → klik `Simpan Draft` → toast `Draft tersimpan` muncul, URL tetap `/cvs/new`, heading berubah jadi "Edit CV", tombol `Download PDF` muncul; refresh halaman → data masih ada. Di halaman edit: ubah field → `Simpan Draft` → toast muncul tanpa keluar halaman; cek DB `updated_at` berubah.
 
 **AI (Fase 4):** `POST /api/v1/ai/summary` → `200`; request ke-6 dalam 1 menit → `429`.
 
-**PDF (Fase 5):** `GET /api/v1/cvs/{id}/pdf` → binary PDF; cek nama file di header `Content-Disposition`; bandingkan visual dengan preview (harus identik).
+**PDF (Fase 5):** dengan session aktif, `GET /api/v1/cvs/{id}/pdf` → `200 application/pdf`; cek signature awal `%PDF-`, nama file di header `Content-Disposition`, dan ukuran file lebih dari satu halaman kosong. Dari halaman edit, klik **Download PDF** dan pastikan file bernama `{nama}_CV.pdf` terunduh serta kontennya sama dengan preview. Bila PDF kosong, cek bahwa `PdfService` memakai `Browsershot::html()` dan argumen Chromium untuk module dari shell `file://`, bukan request URL print balik ke API.
 
 ## 2. SPA (browser)
 

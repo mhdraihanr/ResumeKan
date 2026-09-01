@@ -1,12 +1,12 @@
 # API Spec — ResumeKan
 
 > Base URL: `/api/v1`. Auth: cookie Sanctum (`/api/v1/*` stateful).
-> Semua response JSON. Error format: `{ "message": string, "errors"?: { field: string[] } }`.
+> Response JSON, kecuali unduhan PDF dan shell print internal. Error JSON memakai `{ "message": string, "errors"?: { field: string[] } }`.
 
 ## Konvensi
 
 - `401` belum login · `403` bukan pemilik resource · `404` tidak ada · `422` validasi · `429` rate limit.
-- Semua route (kecuali auth) butuh login.
+- Semua route, selain auth dan shell print internal bertanda tangan, butuh login.
 
 ## Auth
 
@@ -16,6 +16,24 @@
 | POST   | `/login`    | `email, password`                              | `{ user }` + cookie     |
 | POST   | `/logout`   | —                                              | `204`                   |
 | GET    | `/user`     | —                                              | `{ user }`              |
+
+## Upload Foto (Cloudinary)
+
+### `POST /upload-signature` (auth)
+
+Mengembalikan credential & signature untuk signed upload langsung dari browser ke Cloudinary. `api_secret` tidak pernah dikirim ke klien.
+
+```json
+{
+  "cloud_name": "dzqrr2ks",
+  "api_key": "...",
+  "timestamp": "1710000000",
+  "signature": "sha1...",
+  "folder": "cvs"
+}
+```
+
+Klien lalu `POST` ke `https://api.cloudinary.com/v1_1/{cloud_name}/image/upload` dengan `file, api_key, timestamp, signature, folder` → response berisi `secure_url` yang disimpan ke `data.personal.photo`. `config/cloudinary.php` membaca `.env` `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET`.
 
 ## CV
 
@@ -42,7 +60,7 @@
 ```json
 {
   "title": "CV Backend",
-  "template": "modern",            // modern | classic
+  "template": "modern",            // modern | classic | neon
   "language": "id",                // id | en
   "data": { ...CvData }            // lihat DATA_MODEL.md
 }
@@ -77,8 +95,13 @@ Error AI gateway → `502 { "message": "AI service unavailable" }`.
 
 ### `GET /cvs/{id}/pdf`
 
+Butuh cookie Sanctum dan kepemilikan CV. Controller membangun HTML `print.html` dengan `window.__CV_DATA__`/`__CV_TEMPLATE__`, lalu memberikannya langsung ke `Browsershot::html()`.
+
 → `200` binary `application/pdf`, header `Content-Disposition: attachment; filename="Nama_CV.pdf"`.
-Timeout render 30s → `504`.
+
+### `GET /cvs/{id}/print` (signed, shell debug internal)
+
+→ `200` `text/html`. Route ini menerima `?expires=&signature=` melalui middleware `signed`, lalu me-return shell print dengan data CV ter-embed. Route dipertahankan untuk inspeksi internal, tetapi `PdfService` tidak memanggilnya. Jangan panggil langsung dari frontend.
 
 ## Contoh cURL
 

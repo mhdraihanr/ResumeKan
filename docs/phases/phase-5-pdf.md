@@ -10,21 +10,22 @@
 
 ## Implementasi
 
-- `api/app/Services/PdfService.php`: `Browsershot::html(view('pdf.cv'))` → A4, margin 14/16/14/16mm, `showBackground()`, `waitUntilNetworkIdle()`. Browser: Edge (Chromium) lokal via `useChrome()->setChromePath()` karena Chrome tidak terpasang; fallback ke Puppeteer default.
-- `api/resources/views/pdf/cv.blade.php`: template Blade mandiri (CSS inline, tanpa Tailwind) yang meniru markup `CvPreview.vue` — struktur, warna, dan spacing identik untuk `modern` (navy underline, sans) dan `classic` (serif, uppercase nama, garis section).
-- `GET /api/v1/cvs/{cv}/pdf` → `CvController@pdf`: owner check, nama file `{nama}_CV.pdf` (sanitasi), `Content-Disposition: attachment`, `application/pdf`.
-- Frontend: tombol **PDF** di kartu CV (Dashboard) dan **Download PDF** di header preview (halaman edit) — `window.open` dengan cookie session.
-- Puppeteer diinstall di `api/` (`npm i puppeteer`) sebagai fallback browser.
+- `api/app/Services/PdfService.php`: menerima HTML print dan memanggil `Browsershot::html($html)` dengan A4, margin 14/16/14/16mm, `showBackground()`, dan `waitUntilNetworkIdle()`. Browser memakai Edge Chromium lokal melalui `useChrome()->setChromePath()` apabila tersedia, lalu fallback ke Puppeteer.
+- Shell HTML Browsershot adalah `file://` sementara. `PdfService` menambahkan argumen Chromium `disable-web-security` dan `allow-file-access-from-files` supaya module Vite atau aset build dari `FRONTEND_URL` tetap termuat. Tanpa argumen ini PDF dapat menjadi halaman kosong karena module script diblokir CORS.
+- `GET /api/v1/cvs/{cv}/pdf` melalui `CvController@pdf`: cek pemilik CV, membuat shell dengan `resolvePrintHtml()`, lalu meneruskannya ke `PdfService::render($html)`. Jalur ini tidak lagi meminta endpoint API kedua, sehingga tidak deadlock pada Laravel development server satu-proses. Nama file tetap `{nama}_CV.pdf`, disanitasi, dengan `Content-Disposition: attachment` dan `application/pdf`.
+- `GET /api/v1/cvs/{cv}/print` melalui `CvController@print` memakai middleware `signed`, lalu me-return `print.html` dengan `window.__CV_DATA__`/`__CV_TEMPLATE__` ter-embed. Route ini hanya untuk inspeksi shell internal, bukan dipanggil `PdfService` atau frontend.
+- Frontend: tombol **PDF** di kartu CV (Dashboard) dan **Download PDF** di header preview (halaman edit) memakai `window.open` dengan cookie session.
 
 ## Referensi
 
-- Kontrak: [API Spec — PDF](../API_SPEC.md#pdf)
-- ADR-4: Browsershot + headless Chrome; DomPDF/wkhtmltopdf tidak dipakai (rusak di Tailwind modern). Template HTML yang sama dengan Fase 3: `modern` (VitaeKit) / `classic` (LumiCV Minimal).
-- Nama file: `{nama}_CV.pdf`, timeout render 30s → `504`.
+- Kontrak: [API Spec: PDF](../API_SPEC.md#pdf)
+- ADR-4: Browsershot + headless Chrome; DomPDF/wkhtmltopdf tidak dipakai (rusak di Tailwind modern). Template HTML yang sama dengan Fase 3: `modern` (VitaeKit) / `classic` (LumiCV Minimal) / `neon` (dokumen satu kolom, divider mint `#6ee7b7`, grid kontak responsif, foto persegi opsional, tanpa QR atau border luar).
+- Nama file: `{nama}_CV.pdf`. Batas waktu mengikuti konfigurasi proses PHP dan Browsershot di environment deploy.
 
 ## Definisi Selesai
 
-- [x] PDF hasil download **identik** dengan preview (verified: text extraction + screenshot, 2 halaman, semua section muncul).
+- [x] PDF hasil download memakai markup `CvPreview` yang sama dengan preview.
+- [x] Endpoint PDF Neon diverifikasi setelah redesign: `200`, `application/pdf`, signature `%PDF-`, header `Content-Disposition: attachment`, 69.973 byte, dan konten CV ter-render.
 - [x] Kriteria MVP terkait PDF di [PRD](../PRD.md#7-kriteria-selesai-mvp) terpenuhi.
 
 ← [Fase 4](phase-4-ai-summary.md) · Lanjut ke [Fase 6](phase-6-landing-polish.md)

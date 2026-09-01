@@ -20,7 +20,7 @@ erDiagram
         id id
         id user_id FK
         string title
-        string template "modern|classic"
+        string template "modern|classic|neon"
         string language "id|en"
         json data
         timestamps timestamps
@@ -33,15 +33,15 @@ Standar Laravel (`id`, `name`, `email` unique, `password`, `timestamps`). Tidak 
 
 ## Tabel `cvs`
 
-| Kolom        | Tipe        | Aturan                                            |
-| ------------ | ----------- | ------------------------------------------------- |
-| `id`         | bigint PK   |                                                   |
-| `user_id`    | FK → users  | `cascadeOnDelete()`                               |
-| `title`      | string(100) | required                                          |
-| `template`   | string(20)  | in: modern, classic — default `modern`            |
-| `language`   | string(2)   | in: id, en — default `id`                         |
-| `data`       | json        | struktur CvData di bawah; divalidasi Form Request |
-| `timestamps` |             |                                                   |
+| Kolom        | Tipe        | Aturan                                                                                                          |
+| ------------ | ----------- | --------------------------------------------------------------------------------------------------------------- |
+| `id`         | bigint PK   |                                                                                                                 |
+| `user_id`    | FK → users  | `cascadeOnDelete()`                                                                                             |
+| `title`      | string(100) | required                                                                                                        |
+| `template`   | string(20)  | in: modern, classic, neon — default `modern` (1 template = 1 file: `CvModern.vue`/`CvClassic.vue`/`CvNeon.vue`) |
+| `language`   | string(2)   | in: id, en — default `id`                                                                                       |
+| `data`       | json        | struktur CvData di bawah; divalidasi Form Request                                                               |
+| `timestamps` |             |                                                                                                                 |
 
 Index: `user_id`. Tidak perlu index lain.
 
@@ -57,6 +57,7 @@ Index: `user_id`. Tidak perlu index lain.
     "linkedin": "string ≤500, opsional — dukung www. tanpa https:// (dinormalisasi ke https://)",
     "website": "string ≤500, opsional — dukung www. tanpa https:// (dinormalisasi ke https://)",
     "github": "string ≤500, opsional — dukung www./github.com tanpa https:// (dinormalisasi ke https://)",
+    "photo": "string ≤2000, opsional — URL Cloudinary (upload via `POST /upload-signature`), hanya dipakai template neon",
   },
   "summary": "string ≤600",
   "experiences": [

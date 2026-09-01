@@ -66,7 +66,7 @@ tanpa blur, warna flat, tapi tetap rapi dan profesional untuk audiens pencari ke
 - Bahasa Indonesia santai profesional. Zero em dash (R-02).
 - CTA spesifik, bukan generik (R-15): tombol utama "Buat CV pertama", CTA akhir "Coba sekarang, gratis".
 - Tanpa fake stats, fake testimonial, atau klaim tidak verifikasi (R-17, R-18, R-36). Landing
-  ResumeKan hanya memuat fitur yang benar-benar ada: 2 template ATS (modern dan classic),
+  ResumeKan hanya memuat fitur yang benar-benar ada: 3 template ATS (modern, classic, neon),
   simpan draft, ringkasan AI, download PDF A4.
 - Satu nilai utama per section, max 2 properti per card (R-11).
 
@@ -80,10 +80,10 @@ tanpa blur, warna flat, tapi tetap rapi dan profesional untuk audiens pencari ke
 ## 7. Hero
 
 - Mock browser window (border ink 2px, hard shadow `6px` terang di dark `#f4f4f5`, title bar ink dengan 3 dot) berisi preview CV asli dari komponen `CvPreview` yang dipakai di editor. Bukan ilustrasi, bukan screenshot palsu (C-5).
-- Struktur entry Experience di preview (kedua template): baris 1 `Posisi · Perusahaan` + tanggal kanan, baris 2 metadata `Employment Type · Lokasi`, lalu bullets. Metadata tidak campur title line (konsisten pola Education).
-- Struktur entry Organisasi di preview (kedua template): baris 1 `Nama Organisasi` (bold) + periode kanan, baris 2 `Peran` (slate-500), lalu bullets. Organisasi sebagai entitas utama di baris 1, peran sebagai detail di baris 2, kontras dengan pola Experience (peran di atas) karena organisasi lebih penting untuk identitas.
-- Struktur entry Proyek di preview (kedua template): baris 1 `Judul Proyek` (bold), baris 2 `Objective` (slate-700), baris 3 `Peran: ...` (slate-500 labeled), baris 4 `Tech Stack: ...` (slate-500 labeled). Hierarki: title sebagai entitas, objective sebagai deskripsi, role + tech stack sebagai metadata berlabel (Exa ATScore: name → description → tools; TMJ Studio: stack di akhir).
-- Di atas preview: toggle Modern / Classic yang mengubah template preview live (bukti fitur template).
+- Struktur entry Experience di preview (semua template): baris 1 `Posisi · Perusahaan` + tanggal kanan, baris 2 metadata `Employment Type · Lokasi`, lalu bullets. Metadata tidak campur title line (konsisten pola Education).
+- Struktur entry Organisasi di preview (semua template): baris 1 `Nama Organisasi` (bold) + periode kanan, baris 2 `Peran` (slate-500), lalu bullets. Organisasi sebagai entitas utama di baris 1, peran sebagai detail di baris 2, kontras dengan pola Experience (peran di atas) karena organisasi lebih penting untuk identitas.
+- Struktur entry Proyek di preview (semua template): baris 1 `Judul Proyek` (bold), baris 2 `Objective` (slate-700), baris 3 `Peran: ...` (slate-500 labeled), baris 4 `Tech Stack: ...` (slate-500 labeled). Hierarki: title sebagai entitas, objective sebagai deskripsi, role + tech stack sebagai metadata berlabel (Exa ATScore: name → description → tools; TMJ Studio: stack di akhir).
+- Di atas preview: toggle Modern / Classic / Neon yang mengubah template preview live (bukti fitur template).
 - Toggle preview full render, bukan gambar. Ini juga membuktikan template asli, bukan mock.
 - Tanpa badge/eyebrow pill di atas headline (AI slop — pill badge, Exa pols.dev/slop.md, antislop-ui). Headline langsung tanpa `mt-4` kompensasi.
 - Spacing hero `py-10 lg:py-14` + teks `lg:-translate-y-12` (naik, CTA di atas fold) — bukan `py-16 lg:py-24` simetris. Preview `h-[520px] @[520px]:h-[540px] p-0` + `scale-[0.72] @[520px]:scale-[0.85] origin-top` tanpa scroll, margin kanan-kiri maksimal, simetris dengan kolom kiri. Border `1.5px`/`2px` shadow `4px`/`6px` zinc-950.
