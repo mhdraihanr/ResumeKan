@@ -180,7 +180,11 @@ function fmtDate(s: string) {
               @click="duplicateTranslate(cv)"
               class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-50 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
             >
-              {{ translatingId === cv.id ? "Menerjemahkan..." : "Duplikat & terjemahkan EN" }}
+              {{
+                translatingId === cv.id
+                  ? "Menerjemahkan..."
+                  : "Duplikat & terjemahkan EN"
+              }}
             </button>
             <button
               @click="handleDelete(cv.id)"

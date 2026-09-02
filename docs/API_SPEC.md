@@ -96,7 +96,7 @@ Error AI gateway → `502 { "message": "AI service unavailable" }`.
 Menerjemahkan konten CV (`data`) dari bahasa sumber ke target tanpa menyimpan — FE yang memakai hasilnya untuk membuat CV baru (duplikat & terjemahkan).
 
 ```json
-{ "target": "en" }   // wajib opsional, in: id, en; default en
+{ "target": "en" } // wajib opsional, in: id, en; default en
 ```
 
 ```json
@@ -105,7 +105,7 @@ Menerjemahkan konten CV (`data`) dari bahasa sumber ke target tanpa menyimpan �
 
 Field yang diterjemahkan: `summary`, `experiences[].position/description`, `education[].degree/achievements`, `organizations[].role/description`, `skills.hard/soft`, `languages`, `certificates`, `projects[].title/objective`. Nama, perusahaan, institusi, URL, dan angka dibiarkan verbatim (Google menerjemahkannya apa adanya).
 
-Implementasi: `TranslationService` memanggil endpoint gratis Google gtx (`translate.googleapis.com/translate_a/single?client=gtx`). Semua field digabung dengan delimiter ` @@@ ` dalam satu request lalu dipecah kembali; jika Google merusak delimiter, fallback per-field. Service dipakai di `App\Services\TranslationService` — konten field per item, satu request per CV. Error layanan → `502 { "message": "Layanan terjemahan tidak tersedia" }`.
+Implementasi: `TranslationService` memanggil endpoint gratis Google gtx (`translate.googleapis.com/translate_a/single?client=gtx`). Semua field digabung dengan delimiter `@@@` dalam satu request lalu dipecah kembali; jika Google merusak delimiter, fallback per-field. Service dipakai di `App\Services\TranslationService` — konten field per item, satu request per CV. Error layanan → `502 { "message": "Layanan terjemahan tidak tersedia" }`.
 
 > ponytail: endpoint gtx tidak resmi, tanpa SLA — bisa berhenti/rate-limit. Upgrade path: Google Cloud Translation API atau proxy LibreTranslate.
 
