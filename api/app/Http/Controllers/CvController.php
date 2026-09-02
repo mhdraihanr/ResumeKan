@@ -65,7 +65,7 @@ class CvController extends Controller
         $this->authorizeOwner($request, $cv);
 
         $name = preg_replace('/[^\p{L}\p{N} _-]/u', '', $cv->data['personal']['name'] ?? 'CV') ?: 'CV';
-        $html = $this->resolvePrintHtml($cv->data ?? [], $cv->template ?? 'modern');
+        $html = $this->resolvePrintHtml($cv->data ?? [], $cv->template ?? 'modern', $cv->language ?? 'id');
 
         return response()->streamDownload(function () use ($html) {
             echo app(PdfService::class)->render($html);
@@ -80,7 +80,7 @@ class CvController extends Controller
         $data = $cv->data ?? [];
         $template = $cv->template ?? 'modern';
 
-        $printHtml = $this->resolvePrintHtml($data, $template);
+        $printHtml = $this->resolvePrintHtml($data, $template, $cv->language ?? 'id');
 
         return response($printHtml)->header('Content-Type', 'text/html');
     }
@@ -117,7 +117,7 @@ class CvController extends Controller
         ]);
     }
 
-    private function resolvePrintHtml(array $data, string $template): string
+    private function resolvePrintHtml(array $data, string $template, string $language = 'id'): string
     {
         // Prefer built dist (production) — but only if assets are reachable
         $candidates = [
@@ -130,9 +130,9 @@ class CvController extends Controller
                 $html = file_get_contents($path);
                 // In dev, Vite dev server doesn't serve /assets/* from dist — use minimal shell instead
                 if ($this->isViteDev()) {
-                    return $this->minimalPrintShell($data, $template);
+                    return $this->minimalPrintShell($data, $template, $language);
                 }
-                return $this->injectData($html, $data, $template);
+                return $this->injectData($html, $data, $template, $language);
             }
         }
 
@@ -140,10 +140,10 @@ class CvController extends Controller
         $viteUrl = rtrim(config('app.frontend_url', 'http://localhost:5173'), '/') . '/print.html';
         $html = @file_get_contents($viteUrl);
         if ($html !== false && str_contains($html, '/src/print-main.ts')) {
-            return $this->injectData($html, $data, $template);
+            return $this->injectData($html, $data, $template, $language);
         }
 
-        return $this->minimalPrintShell($data, $template);
+        return $this->minimalPrintShell($data, $template, $language);
     }
 
     private function isViteDev(): bool
@@ -153,11 +153,12 @@ class CvController extends Controller
         return $headers !== false && str_contains($headers[0] ?? '', '200');
     }
 
-    private function injectData(string $html, array $data, string $template): string
+    private function injectData(string $html, array $data, string $template, string $language = 'id'): string
     {
         $json = Js::from($data)->toHtml();
         $tpl = Js::from($template)->toHtml();
-        $script = "<script>window.__CV_DATA__={$json};window.__CV_TEMPLATE__={$tpl};</script>";
+        $lang = Js::from($language)->toHtml();
+        $script = "<script>window.__CV_DATA__={$json};window.__CV_TEMPLATE__={$tpl};window.__CV_LANGUAGE__={$lang};</script>";
 
         if (str_contains($html, '</head>')) {
             $html = str_replace('</head>', $script . '</head>', $html);
@@ -173,15 +174,16 @@ class CvController extends Controller
         return $html;
     }
 
-    private function minimalPrintShell(array $data, string $template): string
+    private function minimalPrintShell(array $data, string $template, string $language = 'id'): string
     {
         $json = Js::from($data)->toHtml();
         $tpl = Js::from($template)->toHtml();
+        $lang = Js::from($language)->toHtml();
         $vite = rtrim(config('app.frontend_url', 'http://localhost:5173'), '/');
         return <<<HTML
 <!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<script>window.__CV_DATA__={$json};window.__CV_TEMPLATE__={$tpl};</script>
+<script>window.__CV_DATA__={$json};window.__CV_TEMPLATE__={$tpl};window.__CV_LANGUAGE__={$lang};</script>
 </head><body><div id="print-app"></div><script type="module" src="{$vite}/src/print-main.ts"></script></body></html>
 HTML;
     }

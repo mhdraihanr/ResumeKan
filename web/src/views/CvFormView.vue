@@ -166,7 +166,7 @@ async function draftSave() {
           <div
             class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-border dark:bg-secondary-background"
           >
-            <CvPreview :data="data" :template="template" />
+            <CvPreview :data="data" :template="template" :language="language" />
           </div>
         </div>
       </div>

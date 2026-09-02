@@ -95,7 +95,7 @@ Error AI gateway → `502 { "message": "AI service unavailable" }`.
 
 ### `GET /cvs/{id}/pdf`
 
-Butuh cookie Sanctum dan kepemilikan CV. Controller membangun HTML `print.html` dengan `window.__CV_DATA__`/`__CV_TEMPLATE__`, lalu memberikannya langsung ke `Browsershot::html()`.
+Butuh cookie Sanctum dan kepemilikan CV. Controller membangun HTML `print.html` dengan `window.__CV_DATA__`/`__CV_TEMPLATE__`/`__CV_LANGUAGE__`, lalu memberikannya langsung ke `Browsershot::html()`. `__CV_LANGUAGE__` dipakai oleh `cv-labels.ts` untuk merender judul section sesuai bahasa pilihan.
 
 → `200` binary `application/pdf`, header `Content-Disposition: attachment; filename="Nama_CV.pdf"`.
 

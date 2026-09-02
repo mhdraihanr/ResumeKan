@@ -33,15 +33,15 @@ Standar Laravel (`id`, `name`, `email` unique, `password`, `timestamps`). Tidak 
 
 ## Tabel `cvs`
 
-| Kolom        | Tipe        | Aturan                                                                                                          |
-| ------------ | ----------- | --------------------------------------------------------------------------------------------------------------- |
-| `id`         | bigint PK   |                                                                                                                 |
-| `user_id`    | FK → users  | `cascadeOnDelete()`                                                                                             |
-| `title`      | string(100) | required                                                                                                        |
-| `template`   | string(20)  | in: modern, classic, neon — default `modern` (1 template = 1 file: `CvModern.vue`/`CvClassic.vue`/`CvNeon.vue`) |
-| `language`   | string(2)   | in: id, en — default `id`                                                                                       |
-| `data`       | json        | struktur CvData di bawah; divalidasi Form Request                                                               |
-| `timestamps` |             |                                                                                                                 |
+| Kolom        | Tipe        | Aturan                                                                                                                             |
+| ------------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `id`         | bigint PK   |                                                                                                                                    |
+| `user_id`    | FK → users  | `cascadeOnDelete()`                                                                                                                |
+| `title`      | string(100) | required                                                                                                                           |
+| `template`   | string(20)  | in: modern, classic, neon — default `modern` (1 template = 1 file: `CvModern.vue`/`CvClassic.vue`/`CvNeon.vue`)                    |
+| `language`   | string(2)   | in: id, en — default `id`. Menentukan bahasa judul/label section dokumen via `cv-labels.ts` (F7); konten user tidak diterjemahkan. |
+| `data`       | json        | struktur CvData di bawah; divalidasi Form Request                                                                                  |
+| `timestamps` |             |                                                                                                                                    |
 
 Index: `user_id`. Tidak perlu index lain.
 

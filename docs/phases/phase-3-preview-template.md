@@ -60,6 +60,7 @@
 - Header kiri: nama 42px, subjudul dari posisi pengalaman terbaru, grid kontak dua kolom yang menjadi satu kolom pada layar sempit
 - Foto persegi `110px × 135px` dari `personal.photo` bersifat opsional (di-upload via Cloudinary). Bila tidak ada foto, header tetap rapi. Tidak ada QR atau border luar
 - Bahasa dan sertifikat dapat berdampingan pada layar lebar, tetapi konten utama tetap mengalir linear
+- **Multi-bahasa (F7, 2026-09-02):** semua judul section mengikuti `language` pilihan via `web/src/lib/cv-labels.ts` (`id`/`en`) di preview & PDF (`__CV_LANGUAGE__`); konten user tidak diterjemahkan.
 - Cocok: CV profesional modern yang mengutamakan hierarchy visual dan keterbacaan ATS
 
 ### Aturan ATS (semua template)

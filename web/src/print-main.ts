@@ -7,6 +7,7 @@ declare global {
   interface Window {
     __CV_DATA__?: CvData;
     __CV_TEMPLATE__?: string;
+    __CV_LANGUAGE__?: string;
   }
 }
 
@@ -22,10 +23,11 @@ const data: CvData = window.__CV_DATA__ ?? {
   projects: [],
 };
 const template: string = window.__CV_TEMPLATE__ ?? "modern";
+const language: string = window.__CV_LANGUAGE__ ?? "id";
 
 const app = createApp({
   render() {
-    return h(CvPreview, { data, template, compact: true });
+    return h(CvPreview, { data, template, language, compact: true });
   },
 });
 app.mount("#print-app");

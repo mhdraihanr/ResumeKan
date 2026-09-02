@@ -7,8 +7,13 @@ import CvClassic from "./templates/CvClassic.vue";
 import CvNeon from "./templates/CvNeon.vue";
 
 const props = withDefaults(
-  defineProps<{ data: CvData; template: string; compact?: boolean }>(),
-  { compact: false },
+  defineProps<{
+    data: CvData;
+    template: string;
+    language?: string;
+    compact?: boolean;
+  }>(),
+  { compact: false, language: "id" },
 );
 
 const tpl = computed(() => getTemplateConfig(props.template));
@@ -31,7 +36,7 @@ const comp = computed(() =>
     style="font-size: 11pt; line-height: 1.5"
   >
     <div :class="['cv-page', compact ? 'px-0 py-4' : 'px-8 py-8 sm:px-10']">
-      <component :is="comp" :data="data" />
+      <component :is="comp" :data="data" :language="language" />
     </div>
   </div>
 </template>

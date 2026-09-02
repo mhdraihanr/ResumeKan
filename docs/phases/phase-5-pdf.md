@@ -13,7 +13,7 @@
 - `api/app/Services/PdfService.php`: menerima HTML print dan memanggil `Browsershot::html($html)` dengan A4, margin 14/16/14/16mm, `showBackground()`, dan `waitUntilNetworkIdle()`. Browser memakai Edge Chromium lokal melalui `useChrome()->setChromePath()` apabila tersedia, lalu fallback ke Puppeteer.
 - Shell HTML Browsershot adalah `file://` sementara. `PdfService` menambahkan argumen Chromium `disable-web-security` dan `allow-file-access-from-files` supaya module Vite atau aset build dari `FRONTEND_URL` tetap termuat. Tanpa argumen ini PDF dapat menjadi halaman kosong karena module script diblokir CORS.
 - `GET /api/v1/cvs/{cv}/pdf` melalui `CvController@pdf`: cek pemilik CV, membuat shell dengan `resolvePrintHtml()`, lalu meneruskannya ke `PdfService::render($html)`. Jalur ini tidak lagi meminta endpoint API kedua, sehingga tidak deadlock pada Laravel development server satu-proses. Nama file tetap `{nama}_CV.pdf`, disanitasi, dengan `Content-Disposition: attachment` dan `application/pdf`.
-- `GET /api/v1/cvs/{cv}/print` melalui `CvController@print` memakai middleware `signed`, lalu me-return `print.html` dengan `window.__CV_DATA__`/`__CV_TEMPLATE__` ter-embed. Route ini hanya untuk inspeksi shell internal, bukan dipanggil `PdfService` atau frontend.
+- `GET /api/v1/cvs/{cv}/print` melalui `CvController@print` memakai middleware `signed`, lalu me-return `print.html` dengan `window.__CV_DATA__`/`__CV_TEMPLATE__`/`__CV_LANGUAGE__` ter-embed. Route ini hanya untuk inspeksi shell internal, bukan dipanggil `PdfService` atau frontend.
 - Frontend: tombol **PDF** di kartu CV (Dashboard) dan **Download PDF** di header preview (halaman edit) memakai `window.open` dengan cookie session.
 
 ## Referensi

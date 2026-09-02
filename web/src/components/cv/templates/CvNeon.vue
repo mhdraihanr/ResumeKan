@@ -2,9 +2,11 @@
 import { computed } from "vue";
 import type { CvData } from "@/types/cv";
 import { useCvData } from "@/composables/useCvData";
+import { getLabels } from "@/lib/cv-labels";
 import BulletList from "../sections/BulletList.vue";
 
-const props = defineProps<{ data: CvData }>();
+const props = defineProps<{ data: CvData; language?: string }>();
+const t = computed(() => getLabels(props.language));
 const {
   displayName,
   displayUrl,
@@ -115,7 +117,7 @@ const contactItems = computed(() => {
     <h2
       class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
     >
-      Pengalaman Kerja
+      {{ t.experience }}
     </h2>
     <div
       v-for="(experience, index) in sortedExperiences"
@@ -128,7 +130,7 @@ const contactItems = computed(() => {
         <div class="min-w-0 text-[10.5pt] text-[#111]">
           <p>
             <span class="font-bold"
-              >{{ experience.position || "Posisi" }},</span
+              >{{ experience.position || t.position }},</span
             >
             <em v-if="experience.company" class="ml-1 text-[#444]">{{
               experience.company
@@ -156,7 +158,7 @@ const contactItems = computed(() => {
     <h2
       class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
     >
-      Pendidikan
+      {{ t.education }}
     </h2>
     <div v-for="(education, index) in data.education" :key="index" class="mt-3">
       <div
@@ -168,7 +170,7 @@ const contactItems = computed(() => {
             <em class="ml-1 text-[#444]">{{ education.institution }}</em>
           </p>
           <p v-if="education.gpa" class="text-[9pt] leading-snug text-[#444]">
-            IPK:
+            {{ t.gpa }}
             <span class="font-semibold text-[#111]">{{ education.gpa }}</span>
           </p>
         </div>
@@ -185,20 +187,20 @@ const contactItems = computed(() => {
     <h2
       class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
     >
-      Keahlian
+      {{ t.skills }}
     </h2>
     <p
       v-if="hardList.length"
       class="mt-2 text-[10pt] leading-relaxed text-[#111]"
     >
-      <span class="font-semibold text-[#111]">Hard skills:</span>
+      <span class="font-semibold text-[#111]">{{ t.hardSkills }}</span>
       {{ hardList.join(" · ") }}
     </p>
     <p
       v-if="softList.length"
       class="mt-1 text-[10pt] leading-relaxed text-[#444]"
     >
-      <span class="font-semibold text-[#111]">Soft skills:</span>
+      <span class="font-semibold text-[#111]">{{ t.softSkills }}</span>
       {{ softList.join(" · ") }}
     </p>
   </section>
@@ -207,7 +209,7 @@ const contactItems = computed(() => {
     <h2
       class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
     >
-      Organisasi
+      {{ t.organizations }}
     </h2>
     <div
       v-for="(organization, index) in data.organizations"
@@ -237,7 +239,7 @@ const contactItems = computed(() => {
     <h2
       class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
     >
-      Proyek
+      {{ t.projects }}
     </h2>
     <div v-for="(project, index) in data.projects" :key="index" class="mt-3">
       <p class="text-[10.5pt] font-bold text-[#111]">{{ project.title }}</p>
@@ -248,10 +250,11 @@ const contactItems = computed(() => {
         {{ project.objective }}
       </p>
       <p v-if="project.role" class="mt-0.5 text-[9pt] text-[#444]">
-        <span class="font-semibold text-[#111]">Peran:</span> {{ project.role }}
+        <span class="font-semibold text-[#111]">{{ t.role }}</span>
+        {{ project.role }}
       </p>
       <p v-if="project.techStack" class="text-[9pt] text-[#444]">
-        <span class="font-semibold text-[#111]">Tech Stack:</span>
+        <span class="font-semibold text-[#111]">{{ t.techStack }}</span>
         {{ project.techStack }}
       </p>
     </div>
@@ -265,7 +268,7 @@ const contactItems = computed(() => {
       <h2
         class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
       >
-        Bahasa
+        {{ t.languages }}
       </h2>
       <p class="mt-2 text-[10pt] leading-relaxed text-[#444]">
         {{ data.languages }}
@@ -275,7 +278,7 @@ const contactItems = computed(() => {
       <h2
         class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
       >
-        Sertifikat
+        {{ t.certificates }}
       </h2>
       <BulletList :items="bullets(data.certificates)" />
     </section>

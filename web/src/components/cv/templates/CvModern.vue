@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { CvData } from "@/types/cv";
 import { useCvData } from "@/composables/useCvData";
+import { getLabels } from "@/lib/cv-labels";
 import PreviewSection from "../sections/PreviewSection.vue";
 import EntryRow from "../sections/EntryRow.vue";
 import BulletList from "../sections/BulletList.vue";
 
-const props = defineProps<{ data: CvData }>();
+const props = defineProps<{ data: CvData; language?: string }>();
+const t = computed(() => getLabels(props.language));
 const {
   displayName,
   contactDirect,
@@ -54,7 +57,9 @@ const {
         </template>
       </p>
     </div>
-    <p v-else class="mt-1 text-[10pt] text-slate-600">email · phone · alamat</p>
+    <p v-else class="mt-1 text-[10pt] text-slate-600">
+      email · phone · address
+    </p>
   </header>
 
   <section v-if="data.summary" class="mb-5">
@@ -62,10 +67,10 @@ const {
   </section>
 
   <section v-if="sortedExperiences.length" class="mb-5">
-    <PreviewSection title="Pengalaman Kerja" :modern="true" />
+    <PreviewSection :title="t.experience" :modern="true" />
     <div v-for="(e, i) in sortedExperiences" :key="i" class="mt-2">
       <EntryRow
-        :title="`${e.position || 'Posisi'} · ${e.company || 'Perusahaan'}`"
+        :title="`${e.position || t.position} · ${e.company || t.company}`"
         :period="`${e.startDate} - ${e.endDate}`"
         :modern="true"
       />
@@ -82,22 +87,24 @@ const {
   </section>
 
   <section v-if="data.education?.length" class="mb-5">
-    <PreviewSection title="Pendidikan" :modern="true" />
+    <PreviewSection :title="t.education" :modern="true" />
     <div v-for="(ed, i) in data.education" :key="i" class="mt-2">
       <EntryRow :title="ed.degree" :period="ed.year" :modern="true" />
       <p class="text-[10pt] text-slate-700">
         {{ ed.institution }}<span v-if="ed.location"> · {{ ed.location }}</span>
       </p>
-      <p v-if="ed.gpa" class="text-[9pt] text-slate-700">IPK: {{ ed.gpa }}</p>
+      <p v-if="ed.gpa" class="text-[9pt] text-slate-700">
+        {{ t.gpa }} {{ ed.gpa }}
+      </p>
       <BulletList :items="bullets(ed.achievements)" />
     </div>
   </section>
 
   <section v-if="data.organizations?.length" class="mb-5">
-    <PreviewSection title="Organisasi" :modern="true" />
+    <PreviewSection :title="t.organizations" :modern="true" />
     <div v-for="(o, i) in data.organizations" :key="i" class="mt-2">
       <EntryRow
-        :title="o.organization || 'Organisasi'"
+        :title="o.organization || t.organization"
         :period="o.period"
         :modern="true"
       />
@@ -107,44 +114,47 @@ const {
   </section>
 
   <section v-if="hardList.length || softList.length" class="mb-5">
-    <PreviewSection title="Keahlian" :modern="true" />
+    <PreviewSection :title="t.skills" :modern="true" />
     <p
       v-if="hardList.length"
       class="mt-2 text-[10pt] leading-relaxed text-slate-700"
     >
-      <span class="font-semibold">Hard skills:</span> {{ hardList.join(" · ") }}
+      <span class="font-semibold">{{ t.hardSkills }}</span>
+      {{ hardList.join(" · ") }}
     </p>
     <p
       v-if="softList.length"
       class="mt-1 text-[10pt] leading-relaxed text-slate-700"
     >
-      <span class="font-semibold">Soft skills:</span> {{ softList.join(" · ") }}
+      <span class="font-semibold">{{ t.softSkills }}</span>
+      {{ softList.join(" · ") }}
     </p>
   </section>
 
   <section v-if="data.projects?.length" class="mb-5">
-    <PreviewSection title="Proyek" :modern="true" />
+    <PreviewSection :title="t.projects" :modern="true" />
     <div v-for="(p, i) in data.projects" :key="i" class="mt-2">
       <p class="text-[10pt] font-semibold text-slate-900">{{ p.title }}</p>
       <p v-if="p.objective" class="text-[10pt] text-slate-700">
         {{ p.objective }}
       </p>
       <p v-if="p.role" class="text-[9pt] text-slate-500">
-        <span class="font-semibold">Peran:</span> {{ p.role }}
+        <span class="font-semibold">{{ t.role }}</span> {{ p.role }}
       </p>
       <p v-if="p.techStack" class="text-[9pt] text-slate-500">
-        <span class="font-semibold">Tech Stack:</span> {{ p.techStack }}
+        <span class="font-semibold">{{ t.techStack }}</span> {{ p.techStack }}
       </p>
     </div>
   </section>
 
   <section v-if="data.languages || data.certificates" class="mb-2">
-    <PreviewSection title="Lainnya" :modern="true" />
+    <PreviewSection :title="t.other" :modern="true" />
     <p v-if="data.languages" class="mt-2 text-[10pt] text-slate-700">
-      <span class="font-semibold">Bahasa:</span> {{ data.languages }}
+      <span class="font-semibold">{{ t.languages }}</span> {{ data.languages }}
     </p>
     <p v-if="data.certificates" class="mt-1 text-[10pt] text-slate-700">
-      <span class="font-semibold">Sertifikat:</span> {{ data.certificates }}
+      <span class="font-semibold">{{ t.certificates }}</span>
+      {{ data.certificates }}
     </p>
   </section>
 </template>
