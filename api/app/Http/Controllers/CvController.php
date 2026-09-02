@@ -6,6 +6,7 @@ use App\Http\Requests\StoreCvRequest;
 use App\Http\Resources\CvResource;
 use App\Models\Cv;
 use App\Services\PdfService;
+use App\Services\TranslationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -186,6 +187,25 @@ class CvController extends Controller
 <script>window.__CV_DATA__={$json};window.__CV_TEMPLATE__={$tpl};window.__CV_LANGUAGE__={$lang};</script>
 </head><body><div id="print-app"></div><script type="module" src="{$vite}/src/print-main.ts"></script></body></html>
 HTML;
+    }
+
+    public function translate(Request $request, Cv $cv, TranslationService $translator): JsonResponse
+    {
+        $this->authorizeOwner($request, $cv);
+
+        $target = $request->input('target', 'en');
+        if (! in_array($target, ['id', 'en'], true)) {
+            $target = 'en';
+        }
+
+        try {
+            $data = $translator->translate($cv->data ?? [], $target);
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => 'Layanan terjemahan tidak tersedia'], 502);
+        }
+
+        // No save — frontend duplicates the CV with the translated data.
+        return response()->json(['data' => $data]);
     }
 
     private function authorizeOwner(Request $request, Cv $cv): void

@@ -77,4 +77,11 @@ export const cvApi = {
         }),
       }),
     ),
+  translate: (cvId: number, target = "en") =>
+    csrf().then(() =>
+      req<{ data: CvData }>(`/api/v1/cvs/${cvId}/translate`, {
+        method: "POST",
+        body: JSON.stringify({ target }),
+      }),
+    ),
 };

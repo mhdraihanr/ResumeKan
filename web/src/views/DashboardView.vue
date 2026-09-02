@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useCvStore } from "@/stores/cv";
+import { cvApi } from "@/api/cv";
+import type { Cv } from "@/types/cv";
 
 const auth = useAuthStore();
 const cvStore = useCvStore();
@@ -18,6 +20,26 @@ async function handleLogout() {
 async function handleDelete(id: number) {
   if (!confirm("Hapus CV ini?")) return;
   await cvStore.remove(id);
+}
+
+const translatingId = ref<number | null>(null);
+
+async function duplicateTranslate(cv: Cv) {
+  translatingId.value = cv.id;
+  try {
+    const { data } = await cvApi.translate(cv.id);
+    const created = await cvStore.create({
+      title: `${cv.title} (EN)`,
+      template: cv.template,
+      language: "en",
+      data,
+    });
+    router.push(`/cvs/${created.id}/edit`);
+  } catch (e) {
+    cvStore.error = (e as Error).message;
+  } finally {
+    translatingId.value = null;
+  }
 }
 
 function downloadPdf(id: number) {
@@ -151,6 +173,14 @@ function fmtDate(s: string) {
               class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
             >
               PDF
+            </button>
+            <button
+              v-if="cv.language === 'id'"
+              :disabled="translatingId === cv.id"
+              @click="duplicateTranslate(cv)"
+              class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-50 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
+            >
+              {{ translatingId === cv.id ? "Menerjemahkan..." : "Duplikat & terjemahkan EN" }}
             </button>
             <button
               @click="handleDelete(cv.id)"

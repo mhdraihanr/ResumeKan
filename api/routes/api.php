@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/cvs/{cv}', [CvController::class, 'update'])->name('cvs.update');
     Route::delete('/cvs/{cv}', [CvController::class, 'destroy'])->name('cvs.destroy');
     Route::get('/cvs/{cv}/pdf', [CvController::class, 'pdf'])->name('cvs.pdf');
+    Route::post('/cvs/{cv}/translate', [CvController::class, 'translate'])->middleware('throttle:5,1')->name('cvs.translate');
 
     Route::post('/ai/summary', [AiController::class, 'summary'])->middleware('throttle:5,1')->name('ai.summary');
 

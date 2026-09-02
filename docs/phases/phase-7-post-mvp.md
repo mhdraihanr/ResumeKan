@@ -18,6 +18,15 @@ Menampung ide yang ditunda demi MVP ramping (YAGNI). Dieksekusi hanya jika ada s
 - **Dampak docs saat dieksekusi:** `PRD.md` F2/F5, `API_SPEC.md` tambah `POST /ai/parse-cv`, `ARCHITECTURE.md` ADR-5 tambah file handling + `pdfparser`, `DATA_MODEL.md` tetap (mapping ke skema existing).
 - **Kriteria mulai:** banyak request "punya CV lama" setelah launch, atau Fase 4 summary sudah stabil.
 
+### 7b. Duplikat & terjemahkan CV ID→EN (✅ selesai 2026-09-02)
+
+- **Masalah:** user yang sudah menulis CV dalam bahasa Indonesia ingin versi bahasa Inggris tanpa mengetik ulang.
+- **Solusi (paling lazy):** tombol "Duplikat & terjemahkan EN" di kartu CV dashboard (hanya tampil untuk CV bahasa Indonesia). Tombol memanggil `POST /api/v1/cvs/{id}/translate` → mendapatkan `{ data }` terjemahan → FE membuat CV baru via `POST /cvs` dengan `{ title: "Titik (EN)", template, language: "en", data: terjemahan }` → redirect ke `/cvs/{newId}/edit`. Tidak ada penyimpanan di endpoint translate (FE yang duplicate).
+- **Kontrak:** `POST /api/v1/cvs/{id}/translate` — body `{ target?: "en" }`, response `{ data: CvData }`. Lihat `API_SPEC.md`.
+- **Teknis:** `App\Services\TranslationService` → gratis Google gtx (`translate.googleapis.com/translate_a/single?client=gtx`), satu request per CV (batch ` @@@ `), fallback per-field. Field konten diterjemahkan; nama/perusahaan/URL/angka tetap verbatim. ponytail: endpoint tidak resmi, tanpa SLA.
+- **Dokumen terdampak:** `API_SPEC.md` (endpoint baru), `PRD.md` (catatan F7 → konten terjemah di fase 7).
+- **Status:** selesai & terverifikasi via browser (CV EN dibuat, preview terjemah Inggris).
+
 ### Ide lain (belum diprioritaskan)
 
 - Template premium / paywall

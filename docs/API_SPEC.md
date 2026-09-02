@@ -91,6 +91,24 @@ Klien lalu `POST` ke `https://api.cloudinary.com/v1_1/{cloud_name}/image/upload`
 Server membaca data CV milik user dari DB — FE tidak mengirim ulang isi CV. Ringkasan fokus posisi dominan/terbaru dari `experiences` (bukan deskripsi proyek); `projects[].techStack` hanya konteks tambahan.
 Error AI gateway → `502 { "message": "AI service unavailable" }`.
 
+### `POST /cvs/{id}/translate` (auth, throttle: 5/menit/user)
+
+Menerjemahkan konten CV (`data`) dari bahasa sumber ke target tanpa menyimpan — FE yang memakai hasilnya untuk membuat CV baru (duplikat & terjemahkan).
+
+```json
+{ "target": "en" }   // wajib opsional, in: id, en; default en
+```
+
+```json
+{ "data": { ...CvData terjemahan } }
+```
+
+Field yang diterjemahkan: `summary`, `experiences[].position/description`, `education[].degree/achievements`, `organizations[].role/description`, `skills.hard/soft`, `languages`, `certificates`, `projects[].title/objective`. Nama, perusahaan, institusi, URL, dan angka dibiarkan verbatim (Google menerjemahkannya apa adanya).
+
+Implementasi: `TranslationService` memanggil endpoint gratis Google gtx (`translate.googleapis.com/translate_a/single?client=gtx`). Semua field digabung dengan delimiter ` @@@ ` dalam satu request lalu dipecah kembali; jika Google merusak delimiter, fallback per-field. Service dipakai di `App\Services\TranslationService` — konten field per item, satu request per CV. Error layanan → `502 { "message": "Layanan terjemahan tidak tersedia" }`.
+
+> ponytail: endpoint gtx tidak resmi, tanpa SLA — bisa berhenti/rate-limit. Upgrade path: Google Cloud Translation API atau proxy LibreTranslate.
+
 ## PDF
 
 ### `GET /cvs/{id}/pdf`
