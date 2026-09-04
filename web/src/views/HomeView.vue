@@ -69,7 +69,7 @@ const features = [
   {
     icon: LayoutTemplate,
     title: "3 template ATS",
-    desc: "Modern, classic, dan neon — single dan mixed-column, struktur paragraf yang dibaca mesin.",
+    desc: "Modern, classic, neon. Tata letak linear, heading standar, lolos parser ATS.",
   },
   {
     icon: PenLine,
@@ -79,19 +79,19 @@ const features = [
   {
     icon: Sparkles,
     title: "Ringkasan AI",
-    desc: "Ubah pengalaman kerja jadi ringkasan ringkas berbantuan AI.",
+    desc: "Ubah pengalaman kerja jadi ringkasan 2-3 kalimat berbantuan AI.",
   },
   {
     icon: Download,
     title: "Download PDF A4",
-    desc: "PDF siap lamar, rapi di cetak dan dibaca ATS.",
+    desc: "PDF A4 siap lamar, identik dengan preview.",
   },
 ];
 
 const faqs = [
   {
     q: "Apakah CV-nya benar-benar ATS-friendly?",
-    a: "Ya. Desain sederhana tanpa tabel atau foto, jadi mudah dibaca sistem rekrutmen.",
+    a: "Ya. Tata letak linear tanpa tabel, heading standar, teks asli bukan gambar.",
   },
   {
     q: "Data saya hilang kalau refresh?",
@@ -103,7 +103,7 @@ const faqs = [
   },
   {
     q: "PDF sama dengan preview?",
-    a: "Ya, sama persis. Hasil download siap cetak dan siap kirim lamaran.",
+    a: "Ya, sama persis. PDF dirender dari preview yang sama.",
   },
   {
     q: "Bagaimana AI summary bekerja? Perlu isi apa dulu?",
@@ -111,7 +111,7 @@ const faqs = [
   },
   {
     q: "Bisa bahasa Inggris?",
-    a: "Bisa. Kamu bisa tulis CV dalam bahasa Indonesia atau Inggris.",
+    a: "Bisa. Tulis dalam bahasa Indonesia atau Inggris, judul section ikut bahasanya.",
   },
 ];
 const openFaq = ref<number | null>(0);
@@ -136,13 +136,12 @@ const openFaq = ref<number | null>(0);
             :initial="{ opacity: 0, y: 12 }"
             :enter="{ opacity: 1, y: 0, transition: { duration: 300 } }"
           >
-            Buat CV yang dibaca ATS dan manusia.
+            CV yang lolos ATS dalam hitungan menit.
           </h1>
           <p
             class="mt-4 max-w-md text-base leading-relaxed text-ink/70 dark:text-foreground/70"
           >
-            Isi form terstruktur, pilih template, dan unduh PDF siap lamar.
-            Tanpa ribet, tanpa template aneh.
+            Isi form, pilih 1 dari 3 template, unduh PDF A4 siap lamar.
           </p>
           <div class="mt-6 flex flex-wrap gap-3">
             <RouterLink to="/register">
@@ -213,7 +212,7 @@ const openFaq = ref<number | null>(0);
     <section class="border-b-2 border-ink dark:border-border bg-ink">
       <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <h2 class="text-3xl font-black tracking-tight text-paper">
-          Semua yang kamu butuh, tanpa yang tidak perlu.
+          Empat hal yang bikin CV cepat jadi.
         </h2>
         <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <Card
@@ -303,7 +302,7 @@ const openFaq = ref<number | null>(0);
     <section class="bg-navy dark:bg-main">
       <div class="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
         <h2 class="text-3xl font-black tracking-tight text-white">
-          CV kamu butuh start. Mulai di sini.
+          Lamar hari ini dengan CV yang siap.
         </h2>
         <p class="mx-auto mt-3 max-w-md text-base text-white/80">
           Gratis daftar, langsung bisa isi CV pertama kamu.

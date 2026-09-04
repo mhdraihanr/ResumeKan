@@ -30,8 +30,8 @@ async function submit() {
       >
       <div>
         <h2 class="max-w-sm text-4xl font-black leading-tight tracking-tight">
-          CV yang dibaca
-          <span class="bg-powder px-1 text-ink">ATS</span> dan manusia.
+          CV yang lolos
+          <span class="bg-powder px-1 text-ink">ATS</span> dalam hitungan menit.
         </h2>
         <ul class="mt-8 space-y-3 text-sm text-paper/80">
           <li class="flex items-center gap-3">

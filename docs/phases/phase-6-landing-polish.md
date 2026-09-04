@@ -119,6 +119,22 @@
 - Badge `/ masuk` di samping h1 dihapus (non-fungsional, redundan dengan h1 — antislop R-09). h1 `Masuk` langsung di bawah toggle dark.
 - Panel kanan login dapat `bg-dots` (tekstur sama dengan hero/FAQ, dose cap jadi 3 permukaan paper). Verifikasi browser: dots terlihat light (ink 46% di atas paper) dan dark (foreground 24% di atas zinc-800).
 
+### Copy landing — polish tagline (2026-09-04)
+
+- H1 `Buat CV yang dibaca ATS dan manusia` → `CV yang lolos ATS dalam hitungan menit` (outcome + timeframe faktual PRD, Exa headline study +8-11 poin).
+- Subhero → `Isi form, pilih 1 dari 3 template, unduh PDF A4 siap lamar` (angka faktual, hapus negasi ganda).
+- H2 fitur → `Empat hal yang bikin CV cepat jadi` (spesifik, lolos uji ganti-kompetitor).
+- Fitur 1/3/4 desc: hapus jargon `mixed-column`, redundansi `ringkasan ringkas`, typo `rapi di cetak`.
+- FAQ Q1: hapus klaim salah `tanpa foto` (Neon support foto) → `teks asli bukan gambar`. Q4/Q6: hapus sinonim ganda.
+- CTA akhir → `Lamar hari ini dengan CV yang siap.` Sample preview `Joko Widodo` dipertahankan (permintaan user).
+
+### Auth copy — polish login/register (2026-09-04)
+
+- Login aside H2 → `CV yang lolos ATS dalam hitungan menit.` (konsisten H1 landing).
+- Register aside H2 → `Daftar sekali, kelola sampai 10 CV.` (spesifik, angka faktual PRD).
+- Register footer → `Gratis daftar, maksimal 10 CV.` (samakan dengan login).
+- Register bullet 2 → `Ubah pengalaman jadi ringkasan 2-3 kalimat` (AI implisit, konsisten fitur 3).
+
 ### Register — brutalisasi konsisten login (2026-08-30, uncommitted)
 
 - Register gaya lama (flat, `bg-slate-100`, `rounded-xl`, `blue-600`, placeholder-only labels) → split panel mirror login: aside ink pitch (headline "Satu akun, semua CV kamu." + 3 bullet fitur akun: draft, AI summary, PDF) + form card neobrutalism dengan bg-dots.

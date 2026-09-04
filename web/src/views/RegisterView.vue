@@ -37,8 +37,8 @@ async function submit() {
       >
       <div>
         <h2 class="max-w-sm text-4xl font-black leading-tight tracking-tight">
-          Satu akun,
-          <span class="bg-powder px-1 text-ink">semua CV</span> kamu.
+          Daftar sekali,
+          <span class="bg-powder px-1 text-ink">kelola sampai 10 CV</span>.
         </h2>
         <ul class="mt-8 space-y-3 text-sm text-paper/80">
           <li class="flex items-center gap-3">
@@ -47,7 +47,7 @@ async function submit() {
           </li>
           <li class="flex items-center gap-3">
             <span class="size-2 shrink-0 bg-powder"></span>
-            Ringkasan AI dari pengalaman kamu
+            Ubah pengalaman jadi ringkasan 2-3 kalimat
           </li>
           <li class="flex items-center gap-3">
             <span class="size-2 shrink-0 bg-powder"></span>
@@ -55,7 +55,7 @@ async function submit() {
           </li>
         </ul>
       </div>
-      <p class="text-xs text-paper/50">Gratis, maksimal 10 CV.</p>
+      <p class="text-xs text-paper/50">Gratis daftar, maksimal 10 CV.</p>
     </aside>
 
     <!-- Panel kanan: form -->
