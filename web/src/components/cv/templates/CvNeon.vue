@@ -242,7 +242,27 @@ const contactItems = computed(() => {
       {{ t.projects }}
     </h2>
     <div v-for="(project, index) in data.projects" :key="index" class="mt-3">
-      <p class="text-[10.5pt] font-bold text-[#111]">{{ project.title }}</p>
+      <p class="text-[10.5pt] font-bold text-[#111]">
+        {{ project.title }}
+        <a
+          v-if="project.link"
+          :href="hrefUrl(project.link)"
+          target="_blank"
+          rel="noopener"
+          :aria-label="`Buka link proyek ${project.title}`"
+          class="ml-1 inline-block align-baseline hover:underline"
+          ><svg
+            viewBox="0 0 24 24"
+            class="inline h-3.5 w-3.5"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              fill="currentColor"
+              d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42L17.59 5H14V3zM5 5h6v2H7v10h10v-4h2v6H5V5z"
+            /></svg
+        ></a>
+      </p>
       <p
         v-if="project.objective"
         class="mt-0.5 text-[10pt] leading-relaxed text-[#444]"

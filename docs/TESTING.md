@@ -58,6 +58,8 @@ POST   /api/v1/cvs ke-11   → 422  # batas 10 CV
 # validasi projects terstruktur:
 POST   /api/v1/cvs { projects: [{ title:"", role:"" }] } → 422  # title/role required
 POST   /api/v1/cvs { projects: string lama }             → 201  # backward compat
+POST   /api/v1/cvs { projects: [{ title, role, link: "github.com/x" }] } → 201  # link dinormalisasi ke https://
+# preview: title tetap plain text (ATS), ikon external-link muncul hanya jika link ada
 ```
 
 **Preview (Fase 3):** ubah field form → preview update tanpa lag; switch `modern` ↔ `classic` ↔ `neon` → header/heading/accent/layout berubah; cek di mobile (stack/tab).

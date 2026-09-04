@@ -104,6 +104,7 @@ Index: `user_id`. Tidak perlu index lain.
       "role": "string ≤100 — peran Anda di proyek",
       "objective": "string ≤500 — tujuan / apa yang diselesaikan",
       "techStack": "string ≤200 — comma-separated, mis. React, Go, PostgreSQL",
+      "link": "string ≤500, opsional — URL proyek, dukung www. tanpa https:// (dinormalisasi ke https://), tampil ikon external-link di sebelah title",
     },
   ],
   "organizations": [

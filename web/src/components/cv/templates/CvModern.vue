@@ -18,6 +18,7 @@ const {
   hardList,
   softList,
   sortedExperiences,
+  hrefUrl,
 } = useCvData(
   () => props.data,
   () => "modern",
@@ -134,7 +135,27 @@ const {
   <section v-if="data.projects?.length" class="mb-5">
     <PreviewSection :title="t.projects" :modern="true" />
     <div v-for="(p, i) in data.projects" :key="i" class="mt-2">
-      <p class="text-[10pt] font-semibold text-slate-900">{{ p.title }}</p>
+      <p class="text-[10pt] font-semibold text-slate-900">
+        {{ p.title }}
+        <a
+          v-if="p.link"
+          :href="hrefUrl(p.link)"
+          target="_blank"
+          rel="noopener"
+          :aria-label="`Buka link proyek ${p.title}`"
+          class="ml-1 inline-block align-baseline text-[#1e40af] hover:underline"
+          ><svg
+            viewBox="0 0 24 24"
+            class="inline h-3 w-3"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              fill="currentColor"
+              d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42L17.59 5H14V3zM5 5h6v2H7v10h10v-4h2v6H5V5z"
+            /></svg
+        ></a>
+      </p>
       <p v-if="p.objective" class="text-[10pt] text-slate-700">
         {{ p.objective }}
       </p>

@@ -62,6 +62,7 @@ class StoreCvRequest extends FormRequest
             'data.projects.*.role' => 'required_with:data.projects|string|max:100',
             'data.projects.*.objective' => 'nullable|string|max:500',
             'data.projects.*.techStack' => 'nullable|string|max:200',
+            'data.projects.*.link' => 'nullable|string|max:500',
         ];
     }
 
@@ -106,6 +107,17 @@ class StoreCvRequest extends FormRequest
                 $data['projects'] = [];
             } else {
                 $data['projects'] = [['title' => $str, 'role' => '—', 'objective' => '', 'techStack' => '']];
+            }
+        }
+        // Normalisasi link proyek: dukung www. tanpa scheme
+        foreach ($data['projects'] ?? [] as $i => $pr) {
+            $v = $pr['link'] ?? null;
+            if (is_string($v) && trim($v) !== '') {
+                $t = trim($v);
+                if (!preg_match('#^https?://#i', $t)) {
+                    $t = 'https://' . ltrim($t, '/');
+                }
+                $data['projects'][$i]['link'] = $t;
             }
         }
         $this->merge(['data' => $data]);

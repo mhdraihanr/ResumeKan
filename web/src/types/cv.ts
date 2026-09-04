@@ -46,6 +46,7 @@ export interface CvData {
     role: string;
     objective?: string;
     techStack?: string;
+    link?: string;
   }[];
 }
 

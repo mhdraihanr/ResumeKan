@@ -68,7 +68,7 @@ Klien lalu `POST` ke `https://api.cloudinary.com/v1_1/{cloud_name}/image/upload`
 
 → `201 { cv }`. Gagal jika user sudah punya 10 CV → `422`.
 
-> `data.projects` terstruktur: array objek `{ title, role, objective, techStack }` (max 5). `data.certificates` terstruktur: array objek `{ name, issuer, year, credentialId? }` (max 5, section sendiri). Nilai lama `string` masih diterima untuk keduanya (backward compat, dikonversi ke 1 item). `data.education[].gpa` opsional `≤10`, `data.education[].location` opsional, `data.education[].degree` = gelar & jurusan digabung (field `major` dihapus), `data.education[].achievements` opsional `≤1000` (bullet newline), `data.organizations` array max 5, `data.experiences[].employmentType` opsional `in: Full-time,Part-time,Internship,Contract,Freelance` — lihat `DATA_MODEL.md`.
+> `data.projects` terstruktur: array objek `{ title, role, objective, techStack, link? }` (max 5, `link` opsional ≤500 dinormalisasi `https://`). `data.certificates` terstruktur: array objek `{ name, issuer, year, credentialId? }` (max 5, section sendiri). Nilai lama `string` masih diterima untuk keduanya (backward compat, dikonversi ke 1 item). `data.education[].gpa` opsional `≤10`, `data.education[].location` opsional, `data.education[].degree` = gelar & jurusan digabung (field `major` dihapus), `data.education[].achievements` opsional `≤1000` (bullet newline), `data.organizations` array max 5, `data.experiences[].employmentType` opsional `in: Full-time,Part-time,Internship,Contract,Freelance` — lihat `DATA_MODEL.md`.
 
 ### `GET /cvs/{id}` → `200 { cv }` (lengkap dengan `data`)
 

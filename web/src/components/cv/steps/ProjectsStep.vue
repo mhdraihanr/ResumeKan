@@ -9,10 +9,10 @@ const data = defineModel<CvData>({ required: true });
 function addProject() {
   const p = data.value.projects;
   if (Array.isArray(p))
-    p.push({ title: "", role: "", objective: "", techStack: "" });
+    p.push({ title: "", role: "", objective: "", techStack: "", link: "" });
   else
     data.value.projects = [
-      { title: "", role: "", objective: "", techStack: "" },
+      { title: "", role: "", objective: "", techStack: "", link: "" },
     ];
 }
 function removeProject(i: number) {
@@ -86,6 +86,14 @@ function removeProject(i: number) {
           v-model="proj.techStack"
           maxlength="200"
           placeholder="Vue, Laravel, PostgreSQL"
+        />
+      </label>
+      <label class="space-y-1 block">
+        <FormLabel label="Link proyek (opsional)" />
+        <FormInput
+          v-model="proj.link"
+          maxlength="500"
+          placeholder="https://github.com/username/proyek"
         />
       </label>
     </div>
