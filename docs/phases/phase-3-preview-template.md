@@ -49,7 +49,7 @@
 - Single-column, whitespace lega, hierarchy tipografi saja — tanpa warna/sidebar/icon
 - Nama uppercase `ALEX JOHNSON`, header centered, kontak `·` separator
 - Section title uppercase + garis `border-b-[1.5px] border-slate-900` berwarna di bawah title (bukan hairline abu) — 8 section seragam 1.5px incl. Organisasi
-- Skills pisah `Hard skills:` / `Soft skills:` (ATS: hard dominan, soft dibuktikan di bullets), Certificates/Languages pisah section
+- Skills pisah `Hard skills:` / `Soft skills:` (ATS: hard dominan, soft dibuktikan di bullets), Certificates section sendiri (terstruktur name/issuer/year/credentialId), Languages di Other
 - Real-text PDF, lolos Workday/Greenhouse/Lever/iCIMS/Taleo
 - LinkedIn/Website/GitHub: sama seperti modern — dukung `www.` tanpa scheme
 - Cocok: konservatif, ATS-heavy, lintas industri — "safest choice"
@@ -59,7 +59,7 @@
 - Dokumen putih satu kolom dengan teks utama `#111`, teks pendukung `#444`, dan divider mint `#6ee7b7` di setiap heading section
 - Header kiri: nama 42px, subjudul dari posisi pengalaman terbaru, grid kontak dua kolom yang menjadi satu kolom pada layar sempit
 - Foto persegi `110px × 135px` dari `personal.photo` bersifat opsional (di-upload via Cloudinary). Bila tidak ada foto, header tetap rapi. Tidak ada QR atau border luar
-- Bahasa dan sertifikat dapat berdampingan pada layar lebar, tetapi konten utama tetap mengalir linear
+- Sertifikat section sendiri setelah Proyek (linear, bukan grid berdampingan); Bahasa tetap di Other
 - **Multi-bahasa (F7, 2026-09-02):** semua judul section mengikuti `language` pilihan via `web/src/lib/cv-labels.ts` (`id`/`en`) di preview & PDF (`__CV_LANGUAGE__`); konten user tidak diterjemahkan.
 - Cocok: CV profesional modern yang mengutamakan hierarchy visual dan keterbacaan ATS
 
@@ -94,5 +94,7 @@ Catatan enhancement historis di bawah yang menyebut "kedua template" merujuk Mod
 - Mengubah field form langsung tercermin di preview tanpa lag.
 - Switch template modern ↔ classic ↔ neon mengubah tampilan header, heading, accent, dan divider tanpa mengubah body linear.
 - Preview identik dengan output PDF Fase 5 (HTML yang sama).
+
+- Enhancement 2026-09-04 — Sertifikat terstruktur + IPK bold (Exa HBS/Resumefast): `certificates` dari `string` jadi array `{ name, issuer, year, credentialId? }` max 5, form step sendiri `CertificatesStep.vue` (Nama/Penerbit/Tahun/Credential ID opsional), render `Nama by Penerbit` bold + `tahun · ID` di section sendiri semua template. IPK angka bold di semua template (label normal). Backward compat string lama → array 1 item.
 
 ← [Fase 2](phase-2-crud-cv.md) · Lanjut ke [Fase 4](phase-4-ai-summary.md)

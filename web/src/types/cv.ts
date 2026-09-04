@@ -35,7 +35,12 @@ export interface CvData {
   }[];
   skills?: { hard?: string; soft?: string };
   languages?: string;
-  certificates?: string;
+  certificates?: {
+    name: string;
+    issuer: string;
+    year: string;
+    credentialId?: string;
+  }[];
   projects?: {
     title: string;
     role: string;
@@ -63,7 +68,30 @@ export function emptyCvData(): CvData {
     organizations: [],
     skills: { hard: "", soft: "" },
     languages: "",
-    certificates: "",
+    certificates: [],
     projects: [],
   };
+}
+
+/** Normalisasi data lama — konversi string certificates ke array, dll. */
+export function normalizeCvData(d: CvData): CvData {
+  if (typeof d.certificates === "string") {
+    const lines = d.certificates
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    d.certificates = lines.map((name) => ({
+      name,
+      issuer: "",
+      year: "",
+      credentialId: "",
+    }));
+  }
+  if (typeof d.projects === "string") {
+    const s = (d.projects as unknown as string).trim();
+    d.projects = s
+      ? [{ title: s, role: "—", objective: "", techStack: "" }]
+      : [];
+  }
+  return d;
 }

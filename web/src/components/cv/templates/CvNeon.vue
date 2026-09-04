@@ -260,27 +260,36 @@ const contactItems = computed(() => {
     </div>
   </section>
 
-  <div
-    v-if="data.languages || data.certificates"
-    class="grid gap-7 sm:grid-cols-2 sm:gap-10"
-  >
-    <section v-if="data.languages">
-      <h2
-        class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
-      >
-        {{ t.languages }}
-      </h2>
-      <p class="mt-2 text-[10pt] leading-relaxed text-[#444]">
-        {{ data.languages }}
+  <section v-if="data.certificates?.length" class="mb-5">
+    <h2
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
+    >
+      {{ t.certificates }}
+    </h2>
+    <div v-for="(cert, index) in data.certificates" :key="index" class="mt-3">
+      <div class="flex items-baseline justify-between gap-4">
+        <p class="text-[10.5pt] text-[#111]">
+          {{ cert.name }}
+          <span class="font-bold">by {{ cert.issuer }}</span>
+        </p>
+        <p class="shrink-0 text-[9pt] font-semibold tabular-nums text-[#111]">
+          {{ cert.year }}
+        </p>
+      </div>
+      <p v-if="cert.credentialId" class="text-[9pt] text-[#444]">
+        ID: {{ cert.credentialId }}
       </p>
-    </section>
-    <section v-if="data.certificates">
-      <h2
-        class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
-      >
-        {{ t.certificates }}
-      </h2>
-      <BulletList :items="bullets(data.certificates)" />
-    </section>
-  </div>
+    </div>
+  </section>
+
+  <section v-if="data.languages" class="mb-5">
+    <h2
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
+    >
+      {{ t.languages }}
+    </h2>
+    <p class="mt-2 text-[10pt] leading-relaxed text-[#444]">
+      {{ data.languages }}
+    </p>
+  </section>
 </template>

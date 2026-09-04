@@ -88,7 +88,15 @@ Index: `user_id`. Tidak perlu index lain.
     "soft": "string ≤300, comma-separated",
   },
   "languages": "string ≤200",
-  "certificates": "string ≤1000, opsional",
+  "certificates": [
+    {
+      // array, max 5 item, opsional — section sendiri, heading ATS Sertifikasi/Certificates
+      "name": "string ≤100 — nama sertifikat",
+      "issuer": "string ≤100 — penerbit, tampil 'by Penerbit' bold",
+      "year": "string ≤10 — tahun terbit, mis. 2024",
+      "credentialId": "string ≤100, opsional — ID kredensial verifikasi",
+    },
+  ],
   "projects": [
     {
       // array, max 5 item, opsional
@@ -111,7 +119,7 @@ Index: `user_id`. Tidak perlu index lain.
 ```
 
 Aturan validasi global: setiap array maksimal sesuai catatan; total payload JSON ≤ 50 KB.
-Backward compat: `projects` lama berupa `string` diterima dan dikonversi ke array 1 item saat validasi (lihat `StoreCvRequest::prepareForValidation`).
+Backward compat: `projects`/`certificates` lama berupa `string` diterima dan dikonversi ke array 1 item saat validasi (lihat `StoreCvRequest::prepareForValidation`). Frontend juga menormalisasi saat load via `normalizeCvData()` di `types/cv.ts` (dipakai `CvFormView`, `CvPreview`, `print-main`) agar data lama tidak render kosong.
 
 ## Estimasi Ukuran
 

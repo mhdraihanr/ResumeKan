@@ -54,7 +54,9 @@ class TranslationService
             $push($data['skills']['soft'] ?? null);
         }
         $push($data['languages'] ?? null);
-        $push($data['certificates'] ?? null);
+        foreach ($data['certificates'] ?? [] as $c) {
+            $push($c['name'] ?? null);
+        }
         foreach ($data['projects'] ?? [] as $p) {
             $push($p['title'] ?? null);
             $push($p['objective'] ?? null);
@@ -159,7 +161,10 @@ class TranslationService
             $set($data['skills']['soft']);
         }
         $set($data['languages']);
-        $set($data['certificates']);
+
+        foreach ($data['certificates'] ?? [] as $ci => $_) {
+            $set($data['certificates'][$ci]['name']);
+        }
 
         foreach ($data['projects'] ?? [] as $pi => $_) {
             $set($data['projects'][$pi]['title']);

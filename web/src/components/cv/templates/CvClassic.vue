@@ -93,7 +93,7 @@ const {
         {{ ed.institution }}<span v-if="ed.location"> · {{ ed.location }}</span>
       </p>
       <p v-if="ed.gpa" class="text-[9pt] text-slate-700">
-        {{ t.gpa }} {{ ed.gpa }}
+        {{ t.gpa }} <span class="font-semibold">{{ ed.gpa }}</span>
       </p>
       <BulletList :items="bullets(ed.achievements)" />
     </div>
@@ -142,13 +142,21 @@ const {
     </div>
   </section>
 
-  <section v-if="data.certificates" class="mb-5">
+  <section v-if="data.certificates?.length" class="mb-5">
     <PreviewSection :title="t.certificates" />
-    <p
-      class="mt-2 whitespace-pre-line text-[10pt] leading-relaxed text-slate-700"
-    >
-      {{ data.certificates }}
-    </p>
+    <div v-for="(c, i) in data.certificates" :key="i" class="mt-2">
+      <div class="flex items-baseline justify-between gap-4">
+        <p class="text-[10pt] text-slate-700">
+          {{ c.name }} <span class="font-semibold">by {{ c.issuer }}</span>
+        </p>
+        <p class="shrink-0 text-[9pt] tabular-nums text-slate-500">
+          {{ c.year }}
+        </p>
+      </div>
+      <p v-if="c.credentialId" class="text-[9pt] text-slate-500">
+        ID: {{ c.credentialId }}
+      </p>
+    </div>
   </section>
   <section v-if="data.languages" class="mb-5">
     <PreviewSection :title="t.languages" />

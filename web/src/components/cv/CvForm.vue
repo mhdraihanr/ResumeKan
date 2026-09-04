@@ -10,6 +10,7 @@ import EducationStep from "./steps/EducationStep.vue";
 import OrganizationStep from "./steps/OrganizationStep.vue";
 import SkillsStep from "./steps/SkillsStep.vue";
 import ProjectsStep from "./steps/ProjectsStep.vue";
+import CertificatesStep from "./steps/CertificatesStep.vue";
 import OtherStep from "./steps/OtherStep.vue";
 
 const props = defineProps<{
@@ -40,6 +41,7 @@ const steps = [
   { label: "Organisasi", key: "organization" },
   { label: "Keahlian", key: "skills" },
   { label: "Proyek", key: "projects" },
+  { label: "Sertifikat", key: "certificates" },
   { label: "Lainnya", key: "other" },
 ];
 
@@ -124,7 +126,8 @@ async function generateSummary() {
     <OrganizationStep v-show="activeStep === 5" v-model="local" />
     <SkillsStep v-show="activeStep === 6" v-model="local" />
     <ProjectsStep v-show="activeStep === 7" v-model="local" />
-    <OtherStep v-show="activeStep === 8" v-model="local" />
+    <CertificatesStep v-show="activeStep === 8" v-model="local" />
+    <OtherStep v-show="activeStep === 9" v-model="local" />
 
     <!-- Step navigation -->
     <div class="flex items-center justify-between gap-3 pt-2">

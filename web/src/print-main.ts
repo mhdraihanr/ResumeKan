@@ -2,6 +2,7 @@ import "./assets/main.css";
 import { createApp, h } from "vue";
 import CvPreview from "./components/cv/CvPreview.vue";
 import type { CvData } from "./types/cv";
+import { normalizeCvData } from "./types/cv";
 
 declare global {
   interface Window {
@@ -11,17 +12,19 @@ declare global {
   }
 }
 
-const data: CvData = window.__CV_DATA__ ?? {
-  personal: { name: "", email: "", phone: "", address: "" },
-  summary: "",
-  experiences: [],
-  education: [],
-  organizations: [],
-  skills: { hard: "", soft: "" },
-  languages: "",
-  certificates: "",
-  projects: [],
-};
+const data: CvData = normalizeCvData(
+  (window.__CV_DATA__ as CvData | undefined) ?? {
+    personal: { name: "", email: "", phone: "", address: "" },
+    summary: "",
+    experiences: [],
+    education: [],
+    organizations: [],
+    skills: { hard: "", soft: "" },
+    languages: "",
+    certificates: [],
+    projects: [],
+  },
+);
 const template: string = window.__CV_TEMPLATE__ ?? "modern";
 const language: string = window.__CV_LANGUAGE__ ?? "id";
 

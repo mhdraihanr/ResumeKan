@@ -68,7 +68,7 @@ Klien lalu `POST` ke `https://api.cloudinary.com/v1_1/{cloud_name}/image/upload`
 
 → `201 { cv }`. Gagal jika user sudah punya 10 CV → `422`.
 
-> `data.projects` terstruktur: array objek `{ title, role, objective, techStack }` (max 5). Nilai lama `string` masih diterima (backward compat, dikonversi ke 1 item). `data.education[].gpa` opsional `≤10`, `data.education[].location` opsional, `data.education[].degree` = gelar & jurusan digabung (field `major` dihapus), `data.education[].achievements` opsional `≤1000` (bullet newline), `data.organizations` array max 5, `data.experiences[].employmentType` opsional `in: Full-time,Part-time,Internship,Contract,Freelance` — lihat `DATA_MODEL.md`.
+> `data.projects` terstruktur: array objek `{ title, role, objective, techStack }` (max 5). `data.certificates` terstruktur: array objek `{ name, issuer, year, credentialId? }` (max 5, section sendiri). Nilai lama `string` masih diterima untuk keduanya (backward compat, dikonversi ke 1 item). `data.education[].gpa` opsional `≤10`, `data.education[].location` opsional, `data.education[].degree` = gelar & jurusan digabung (field `major` dihapus), `data.education[].achievements` opsional `≤1000` (bullet newline), `data.organizations` array max 5, `data.experiences[].employmentType` opsional `in: Full-time,Part-time,Internship,Contract,Freelance` — lihat `DATA_MODEL.md`.
 
 ### `GET /cvs/{id}` → `200 { cv }` (lengkap dengan `data`)
 
@@ -103,7 +103,7 @@ Menerjemahkan konten CV (`data`) dari bahasa sumber ke target tanpa menyimpan �
 { "data": { ...CvData terjemahan } }
 ```
 
-Field yang diterjemahkan: `summary`, `experiences[].position/description`, `education[].degree/achievements`, `organizations[].role/description`, `skills.hard/soft`, `languages`, `certificates`, `projects[].title/objective`. Nama, perusahaan, institusi, URL, dan angka dibiarkan verbatim (Google menerjemahkannya apa adanya).
+Field yang diterjemahkan: `summary`, `experiences[].position/description`, `education[].degree/achievements`, `organizations[].role/description`, `skills.hard/soft`, `languages`, `certificates[].name`, `projects[].title/objective`. Nama, perusahaan, institusi, URL, dan angka dibiarkan verbatim (Google menerjemahkannya apa adanya).
 
 Implementasi: `TranslationService` memanggil endpoint gratis Google gtx (`translate.googleapis.com/translate_a/single?client=gtx`). Semua field digabung dengan delimiter `@@@` dalam satu request lalu dipecah kembali; jika Google merusak delimiter, fallback per-field. Service dipakai di `App\Services\TranslationService` — konten field per item, satu request per CV. Error layanan → `502 { "message": "Layanan terjemahan tidak tersedia" }`.
 

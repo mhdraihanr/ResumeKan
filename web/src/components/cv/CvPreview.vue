@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { CvData } from "@/types/cv";
+import { normalizeCvData } from "@/types/cv";
 import { getTemplateConfig } from "@/lib/cv-templates";
 import CvModern from "./templates/CvModern.vue";
 import CvClassic from "./templates/CvClassic.vue";
@@ -16,6 +17,7 @@ const props = withDefaults(
   { compact: false, language: "id" },
 );
 
+const normal = computed(() => normalizeCvData({ ...props.data }));
 const tpl = computed(() => getTemplateConfig(props.template));
 const comp = computed(() =>
   tpl.value.id === "neon"
@@ -36,7 +38,7 @@ const comp = computed(() =>
     style="font-size: 11pt; line-height: 1.5"
   >
     <div :class="['cv-page', compact ? 'px-0 py-4' : 'px-8 py-8 sm:px-10']">
-      <component :is="comp" :data="data" :language="language" />
+      <component :is="comp" :data="normal" :language="language" />
     </div>
   </div>
 </template>

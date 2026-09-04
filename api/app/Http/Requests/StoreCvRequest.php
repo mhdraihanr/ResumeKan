@@ -52,7 +52,11 @@ class StoreCvRequest extends FormRequest
             'data.skills.hard' => 'nullable|string|max:500',
             'data.skills.soft' => 'nullable|string|max:300',
             'data.languages' => 'nullable|string|max:200',
-            'data.certificates' => 'nullable|string|max:1000',
+            'data.certificates' => 'nullable|array|max:5',
+            'data.certificates.*.name' => 'required_with:data.certificates|string|max:100',
+            'data.certificates.*.issuer' => 'required_with:data.certificates|string|max:100',
+            'data.certificates.*.year' => 'required_with:data.certificates|string|max:10',
+            'data.certificates.*.credentialId' => 'nullable|string|max:100',
             'data.projects' => 'nullable|array|max:5',
             'data.projects.*.title' => 'required_with:data.projects|string|max:100',
             'data.projects.*.role' => 'required_with:data.projects|string|max:100',
@@ -82,6 +86,16 @@ class StoreCvRequest extends FormRequest
                     $t = 'https://' . ltrim($t, '/');
                 }
                 $data['personal'][$k] = $t;
+            }
+        }
+
+        // Backward compat: certificates string lama → array 1 item
+        if (isset($data['certificates']) && is_string($data['certificates'])) {
+            $str = trim($data['certificates']);
+            if ($str === '') {
+                $data['certificates'] = [];
+            } else {
+                $data['certificates'] = [['name' => $str, 'issuer' => '—', 'year' => '', 'credentialId' => '']];
             }
         }
 

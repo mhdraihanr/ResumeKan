@@ -61,7 +61,7 @@ const sample: CvData = {
     soft: "Komunikasi, Kerja tim",
   },
   languages: "Indonesia (native), Inggris (menengah)",
-  certificates: "",
+  certificates: [],
   projects: [],
 };
 

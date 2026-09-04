@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useCvStore } from "@/stores/cv";
-import { emptyCvData } from "@/types/cv";
+import { emptyCvData, normalizeCvData } from "@/types/cv";
 import type { CvData } from "@/types/cv";
 import CvForm from "@/components/cv/CvForm.vue";
 import CvPreview from "@/components/cv/CvPreview.vue";
@@ -37,7 +37,7 @@ onMounted(async () => {
       title.value = cvStore.current.title;
       template.value = cvStore.current.template;
       language.value = cvStore.current.language;
-      data.value = cvStore.current.data ?? emptyCvData();
+      data.value = normalizeCvData(cvStore.current.data ?? emptyCvData());
     }
   }
 });
