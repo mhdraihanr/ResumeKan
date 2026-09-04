@@ -1,5 +1,7 @@
 # ResumeKan
 
+![Showcase ResumeKan](docs/Showcase%20ResumeKan.png)
+
 Generator CV ATS-friendly berbasis AI. Isi form → pilih template → download PDF.
 
 ## Stack
