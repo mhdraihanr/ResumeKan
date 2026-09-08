@@ -27,6 +27,8 @@
 
 - [x] Komponen `CvPreview` dengan 3 template (modern, classic, neon) — 1 template = 1 file (`CvModern`/`CvClassic`/`CvNeon`, header include masing-masing)
 - [x] Preview real-time saat mengisi form (computed dari store)
+- [x] Preview editor paged multi-halaman A4 (2026-09-08) — break per section, identik titik pecah PDF
+- [x] Wrapper paged tanpa sisa ruang + sticky bar selebar editor (2026-09-09)
 
 ## Fase 4 — AI Summary (½ hari) ✅ [detail](phases/phase-4-ai-summary.md)
 
@@ -37,6 +39,7 @@
 
 - [x] `PdfService` (Browsershot) render HTML `print.html` dengan template Vue yang sama seperti preview melalui `Browsershot::html()`
 - [x] Endpoint `/cvs/{id}/pdf` + tombol download, tanpa request balik ke API selama render
+- [x] `break-inside: avoid` pada `header`/`section` (2026-09-08) — PDF tidak memotong section antar halaman
 - [x] Install Chromium lokal untuk testing (Edge via `useChrome()->setChromePath()`, fallback Puppeteer)
 
 ## Fase 6 — Landing & Polish (1 hari) ✅ [detail](phases/phase-6-landing-polish.md)

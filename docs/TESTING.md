@@ -62,13 +62,13 @@ POST   /api/v1/cvs { projects: [{ title, role, link: "github.com/x" }] } → 201
 # preview: title tetap plain text (ATS), ikon external-link muncul hanya jika link ada
 ```
 
-**Preview (Fase 3):** ubah field form → preview update tanpa lag; switch `modern` ↔ `classic` ↔ `neon` → header/heading/accent/layout berubah; cek di mobile (stack/tab).
+**Preview (Fase 3):** ubah field form → preview update tanpa lag; switch `modern` ↔ `classic` ↔ `neon` → header/heading/accent/layout berubah; cek di mobile (stack/tab). Preview editor kini paged (2026-09-08): CV panjang tampil sebagai beberapa lembar A4 (kertas putih ber-margin, di-scale muat panel) — cek tidak ada judul section/entry terpotong di tepi bawah lembar, dan jumlah lembar sesuai panjang konten (mis. CV 2 halaman → 2 lembar). Cek juga (2026-09-09): saat panel preview lebih sempit dari A4 (zoom-out), tidak ada ruang kosong besar di kanan/bawah kartu — lembar menempati area kartu secara rapat; sticky bar atas selebar kolom form+preview (tidak melebar penuh layar).
 
 **Simpan Draft (Fase 3):** di halaman `/cvs/new` isi minimal (judul + data pribadi) → klik `Simpan Draft` → toast `Draft tersimpan` muncul, URL tetap `/cvs/new`, heading berubah jadi "Edit CV", tombol `Download PDF` muncul; refresh halaman → data masih ada. Di halaman edit: ubah field → `Simpan Draft` → toast muncul tanpa keluar halaman; cek DB `updated_at` berubah.
 
 **AI (Fase 4):** `POST /api/v1/ai/summary` → `200`; request ke-6 dalam 1 menit → `429`.
 
-**PDF (Fase 5):** dengan session aktif, `GET /api/v1/cvs/{id}/pdf` → `200 application/pdf`; cek signature awal `%PDF-`, nama file di header `Content-Disposition`, dan ukuran file lebih dari satu halaman kosong. Dari halaman edit, klik **Download PDF** dan pastikan file bernama `{nama}_CV.pdf` terunduh serta kontennya sama dengan preview. Bila PDF kosong, cek bahwa `PdfService` memakai `Browsershot::html()` dan argumen Chromium untuk module dari shell `file://`, bukan request URL print balik ke API.
+**PDF (Fase 5):** dengan session aktif, `GET /api/v1/cvs/{id}/pdf` → `200 application/pdf`; cek signature awal `%PDF-`, nama file di header `Content-Disposition`, dan ukuran file lebih dari satu halaman kosong. Dari halaman edit, klik **Download PDF** dan pastikan file bernama `{nama}_CV.pdf` terunduh serta kontennya sama dengan preview. Bila PDF kosong, cek bahwa `PdfService` memakai `Browsershot::html()` dan argumen Chromium untuk module dari shell `file://`, bukan request URL print balik ke API. Cek paginasi (2026-09-08): PDF multi-halaman tidak memotong judul section/entry di tengah (break-inside avoid) dan titik pecah halaman sama dengan preview editor.
 
 ## 2. SPA (browser)
 

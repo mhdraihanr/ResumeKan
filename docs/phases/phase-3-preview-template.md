@@ -6,14 +6,14 @@
 
 - [x] `CvPreview.vue` — 3 template ATS (modern/classic/neon), 1 template = 1 file (`CvModern.vue`/`CvClassic.vue`/`CvNeon.vue`, header include masing-masing), HTML/CSS murni sama untuk preview & PDF (ADR-4)
 - [x] Preview real-time — `v-model` data/template dari `CvFormView.vue`, update tanpa lag
-- [x] Layout split `lg:grid-cols-[520px_1fr]` — form kiri scroll, preview kanan sticky; stack di mobile
+- [x] Layout split `lg:grid-cols-[480px_minmax(0,720px)] xl:grid-cols-[520px_minmax(0,720px)]` dalam wrapper `lg:max-w-[1220px] xl:max-w-[1260px]` — form kiri scroll, preview kanan sticky; stack di mobile
 
 ## Hasil Implementasi
 
-| File                                  | Isi                                                                                                                                                                                                                              |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------------------- |
-| `web/src/components/cv/CvPreview.vue` | Props `data: CvData`, `template: string` — router ke `templates/CvModern.vue`/`CvClassic.vue`/`CvNeon.vue` via `comp` computed (refactor 2026-08-31: 1 template = 1 file, header include masing-masing; `sections/PreviewSection | EntryRow | BulletList.vue` shared) |
-| `web/src/views/CvFormView.vue`        | Grid form + preview, `CvPreview :data="data" :template="template"`                                                                                                                                                               |
+| File                                  | Isi                                                                                                                                                                                                                                                 |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `web/src/components/cv/CvPreview.vue` | Props `data: CvData`, `template: string`, `paged?: boolean` — router ke `templates/CvModern.vue`/`CvClassic.vue`/`CvNeon.vue` via `comp` computed (refactor 2026-08-31: 1 template = 1 file, header include masing-masing; `sections/PreviewSection | EntryRow | BulletList.vue`shared).`paged`(2026-09-08): preview editor multi-halaman emulasi PDF — konten diukur di lebar 673px identik print, break per batas`header`/`section` (tinggi halaman 1017px), tiap lembar kertas A4 794×1123px di-scale muat panel; wrapper diberi ukuran eksplisit hasil scale (2026-09-09) agar tanpa sisa ruang |
+| `web/src/views/CvFormView.vue`        | Grid form + preview (`480/520px` + `minmax(0,720px)`) dalam wrapper `lg:max-w-[1220px] xl:max-w-[1260px]`, `CvPreview :data="data" :template="template" paged` — sticky bar sejajar grid (2026-09-09)                                               |
 
 ## Hasil Verifikasi
 
@@ -41,6 +41,7 @@
 - Accent navy `#1e40af` — garis bawah heading section (CSS `border`, bukan image)
 - Bullet `•` hitam, dates rata kanan, leading longgar (6–7 bullet/role tetap napas)
 - A4 print CSS (`@page` A4, margin 14mm/16mm) — preview identik dengan PDF Browsershot
+- Paginasi preview editor (2026-09-08): prop `paged` → multi-halaman identik hasil PDF. Konten diukur pada lebar konten print (673px = 178mm @96dpi) di container tersembunyi, break dihitung greedy hanya di batas `header`/`section` (blok atomik, sama seperti `break-inside: avoid` print CSS) dengan tinggi halaman 1017px (269mm), tiap lembar dirender sebagai kertas A4 794×1123px dengan margin putih 61px/53px lalu di-`scale` agar muat panel. Landing (`HomeView`) dan shell print tetap non-paged (`compact`).
 - Kontak LinkedIn/Website/GitHub: link klikable, dukung `www.` tanpa `https://` (display tanpa scheme, href dinormalisasi)
 - Cocok: tech, SaaS, startup, PM/designer/data — sinyal "product-design-aware"
 
@@ -96,5 +97,9 @@ Catatan enhancement historis di bawah yang menyebut "kedua template" merujuk Mod
 - Preview identik dengan output PDF Fase 5 (HTML yang sama).
 
 - Enhancement 2026-09-04 — Sertifikat terstruktur + IPK bold (Exa HBS/Resumefast): `certificates` dari `string` jadi array `{ name, issuer, year, credentialId? }` max 5, form step sendiri `CertificatesStep.vue` (Nama/Penerbit/Tahun/Credential ID opsional), render `Nama by Penerbit` bold + `tahun · ID` di section sendiri semua template. IPK angka bold di semua template (label normal). Backward compat string lama → array 1 item.
+- Enhancement 2026-09-08 — Preview paged multi-halaman A4 (editor): `CvFormView` kirim prop `paged` ke `CvPreview`. Konten diukur di container tersembunyi lebar 673px (identik area konten print: 178mm @96dpi), break dihitung greedy hanya di batas `header`/`section` dengan tinggi halaman 1017px (269mm) — tidak ada elemen terpotong di tepi lembar; tiap lembar dirender sebagai kertas A4 794×1123px (margin putih 61px/53px = 16/14mm) dan di-`scale` otomatis agar muat panel. Landing dan shell print tetap non-paged (`compact`).
+- Enhancement 2026-09-08 — PDF tidak memotong section: print CSS `header, section { break-inside: avoid; page-break-inside: avoid }` di `CvPreview.vue` + `print:break-after-avoid` pada header ketiga template. Section yang tidak muat pindah utuh ke halaman berikutnya; titik pecah halaman PDF = titik pecah preview paged.
+- Enhancement 2026-09-09 — Wrapper paged tanpa sisa ruang: wrapper `.paged-preview-wrapper` kini diberi ukuran eksplisit hasil scale (`width = A4_W × scale`, `height = (N × A4_H + (N-1) × 16px gap) × scale`) via `updateWrapperSize()` di `CvPreview.vue` (dipanggil dari `remeasure()` dan `updateScale()`). `scale` dihitung dari lebar kartu induk (`parentElement.clientWidth`), bukan dari wrapper (agar tidak feedback loop). Hasilnya tidak ada ruang kosong di kanan/bawah lembar saat di-zoom-out.
+- Enhancement 2026-09-09 — Layout editor sejajar: di `CvFormView.vue`, sticky bar + grid form/preview dibungkus wrapper bersama `mx-auto w-full lg:max-w-[1220px] xl:max-w-[1260px]` (1220 = 480+720+gap, 1260 = 520+720+gap) — sticky header kini selebar persis kolom form+preview, tidak melebar penuh layar. Grid pakai `grid-cols-[480px_minmax(0,720px)]` (lg) / `[520px_minmax(0,720px)]` (xl); `justify-center` dihapus (wrapper `mx-auto` yang men-center-kan).
 
 ← [Fase 2](phase-2-crud-cv.md) · Lanjut ke [Fase 4](phase-4-ai-summary.md)

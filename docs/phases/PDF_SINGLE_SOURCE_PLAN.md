@@ -86,6 +86,10 @@ Di Windows, service memakai Microsoft Edge Chromium apabila path lokalnya ada. J
 
 `CvPreview.vue` sudah mendefinisikan CSS print A4 dan link tanpa underline. Browsershot mengatur ukuran serta margin A4, lalu menunggu module Vue selesai merender sebelum membuat PDF.
 
+**Paginasi tanpa elemen terpotong (2026-09-08):** print CSS menambah `header, section { break-inside: avoid; page-break-inside: avoid }` — section yang tidak muat pindah utuh ke halaman berikutnya, tidak ada judul/entry terpotong di tengah. Preview editor memakai prop `paged` di `CvPreview.vue` untuk emulasi hasil PDF: konten diukur pada lebar 673px (178mm @96dpi, identik area konten print), break dihitung greedy per batas `header`/`section` dengan tinggi halaman 1017px (269mm), lalu tiap lembar dirender sebagai kertas A4 794×1123px (margin putih 61px/53px) yang di-`scale` agar muat panel. Landing dan shell print tetap non-paged.
+
+**Wrapper paged tanpa sisa ruang (2026-09-09):** `.paged-preview-wrapper` diberi ukuran eksplisit hasil scale via `updateWrapperSize()` (`width = A4_W × scale`; `height = (N lembar × A4_H + (N−1) × 16px) × scale`), dipanggil dari `remeasure()` dan `updateScale()`. `updateScale()` membaca lebar kartu induk (`parentElement.clientWidth`) agar tidak ada feedback loop. Hasil: lembar yang di-zoom-out menempati tepat area kartu, tanpa ruang kosong di kanan/bawah. Di `CvFormView.vue`, sticky bar dan grid form+preview dibungkus wrapper `lg:max-w-[1220px] xl:max-w-[1260px]` sehingga sticky header selebar konten editor.
+
 ## 3. Struktur Target
 
 ```
