@@ -62,7 +62,9 @@ const contactItems = computed(() => {
 </script>
 
 <template>
-  <header class="mb-5 flex items-center justify-between gap-6">
+  <header
+    class="mb-5 flex items-center justify-between gap-6 print:break-after-avoid"
+  >
     <div class="min-w-0 flex-1">
       <h1
         class="text-[40px] font-bold leading-none tracking-[-0.04em] text-[#111]"

@@ -90,83 +90,93 @@ async function draftSave() {
 <template>
   <main class="min-h-screen bg-slate-50 dark:bg-background">
     <div class="mx-auto max-w-[1600px] px-4 py-6 sm:px-6">
-      <!-- Sticky header: judul + aksi selalu terlihat saat scroll -->
-      <div
-        class="sticky top-0 z-20 mb-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-white/95 px-4 py-2.5 shadow-sm backdrop-blur dark:border-border dark:bg-secondary-background/95"
-      >
-        <button
-          @click="router.push('/dashboard')"
-          class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
-        >
-          ← Kembali
-        </button>
-        <h1 class="text-xl font-bold text-slate-900 dark:text-foreground">
-          {{ isEdit ? "Edit CV" : "Buat CV Baru" }}
-        </h1>
-        <div class="ml-auto flex items-center gap-3">
-          <span
-            class="hidden text-xs text-slate-400 dark:text-foreground/60 sm:inline"
-          >
-            Preview update otomatis saat mengetik</span
-          >
-          <button
-            @click="draftSave"
-            :disabled="drafting"
-            class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
-          >
-            {{ drafting ? "Menyimpan..." : "Simpan Draft" }}
-          </button>
-          <button
-            v-if="isEdit"
-            @click="win.open(`/api/v1/cvs/${cvId}/pdf`, '_blank')"
-            class="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-main dark:hover:bg-blue-700"
-          >
-            Download PDF
-          </button>
-        </div>
-      </div>
-
-      <div class="grid gap-5 lg:grid-cols-[480px_1fr] xl:grid-cols-[520px_1fr]">
-        <!-- Form -->
+      <!-- Wrapper bersama agar sticky bar selebar form+preview -->
+      <div class="mx-auto w-full lg:max-w-[1220px] xl:max-w-[1260px]">
+        <!-- Sticky header: judul + aksi selalu terlihat saat scroll -->
         <div
-          class="rounded-2xl bg-white p-5 shadow-sm sm:p-6 lg:max-h-[calc(100vh-6rem)] lg:overflow-auto dark:bg-secondary-background"
+          class="sticky top-0 z-20 mb-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-white/95 px-4 py-2.5 shadow-sm backdrop-blur dark:border-border dark:bg-secondary-background/95"
         >
-          <p
-            v-if="error"
-            class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400"
+          <button
+            @click="router.push('/dashboard')"
+            class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
           >
-            {{ error }}
-          </p>
-          <CvForm
-            v-model="data"
-            v-model:title="title"
-            v-model:template="template"
-            v-model:language="language"
-            :cv-id="cvId"
-            @submit="submit"
-          />
-          <p
-            v-if="saving"
-            class="mt-3 text-center text-xs text-slate-400 dark:text-foreground/60"
-          >
-            Menyimpan...
-          </p>
-        </div>
-
-        <!-- Preview -->
-        <div
-          class="lg:sticky lg:top-6 lg:max-h-[calc(100vh-6rem)] lg:overflow-auto"
-        >
-          <div class="mb-2 flex items-center justify-between">
+            ← Kembali
+          </button>
+          <h1 class="text-xl font-bold text-slate-900 dark:text-foreground">
+            {{ isEdit ? "Edit CV" : "Buat CV Baru" }}
+          </h1>
+          <div class="ml-auto flex items-center gap-3">
             <span
-              class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-foreground/70"
-              >Preview · {{ template }}</span
+              class="hidden text-xs text-slate-400 dark:text-foreground/60 sm:inline"
             >
+              Preview update otomatis saat mengetik</span
+            >
+            <button
+              @click="draftSave"
+              :disabled="drafting"
+              class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
+            >
+              {{ drafting ? "Menyimpan..." : "Simpan Draft" }}
+            </button>
+            <button
+              v-if="isEdit"
+              @click="win.open(`/api/v1/cvs/${cvId}/pdf`, '_blank')"
+              class="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-main dark:hover:bg-blue-700"
+            >
+              Download PDF
+            </button>
           </div>
+        </div>
+
+        <div
+          class="grid gap-5 lg:grid-cols-[480px_minmax(0,720px)] xl:grid-cols-[520px_minmax(0,720px)]"
+        >
+          <!-- Form -->
           <div
-            class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-border dark:bg-secondary-background"
+            class="rounded-2xl bg-white p-5 shadow-sm sm:p-6 lg:max-h-[calc(100vh-6rem)] lg:overflow-auto dark:bg-secondary-background"
           >
-            <CvPreview :data="data" :template="template" :language="language" />
+            <p
+              v-if="error"
+              class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400"
+            >
+              {{ error }}
+            </p>
+            <CvForm
+              v-model="data"
+              v-model:title="title"
+              v-model:template="template"
+              v-model:language="language"
+              :cv-id="cvId"
+              @submit="submit"
+            />
+            <p
+              v-if="saving"
+              class="mt-3 text-center text-xs text-slate-400 dark:text-foreground/60"
+            >
+              Menyimpan...
+            </p>
+          </div>
+
+          <!-- Preview -->
+          <div
+            class="lg:sticky lg:top-6 lg:max-h-[calc(100vh-6rem)] lg:overflow-auto"
+          >
+            <div class="mb-2 flex items-center justify-between">
+              <span
+                class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-foreground/70"
+                >Preview · {{ template }}</span
+              >
+            </div>
+            <div
+              class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-border dark:bg-secondary-background"
+            >
+              <CvPreview
+                :data="data"
+                :template="template"
+                :language="language"
+                paged
+              />
+            </div>
           </div>
         </div>
       </div>

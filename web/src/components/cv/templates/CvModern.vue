@@ -26,7 +26,7 @@ const {
 </script>
 
 <template>
-  <header class="mb-6">
+  <header class="mb-6 print:break-after-avoid">
     <h1
       class="text-[36px] font-bold leading-none tracking-tight text-slate-900"
     >
