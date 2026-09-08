@@ -161,7 +161,7 @@ function fmtDate(s: string) {
             {{ cv.language === "id" ? "Indonesia" : "English" }} ·
             {{ fmtDate(cv.updated_at) }}
           </p>
-          <div class="mt-4 flex gap-2">
+          <div class="mt-4 flex flex-wrap gap-2">
             <button
               @click="router.push(`/cvs/${cv.id}/edit`)"
               class="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
@@ -177,14 +177,11 @@ function fmtDate(s: string) {
             <button
               v-if="cv.language === 'id'"
               :disabled="translatingId === cv.id"
+              title="Duplikat CV ini & terjemahkan isinya ke Inggris"
               @click="duplicateTranslate(cv)"
-              class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-50 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
+              class="whitespace-nowrap rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-50 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
             >
-              {{
-                translatingId === cv.id
-                  ? "Menerjemahkan..."
-                  : "Duplikat & terjemahkan EN"
-              }}
+              {{ translatingId === cv.id ? "Menerjemahkan..." : "Terjemah EN" }}
             </button>
             <button
               @click="handleDelete(cv.id)"
