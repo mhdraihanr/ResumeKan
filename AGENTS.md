@@ -9,7 +9,7 @@ Sebelum memulai atau mengeksekusi **apa pun**, periksa apakah Antislop berlaku.
 Jika berlaku:
 
 1. Tanyakan kepada pengguna apakah Antislop harus diterapkan **selama pekerjaan berlangsung** atau **setelah selesai**.
-2. Sebelum implementasi, muat keahlian (_skills_) yang diperlukan dari `.github/skills/`:
+2. Sebelum implementasi, muat keahlian (_skills_) yang diperlukan dari `~/.copilot/skills/`:
 
 - `antislop` → Selalu diperlukan
 - `antislop-ui` → UI / visual

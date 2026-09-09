@@ -7,7 +7,7 @@ Before starting or executing **anything**, check whether Antislop applies.
 If it applies:
 
 1. Ask the user whether Antislop should be applied **during the work** or **after it is done**.
-2. Before implementation, load the required skills from `.github/skills/`:
+2. Before implementation, load the required skills from `~/.copilot/skills/`:
    - `antislop` → Always required
    - `antislop-ui` → UI / visual
    - `antislop-copywriting` → Copy / text
