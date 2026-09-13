@@ -54,3 +54,16 @@ Catatan:
 ### Editing Restriction
 
 - Do **not** use `sed -i` or any equivalent in-place `sed` editing command.
+
+### Terminal & Verification Rules
+
+Aturan lengkap ada di `AGENTS.md` section 6 (aturan umum berlaku global via instruksi global). Ringkasan yang wajib dipatuhi:
+
+- **One-shot commands** (build, lint, test, type-check, verifikasi) → sinkron, tunggu sampai selesai, tanpa timeout buatan.
+- **Long-running** (`pnpm dev`, `php artisan serve`, `vite preview`) → background/async, **jangan** pakai `&`, jangan `sleep`.
+- Jangan mem-_pipe_ perintah interaktif ke `head`/`tail`/`grep`.
+- **`pnpm build` bisa memblokir.** Script = `run-p type-check "build-only"` paralel. Kalau `type-check` gagal, `run-p` cuma cetak `ERROR: "type-check" exited with 2` dan output vite tenggelam. Untuk diagnosis, jalankan terpisah: `pnpm type-check` dan `pnpm build-only`.
+- **`!important` di grep → pakai kutip tunggal** (`grep '!important'`). Kutip ganda memicu history expansion bash.
+- Setelah menjalankan server: **satu** probe singkat, jangan loop menunggu. Kalau belum siap, laporkan ke user.
+- Verifikasi: utamakan `get_errors` (bukan tsc manual). Konversi warna `oklch()` lewat kanvas di `runPlaywrightCode`.
+- Setelah verifikasi: bersihkan harness/temp file, kembalikan config yang diubah untuk uji, dan pastikan `git status` hanya berisi perubahan yang disengaja.

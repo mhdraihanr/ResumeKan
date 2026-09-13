@@ -58,3 +58,33 @@ Setiap perubahan UI **wajib diverifikasi lewat browser terintegrasi VS Code** (_
 ## 5. Batasan Pengeditan
 
 - **Jangan** menggunakan `sed -i` atau perintah pengeditan _in-place_ `sed` lainnya yang setara.
+
+## 6. Aturan Terminal & Verifikasi Perintah
+
+Tujuan: tidak ada perintah yang menggantung, menunggu input, atau memblokir terminal. Aturan umum berlaku global; bagian ini menambahkan hal spesifik project ini.
+
+### 6.1 Mode eksekusi
+
+- **Perintah one-shot** (build, lint, test, type-check, verifikasi): jalankan sinkron dan tunggu sampai selesai. Jangan diberi timeout buatan dan jangan dijalankan di background.
+- **Proses long-running** (`pnpm dev`, `php artisan serve`, `vite preview`): jalankan sebagai proses background/async, **jangan** pakai `&` di dalam shell.
+- Jangan mem-_pipe_ perintah interaktif ke `head`/`tail`/`grep`.
+- Jangan menyalurkan secret ke terminal.
+
+### 6.2 Jebakan spesifik project ini
+
+- **`pnpm build` bisa memblokir.** Script-nya adalah `run-p type-check "build-only"` yang berjalan paralel. Jika `type-check` gagal, `run-p` hanya mencetak `ERROR: "type-check" exited with 2` dan output vite tenggelam sehingga tampak seperti menggantung. Untuk diagnosis, jalankan terpisah: `pnpm type-check` lalu `pnpm build-only`.
+- **Tailwind v4 memakai `!important` di CSS.** Saat mencari pola itu dengan `grep`, gunakan kutip tunggal (`grep '!important'`). Kutip ganda memicu history expansion bash dan menghasilkan `event not found`.
+- **Menghitung em dash per baris.** Jangan pakai `grep -c` atau `wc -l`; grep bekerja lintas baris. Gunakan skrip singkat bila perlu menghitung per baris. Konvensi project: em dash `—` hanya untuk pemisah tanggal pada entri changelog, bukan di prosa.
+- **Warna Tailwind v4 ter-emit sebagai `oklch()`.** Konversi ke hex lewat round-trip kanvas 2D di browser, jangan parsing string secara manual.
+- **Verifikasi PDF butuh harness.** Jalur produksi ada di `CvController::resolvePrintHtml` + `PdfService::render` (memerlukan auth). Untuk verifikasi tanpa auth, buat route sementara, lalu **hapus route dan kembalikan `api/bootstrap/app.php`** setelah selesai. Jangan tinggalkan harness di working tree.
+- **Jangan pakai `git stash --include-untracked` tanpa cek `git status` setelahnya** — pernah menghilangkan `AGENTS.md` dari working tree.
+
+### 6.3 Menunggu server siap
+
+- Setelah menjalankan server, jangan menunggu dengan `sleep` atau loop. Lakukan **satu** probe singkat (mis. satu `curl` ke `/up`).
+- Jika belum siap, laporkan ke pengguna, jangan mencoba berulang kali.
+
+### 6.4 Setelah verifikasi
+
+- Laporkan exit code dan ringkasan hasil, bukan hanya klaim "berhasil".
+- Bersihkan file sementara dan harness verifikasi, lalu pastikan `git status` hanya memuat perubahan yang disengaja.

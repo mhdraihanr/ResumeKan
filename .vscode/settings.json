@@ -1,6 +1,9 @@
 {
   "chat.tools.terminal.autoApprove": {
-    "pnpm": true,
+    "/^pnpm (type-check|typecheck|build-only|lint|test|vitest)$/": true,
+    "/^pnpm build$/": false,
+    "/^pnpm (dev|preview|watch|start)( .*)?$/": false,
+    "/^sleep( .*)?$/": false,
     "/^python \"d:\\\\ResumeKan\\\\\\.github\\\\skills\\\\antislop-human\\\\contrast-check\\.py\" \"#3b82f6\" \"#ffffff\"$/": {
       "approve": true,
       "matchCommandLine": true
