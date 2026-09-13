@@ -157,13 +157,16 @@ const {
       <p v-if="p.objective" class="text-[10pt] text-slate-700">
         {{ p.objective }}
       </p>
-      <p v-if="p.role" class="text-[9pt] text-slate-700">
-        <span class="font-semibold text-slate-900">{{ t.role }}</span>
-        {{ p.role }}
-      </p>
-      <p v-if="p.techStack" class="text-[9pt] text-slate-700">
-        <span class="font-semibold text-slate-900">{{ t.techStack }}</span>
-        {{ p.techStack }}
+      <p v-if="p.role || p.techStack" class="text-[9pt] text-slate-700">
+        <template v-if="p.role">
+          <span class="font-semibold text-slate-900">{{ t.role }}</span>
+          {{ p.role }}
+        </template>
+        <span v-if="p.role && p.techStack"> · </span>
+        <template v-if="p.techStack">
+          <span class="font-semibold text-slate-900">{{ t.techStack }}</span>
+          {{ p.techStack }}
+        </template>
       </p>
     </div>
   </section>

@@ -271,13 +271,19 @@ const contactItems = computed(() => {
       >
         {{ project.objective }}
       </p>
-      <p v-if="project.role" class="mt-0.5 text-[9pt] text-[#444]">
-        <span class="font-semibold text-[#111]">{{ t.role }}</span>
-        {{ project.role }}
-      </p>
-      <p v-if="project.techStack" class="text-[9pt] text-[#444]">
-        <span class="font-semibold text-[#111]">{{ t.techStack }}</span>
-        {{ project.techStack }}
+      <p
+        v-if="project.role || project.techStack"
+        class="mt-0.5 text-[9pt] text-[#444]"
+      >
+        <template v-if="project.role">
+          <span class="font-semibold text-[#111]">{{ t.role }}</span>
+          {{ project.role }}
+        </template>
+        <span v-if="project.role && project.techStack"> · </span>
+        <template v-if="project.techStack">
+          <span class="font-semibold text-[#111]">{{ t.techStack }}</span>
+          {{ project.techStack }}
+        </template>
       </p>
     </div>
   </section>
