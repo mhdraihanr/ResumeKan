@@ -57,7 +57,7 @@ class StoreCvRequest extends FormRequest
             'data.certificates.*.issuer' => 'required_with:data.certificates|string|max:100',
             'data.certificates.*.year' => 'required_with:data.certificates|string|max:10',
             'data.certificates.*.credentialId' => 'nullable|string|max:100',
-            'data.projects' => 'nullable|array|max:5',
+            'data.projects' => 'nullable|array|max:8',
             'data.projects.*.title' => 'required_with:data.projects|string|max:100',
             'data.projects.*.role' => 'required_with:data.projects|string|max:100',
             'data.projects.*.objective' => 'nullable|string|max:500',

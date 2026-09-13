@@ -49,18 +49,18 @@
 
 1. `CvResource` membedakan response: `GET /cvs` tanpa `data` (ringan), `GET /cvs/{id}` + POST/PUT dengan `data` lengkap.
 2. Validasi `data` di Form Request — bukan di DB constraint (ADR-3: JSON tunggal).
-3. **Enhancement 2026-08-27** — `projects` dari `string` → array terstruktur `{ title, role, objective, techStack }` (max 5). Backward compat: string lama dikonversi ke 1 item di `prepareForValidation`. Experiences tetap `string` (1 baris = 1 bullet ATS) — hanya UI yang ditambah helper.
+3. **Enhancement 2026-08-27** — `projects` dari `string` → array terstruktur `{ title, role, objective, techStack }` (max 5, lalu naik ke max 8 pada 2026-09-13). Backward compat: string lama dikonversi ke 1 item di `prepareForValidation`. Experiences tetap `string` (1 baris = 1 bullet ATS) — hanya UI yang ditambah helper.
 
 ## Enhancement — Projects Terstruktur (2026-08-27)
 
 > Iterasi setelah Fase 2 selesai. Tidak mengubah migrasi DB (kolom `data` JSON tetap).
 
-| Hal             | Detail                                                                                              |
-| --------------- | --------------------------------------------------------------------------------------------------- |
-| Skema baru      | `projects: { title, role, objective, techStack }[]` max 5 — lihat [DATA_MODEL.md](../DATA_MODEL.md) |
-| Validasi        | `StoreCvRequest` — rules per field + konversi string lama                                           |
-| UI              | `CvForm.vue` — card list per proyek (mirip experiences), grid `sm:grid-cols-2` untuk title/role     |
-| Backward compat | `projects: "string lama"` → `[{ title: string, role: "—", objective: "", techStack: "" }]`          |
+| Hal             | Detail                                                                                                                            |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Skema baru      | `projects: { title, role, objective, techStack }[]` max 8 (naik dari 5 pada 2026-09-13) — lihat [DATA_MODEL.md](../DATA_MODEL.md) |
+| Validasi        | `StoreCvRequest` — rules per field + konversi string lama                                                                         |
+| UI              | `CvForm.vue` — card list per proyek (mirip experiences), grid `sm:grid-cols-2` untuk title/role                                   |
+| Backward compat | `projects: "string lama"` → `[{ title: string, role: "—", objective: "", techStack: "" }]`                                        |
 
 ## Enhancement — IPK & Organisasi (2026-08-28)
 

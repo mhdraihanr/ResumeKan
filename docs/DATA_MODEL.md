@@ -99,7 +99,7 @@ Index: `user_id`. Tidak perlu index lain.
   ],
   "projects": [
     {
-      // array, max 5 item, opsional
+      // array, max 8 item, opsional
       "title": "string ≤100 — nama proyek",
       "role": "string ≤100 — peran Anda di proyek",
       "objective": "string ≤500 — tujuan / apa yang diselesaikan",

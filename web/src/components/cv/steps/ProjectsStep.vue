@@ -31,7 +31,7 @@ function removeProject(i: number) {
       <button
         type="button"
         class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
-        :disabled="(data.projects?.length ?? 0) >= 5"
+        :disabled="(data.projects?.length ?? 0) >= 8"
         @click="addProject"
       >
         + Tambah
@@ -98,7 +98,8 @@ function removeProject(i: number) {
       </label>
     </div>
     <p v-if="!data.projects?.length" class="text-xs text-slate-400">
-      Belum ada proyek. Klik Tambah (max 5).
+      Belum ada proyek. Klik Tambah (max 8). Pilih 3-4 paling relevan agar CV
+      tetap 1 halaman.
     </p>
   </section>
 </template>
