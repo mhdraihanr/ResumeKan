@@ -73,7 +73,7 @@ const contactItems = computed(() => {
       </h1>
       <div
         v-if="contactItems.length"
-        class="mt-3 grid grid-cols-1 gap-x-4 gap-y-1 text-[13px] leading-snug text-[#444] sm:grid-cols-2"
+        class="mt-3 grid grid-cols-1 gap-x-4 gap-y-1 text-[13px] leading-snug text-[#111] sm:grid-cols-2"
       >
         <template v-for="item in contactItems" :key="item.label">
           <div class="flex items-center gap-2">
@@ -94,7 +94,7 @@ const contactItems = computed(() => {
               :href="item.href"
               target="_blank"
               rel="noopener"
-              class="min-w-0 break-words hover:underline"
+              class="min-w-0 break-words text-[#111] underline decoration-[#9ca3af] underline-offset-2 hover:decoration-[#111]"
             >
               {{ item.label }}
             </a>
@@ -252,7 +252,7 @@ const contactItems = computed(() => {
           target="_blank"
           rel="noopener"
           :aria-label="`Buka link proyek ${project.title}`"
-          class="ml-1 inline-block align-baseline hover:underline"
+          class="ml-1 inline-block align-baseline text-[#111] hover:underline"
           ><svg
             viewBox="0 0 24 24"
             class="inline h-3.5 w-3.5"
@@ -290,16 +290,17 @@ const contactItems = computed(() => {
     </h2>
     <div v-for="(cert, index) in data.certificates" :key="index" class="mt-3">
       <div class="flex items-baseline justify-between gap-4">
-        <p class="text-[10.5pt] text-[#111]">
+        <p class="text-[10.5pt] text-[#444]">
           {{ cert.name }}
-          <span class="font-bold">by {{ cert.issuer }}</span>
+          <span class="font-semibold text-[#111]">by {{ cert.issuer }}</span>
         </p>
         <p class="shrink-0 text-[9pt] font-semibold tabular-nums text-[#111]">
           {{ cert.year }}
         </p>
       </div>
       <p v-if="cert.credentialId" class="text-[9pt] text-[#444]">
-        ID: {{ cert.credentialId }}
+        <span class="font-semibold text-[#111]">ID:</span>
+        {{ cert.credentialId }}
       </p>
     </div>
   </section>

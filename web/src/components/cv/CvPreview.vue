@@ -84,7 +84,7 @@ function remeasure() {
   }
   // Kalau masih ada sisa konten melebihi kapasitas halaman terakhir (blok lebih
   // tinggi dari satu halaman), potong keras di batas halaman agar tidak hilang.
-  const last = starts[starts.length - 1];
+  const last = starts[starts.length - 1] ?? 0;
   if (total - last > PAGE_HEIGHT) {
     starts.push(last + PAGE_HEIGHT);
   }
@@ -98,7 +98,7 @@ const pageHeights = computed(() =>
   pageStarts.value.map((s, i) => {
     const end =
       i < pageStarts.value.length - 1
-        ? pageStarts.value[i + 1]
+        ? (pageStarts.value[i + 1] ?? measureTotal.value)
         : measureTotal.value;
     return Math.min(PAGE_HEIGHT, Math.max(1, end - s));
   }),
@@ -243,9 +243,17 @@ onBeforeUnmount(() => ro?.disconnect());
     size: A4;
     margin: 14mm 16mm;
   }
-  a {
-    color: inherit !important;
-    text-decoration: none !important;
+  /*
+    Netralkan hanya link tanpa class warna (mis. link di teks user), supaya biru
+    default browser tidak ikut tercetak. Link template CV punya class warna
+    sendiri (ink netral, lihat DESIGN.md 7) sehingga harus dibiarkan menang.
+    Tanpa :not([class]), `color: inherit !important` akan mengalahkan class
+    Tailwind apa pun dan link jatuh ke warna parent (slate-600), jadi preview
+    di layar tidak pernah sama dengan PDF.
+  */
+  a:not([class]) {
+    color: inherit;
+    text-decoration: none;
   }
   /* PDF tidak memotong elemen: tiap section/header pindah utuh ke halaman baru */
   header,

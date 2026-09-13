@@ -41,18 +41,19 @@ tanpa blur, warna flat, tapi tetap rapi dan profesional untuk audiens pencari ke
 
 > Pengganti amber yang awalnya diusulkan: user memilih powder blue sebagai accent kedua.
 
-| Token  | Hex       | Fungsi                                       | Alasan                                                                                                                     |
-| ------ | --------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| Ink    | `#0f172a` | Border, teks utama, section gelap            | Warna teks default preview dan template classic, sudah ada di seluruh app (kontinuitas brand).                             |
-| Paper  | `#f8fafc` | Background utama                             | Neuter, tidak kompetisi dengan accent.                                                                                     |
-| Navy   | `#1e40af` | Primary accent: CTA utama, badge, link aktif | Warna h2 template modern, identitas app yang sudah dibangun (R-07 kolinieritas).                                           |
-| Powder | `#b0e0e6` | Accent kedua: highlight, dekorasi background | User pilih (jawaban free text). Tidak bersaing dengan navy (R-25), tint dingin yang cocok dipasangkan dengan cool neutral. |
-| White  | `#ffffff` | Surface card, input                          | Netral untuk konten dense.                                                                                                 |
-| Error  | `#dc2626` | Alert error                                  | Konvensi darurat.                                                                                                          |
+| Token  | Hex       | Fungsi                                              | Alasan                                                                                                                            |
+| ------ | --------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Ink    | `#0f172a` | Border, teks utama, section gelap                   | Warna teks default preview dan template classic, sudah ada di seluruh app (kontinuitas brand).                                    |
+| Paper  | `#f8fafc` | Background utama                                    | Neuter, tidak kompetisi dengan accent.                                                                                            |
+| Navy   | `#1e40af` | Primary accent UI: CTA utama, badge, link aktif app | Warna h2 template modern, identitas app yang sudah dibangun (R-07 kolinieritas). Bukan warna link di dalam dokumen CV (lihat §7). |
+| Powder | `#b0e0e6` | Accent kedua: highlight, dekorasi background        | User pilih (jawaban free text). Tidak bersaing dengan navy (R-25), tint dingin yang cocok dipasangkan dengan cool neutral.        |
+| White  | `#ffffff` | Surface card, input                                 | Netral untuk konten dense.                                                                                                        |
+| Error  | `#dc2626` | Alert error                                         | Konvensi darurat.                                                                                                                 |
 
 - Powder `#b0e0e6` untuk teks di atas paper kontrasnya 1.43:1, gagal AA. Selalu pasangkan dengan ink.
 - Dark mode: background `#27272a` (zinc-800 abu medium Opsi A), surface `#3f3f46` (zinc-700 terangkat), teks `#f8fafc`, navy `#3b82f6` (lebih terang agar kontras), powder `#b0e0e6` tetap. Border `#f4f4f5` (zinc-100) agar terlihat di abu, shadow `#18181b` (zinc-900) tetap terbaca di atas surface abu. Latar gelap bukan hitam murni (alexmayhew.dev).
 - CTA utama harus navy. Powder hanya untuk highlight dan dekorasi.
+- Navy tidak dipakai sebagai warna teks di dalam dokumen CV. Dokumen CV hanya memakai 2 netral (ink + abu slate) + 1 aksen (navy/mint hanya untuk border heading section, R-29). Link di dalam dokumen CV memakai ink netral (lihat §7).
 
 ## 4. Tipografi
 
@@ -81,8 +82,61 @@ tanpa blur, warna flat, tapi tetap rapi dan profesional untuk audiens pencari ke
 
 - Mock browser window (border ink 2px, hard shadow `6px` terang di dark `#f4f4f5`, title bar ink dengan 3 dot) berisi preview CV asli dari komponen `CvPreview` yang dipakai di editor. Bukan ilustrasi, bukan screenshot palsu (C-5).
 - Struktur entry Experience di preview (semua template): baris 1 `Posisi · Perusahaan` + tanggal kanan, baris 2 metadata `Employment Type · Lokasi`, lalu bullets. Metadata tidak campur title line (konsisten pola Education).
-- Struktur entry Organisasi di preview (semua template): baris 1 `Nama Organisasi` (bold) + periode kanan, baris 2 `Peran` (slate-500), lalu bullets. Organisasi sebagai entitas utama di baris 1, peran sebagai detail di baris 2, kontras dengan pola Experience (peran di atas) karena organisasi lebih penting untuk identitas.
-- Struktur entry Proyek di preview (semua template): baris 1 `Judul Proyek` (bold), baris 2 `Objective` (slate-700), baris 3 `Peran: ...` (slate-500 labeled), baris 4 `Tech Stack: ...` (slate-500 labeled). Hierarki: title sebagai entitas, objective sebagai deskripsi, role + tech stack sebagai metadata berlabel (Exa ATScore: name → description → tools; TMJ Studio: stack di akhir).
+- Struktur entry Organisasi di preview (semua template): baris 1 `Nama Organisasi` (bold) + periode kanan, baris 2 `Peran:` label ink semibold + nilai body, lalu bullets. Organisasi sebagai entitas utama di baris 1, peran sebagai detail di baris 2, kontras dengan pola Experience (peran di atas) karena organisasi lebih penting untuk identitas.
+- Struktur entry Proyek di preview (semua template): baris 1 `Judul Proyek` (bold), baris 2 `Objective` (body), baris 3 `Peran:` label ink semibold + nilai body, baris 4 `Tech Stack:` label ink semibold + nilai body. Hierarki: title sebagai entitas, objective sebagai deskripsi, role + tech stack sebagai metadata berlabel (Exa ATScore: name → description → tools; TMJ Studio: stack di akhir).
+- Struktur entry Sertifikasi di preview (semua template): baris 1 `Nama Sertifikat` + `by Penerbit` (label `by` ink semibold, nama penerbit body), baris 2 `ID:` label ink semibold + nilai body. Tahun tetap tier meta (kwartener, tanggal bukan pembeda).
+
+### Hierarki Tipografi Teks CV (revisi 2026-09-13)
+
+Empat tier, dari paling kuat ke paling lemah. Angka kontras diukur di atas putih (WCAG 2.1):
+
+| Tier | Peran                   | Kelas Tailwind                                | Hex terukur | Kontras                       |
+| ---- | ----------------------- | --------------------------------------------- | ----------- | ----------------------------- |
+| T1   | Entitas + label         | `font-semibold text-slate-900` (Neon: `#111`) | `#0f172b`   | 17.83:1                       |
+| T2   | Isi / nilai / deskripsi | `text-slate-700` (Neon: `#444`)               | `#314158`   | 10.36:1                       |
+| T3   | Metadata sekunder       | `text-slate-500`                              | `#62748e`   | 4.76:1                        |
+| T4   | Dekoratif               | `text-slate-300`                              | `#cad5e2`   | 1.49:1 (sengaja, pemisah `·`) |
+
+- Alasan (R-31): nilai informasi tidak boleh jadi teks paling pucat di dokumen. Sebelum revisi, label `Peran:` dan `Tech Stack:` pakai slate-500 (4.76:1) sehingga metadata berlabel terbaca lebih lemah daripada bullet deskripsi (slate-700, 10.36:1). Itu salah prioritas: label justru yang memandu recruiter dan parser ATS untuk mengindeks field.
+- Label + nilai dipisah dua tonjolan: label T1 semibold (pengindeks), nilai T2 regular (isi). Membaca jadi `Peran:` → `Fullstack Developer`, bukan satu blok abu-abu seragam.
+- Metadata Experience (`Employment Type · Lokasi`) dinaikkan slate-500 → slate-700 agar konsisten dengan pola Education. Satu section memakai tier berbeda untuk hal yang sama bikin dokumen terlihat tidak sengaja (R-08).
+- T3 hanya untuk tanggal, periode, dan bagian yang benar-benar opsional. Tanggal tidak membantu keputusan shortlist (O\*NET Work Importance Locator: kandidat menyaring dari peran dan skill dulu, kronologi belakangan).
+- Semua teks lolos WCAG AA (minimum 4.5:1). T4 satu-satunya di bawah AA dan hanya dipakai untuk pemisah `·` yang tidak membawa makna (`aria-hidden` secara visual, dekoratif).
+- Catatan token: kelas `text-slate-900` resolve ke `#0f172b`, sementara tabel palet §3 mencantumkan Ink `#0f172a`. Selisih 1 bit di channel biru, tidak terlihat, tapi pengukuran kontras memakai nilai hasil resolve (`#0f172b`).
+
+### Warna Link di Dalam Dokumen CV
+
+Link tidak memakai warna aksen. Aturannya (revisi 2026-09-13):
+
+| Template | Warna teks                 | Underline (istirahat)  | Underline (hover)      | Kontras |
+| -------- | -------------------------- | ---------------------- | ---------------------- | ------- |
+| modern   | `text-slate-900` `#0f172b` | `decoration-slate-300` | `decoration-slate-900` | 17.83:1 |
+| classic  | `text-slate-900` `#0f172b` | `decoration-slate-300` | `decoration-slate-900` | 17.83:1 |
+| neon     | `text-[#111]` `#111111`    | `decoration-[#9ca3af]` | `decoration-[#111]`    | 18.88:1 |
+
+- Akar masalah (ditemukan 2026-09-13 lewat pengukuran PDF asli): `CvPreview.vue` punya `@media print { a { color: inherit !important; text-decoration: none !important } }`. Aturan `!important` itu **mengalahkan setiap class warna Tailwind** pada `<a>`, apa pun yang ditulis di template. Di Browsershot (yang merender dalam print media) link jatuh ke `inherit` = warna parent (`<p class="text-slate-600">`), jadi link di PDF selalu `#45556c` (slate-600), bukan ink, dan underline-nya hilang. Akibatnya preview di layar dan PDF memang beda persis di link, dan R5 pertama (mengubah class di template) tidak mengubah PDF sama sekali.
+- Perbaikan: aturan print dipersempit ke `a:not([class])` dan `!important` dicabut. Link tanpa class (mis. tautan di dalam teks yang ditulis user) tetap dinetralkan supaya biru default browser tidak ikut tercetak; link template CV, yang semuanya punya class warna sendiri, kini benar-benar menerapkan warnanya di PDF. Alternatif menghapus aturan print sepenuhnya ditolak karena `<a>` berwarna di dalam konten user akan ikut tercetak biru.
+- Konsekuensi: palet dokumen menyusut ke 2 netral + 1 aksen border (R-29), navy hanya dipakai untuk border heading section modern, bukan teks.
+- Underline tetap `underline` permanen (bukan `hover:underline` saja) supaya link tetap terbaca sebagai link tanpa warna. Di atas kertas, underline adalah satu-satunya sinyal link yang bertahan (WCAG 1.4.1: jangan pakai warna sebagai satu-satunya pembeda).
+- Underline istirahat pakai `decoration-slate-300` (`#cad5e2`, T4) sebagai garis tipis; hover menguat ke ink. Ini satu-satunya pemakaian T4 pada elemen fungsional, dan tepat karena garis underline bukan teks (tidak ada rasio kontras teks yang berlaku).
+- Verifikasi lewat PDF asli (bukan simulasi): warna teks link di PDF terukur `#0f172b` (modern, classic) dan `#111111` (neon), dengan garis underline `#cad5e2` dan `#9ca3af` benar-benar ada sebagai vector di PDF. Diukur juga di browser: media `screen` dan `print` menghasilkan warna dan underline identik, jadi preview = PDF.
+
+### Warna Data Pribadi di Header (revisi 2026-09-13)
+
+Baris kontak di header tidak lagi dua tonjolan. Data pribadi non-link (email, telepon, alamat) naik dari slate-600 ke **ink**, sama dengan link:
+
+| Elemen                            | modern / classic           | neon      | Underline |
+| --------------------------------- | -------------------------- | --------- | --------- |
+| email, telepon, alamat            | `text-slate-900` `#0f172b` | `#111111` | tidak     |
+| LinkedIn, Website, GitHub (`<a>`) | `text-slate-900` `#0f172b` | `#111111` | ya        |
+| pemisah `·`                       | `text-slate-300` (T4)      | n/a       | tidak     |
+
+- Alasan: sebelumnya email/telepon/alamat dibaca lebih lemah dari link di sebelahnya (`slate-600` = `#45556c`, 7.58:1 vs ink 17.83:1) padahal keduanya sama-sama cara recruiter menghubungi kandidat. Beda tonjolan di baris yang sama membuat link terlihat lebih penting daripada nomor telepon, padahal tidak.
+- Underline **tidak** diberikan ke email/telepon/alamat. Bukan link, jadi underline akan jadi janji palsu (recruiter mengira bisa diklik). Warna saja sudah menyamakan bobot visual; underline tetap eksklusif penanda link (WCAG 1.4.1, dan konsisten dengan aturan link di atas).
+- Catatan Neon: `mailto:` dan `tel:` di Neon memang dirender sebagai `<a>` (bisa diklik di PDF), jadi keduanya ber-underline. Satu-satunya item non-link di Neon adalah alamat, dan itu kini ikut ink `#111111`.
+- Pemisah `·` sengaja tetap T4 (slate-300/#cad5e2): ia murni dekoratif, dan menaikkannya ke ink akan membuat baris kontak terbaca sebagai satu blok teks rapat tanpa jeda.
+- Baris placeholder `email · phone · address` saat seluruh kontak kosong juga tidak diubah (tetap `slate-600`): itu teks contoh, bukan data user, jadi justru tepat kalau lebih redup.
+- Verifikasi lewat PDF asli: email/telepon di PDF terukur `#0f172b` (modern, classic) dan alamat di Neon `#111111`, identik dengan link di dokumen yang sama; di browser media `screen` dan `print` menghasilkan `#0f172b` yang sama, jadi preview = PDF.
 - Di atas preview: toggle Modern / Classic / Neon yang mengubah template preview live (bukti fitur template).
 - Toggle preview full render, bukan gambar. Ini juga membuktikan template asli, bukan mock.
 - Tanpa badge/eyebrow pill di atas headline (AI slop — pill badge, Exa pols.dev/slop.md, antislop-ui). Headline langsung tanpa `mt-4` kompensasi.

@@ -74,8 +74,20 @@ export function emptyCvData(): CvData {
   };
 }
 
+/**
+ * Bentuk data legacy (sebelum 2026-09-04): `certificates` dan `projects`
+ * dulu disimpan sebagai satu string, bukan array. Dipakai hanya sebagai tipe
+ * input di `normalizeCvData` — `CvData` publik tetap mendeklarasikan keduanya
+ * sebagai array supaya kode konsumen tidak perlu null-check.
+ */
+type LegacyCvData = Omit<CvData, "certificates" | "projects"> & {
+  certificates?: CvData["certificates"] | string;
+  projects?: CvData["projects"] | string;
+};
+
 /** Normalisasi data lama — konversi string certificates ke array, dll. */
-export function normalizeCvData(d: CvData): CvData {
+export function normalizeCvData(input: CvData): CvData {
+  const d = input as LegacyCvData;
   if (typeof d.certificates === "string") {
     const lines = d.certificates
       .split("\n")
@@ -89,10 +101,10 @@ export function normalizeCvData(d: CvData): CvData {
     }));
   }
   if (typeof d.projects === "string") {
-    const s = (d.projects as unknown as string).trim();
+    const s = d.projects.trim();
     d.projects = s
       ? [{ title: s, role: "—", objective: "", techStack: "" }]
       : [];
   }
-  return d;
+  return d as CvData;
 }

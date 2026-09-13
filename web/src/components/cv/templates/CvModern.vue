@@ -35,7 +35,7 @@ const {
     <div v-if="hasAnyContact" class="mt-1 space-y-0.5">
       <p
         v-if="contactDirect.length"
-        class="flex flex-wrap gap-x-2 text-[10pt] text-slate-600"
+        class="flex flex-wrap gap-x-2 text-[10pt] text-slate-900"
       >
         <template v-for="(item, i) in contactDirect" :key="item">
           <span v-if="i > 0" class="text-slate-300">·</span
@@ -52,7 +52,7 @@ const {
             :href="item.href"
             target="_blank"
             rel="noopener"
-            class="text-[#1e40af] underline decoration-slate-300 underline-offset-2 hover:decoration-[#1e40af]"
+            class="text-slate-900 underline decoration-slate-300 underline-offset-2 hover:decoration-slate-900"
             >{{ item.label }}</a
           >
         </template>
@@ -77,7 +77,7 @@ const {
       />
       <p
         v-if="e.employmentType || e.location"
-        class="text-[9pt] text-slate-500"
+        class="text-[9pt] text-slate-700"
       >
         <span v-if="e.employmentType">{{ e.employmentType }}</span>
         <span v-if="e.employmentType && e.location"> · </span>
@@ -109,7 +109,10 @@ const {
         :period="o.period"
         :modern="true"
       />
-      <p v-if="o.role" class="text-[9pt] text-slate-500">{{ o.role }}</p>
+      <p v-if="o.role" class="text-[9pt] text-slate-700">
+        <span class="font-semibold text-slate-900">{{ t.role }}</span>
+        {{ o.role }}
+      </p>
       <BulletList :items="bullets(o.description)" />
     </div>
   </section>
@@ -143,7 +146,7 @@ const {
           target="_blank"
           rel="noopener"
           :aria-label="`Buka link proyek ${p.title}`"
-          class="ml-1 inline-block align-baseline text-[#1e40af] hover:underline"
+          class="ml-1 inline-block align-baseline text-slate-900 hover:underline"
           ><svg
             viewBox="0 0 24 24"
             class="inline h-3 w-3"
@@ -159,11 +162,13 @@ const {
       <p v-if="p.objective" class="text-[10pt] text-slate-700">
         {{ p.objective }}
       </p>
-      <p v-if="p.role" class="text-[9pt] text-slate-500">
-        <span class="font-semibold">{{ t.role }}</span> {{ p.role }}
+      <p v-if="p.role" class="text-[9pt] text-slate-700">
+        <span class="font-semibold text-slate-900">{{ t.role }}</span>
+        {{ p.role }}
       </p>
-      <p v-if="p.techStack" class="text-[9pt] text-slate-500">
-        <span class="font-semibold">{{ t.techStack }}</span> {{ p.techStack }}
+      <p v-if="p.techStack" class="text-[9pt] text-slate-700">
+        <span class="font-semibold text-slate-900">{{ t.techStack }}</span>
+        {{ p.techStack }}
       </p>
     </div>
   </section>
@@ -173,12 +178,14 @@ const {
     <div v-for="(c, i) in data.certificates" :key="i" class="mt-2">
       <div class="flex items-baseline justify-between gap-4">
         <p class="text-[10pt] text-slate-700">
-          {{ c.name }} <span class="font-semibold">by {{ c.issuer }}</span>
+          {{ c.name }}
+          <span class="font-semibold text-slate-900">by {{ c.issuer }}</span>
         </p>
         <p class="shrink-0 text-[9pt] text-slate-500">{{ c.year }}</p>
       </div>
-      <p v-if="c.credentialId" class="text-[9pt] text-slate-500">
-        ID: {{ c.credentialId }}
+      <p v-if="c.credentialId" class="text-[9pt] text-slate-700">
+        <span class="font-semibold text-slate-900">ID:</span>
+        {{ c.credentialId }}
       </p>
     </div>
   </section>
