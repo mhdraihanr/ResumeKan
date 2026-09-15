@@ -58,6 +58,8 @@ export interface Cv {
   data?: CvData;
   updated_at: string;
   created_at?: string;
+  /** Dari server: CV sudah lengkap & siap diunduh PDF (untuk disable tombol). */
+  is_complete?: boolean;
 }
 
 export function emptyCvData(): CvData {

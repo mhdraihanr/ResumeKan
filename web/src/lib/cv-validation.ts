@@ -224,8 +224,10 @@ export const INVALID_FORMATS: {
     path: "personal.phone",
     step: STEP_PERSONAL,
     label: "Telepon",
-    test: (v) => /^[0-9+().\-\s]{7,30}$/.test(v) && (v.match(/\d/g)?.length ?? 0) >= 7,
-    message: "Telepon hanya boleh angka dan simbol + - ( ) . serta minimal 7 digit.",
+    test: (v) =>
+      /^[0-9+().\-\s]{7,30}$/.test(v) && (v.match(/\d/g)?.length ?? 0) >= 7,
+    message:
+      "Telepon hanya boleh angka dan simbol + - ( ) . serta minimal 7 digit.",
   },
 ];
 
@@ -238,7 +240,9 @@ export function collectInvalid(
 
   for (const rule of INVALID_FORMATS) {
     const value = rule.path.startsWith("personal.")
-      ? data.personal?.[rule.path.slice("personal.".length) as "email" | "phone"]
+      ? data.personal?.[
+          rule.path.slice("personal.".length) as "email" | "phone"
+        ]
       : undefined;
     if (blank(value)) continue;
     if (!rule.test(String(value).trim())) {

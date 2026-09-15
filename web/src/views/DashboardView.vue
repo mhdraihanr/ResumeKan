@@ -42,12 +42,19 @@ async function duplicateTranslate(cv: Cv) {
   }
 }
 
-async function downloadPdf(id: number) {
+async function downloadPdf(cv: Cv) {
   cvStore.error = "";
+
+  // Tombol sudah disabled untuk CV belum lengkap; ini jaring pengaman kalau
+  // dipanggil programatik. Server tetap memvalidasi (sumber kebenaran).
+  if (cv.is_complete === false) {
+    cvStore.error = "Lengkapi dulu sebelum mengunduh.";
+    return;
+  }
 
   // Cek kelengkapan lewat server DULU tanpa membuka tab: CV belum lengkap ->
   // 422 JSON yang akan tampil jelek bila dibuka langsung sebagai tab.
-  const res = await fetch(`/api/v1/cvs/${id}/pdf`, {
+  const res = await fetch(`/api/v1/cvs/${cv.id}/pdf`, {
     credentials: "include",
     headers: { Accept: "application/pdf" },
   }).catch(() => null);
@@ -204,8 +211,14 @@ function fmtDate(s: string) {
               Edit
             </button>
             <button
-              @click="downloadPdf(cv.id)"
-              class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
+              :disabled="cv.is_complete === false"
+              :title="
+                cv.is_complete === false
+                  ? 'Lengkapi dulu sebelum mengunduh PDF'
+                  : 'Unduh PDF'
+              "
+              @click="downloadPdf(cv)"
+              class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-500 disabled:hover:bg-slate-50 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground dark:disabled:border-border/60 dark:disabled:bg-transparent dark:disabled:text-foreground/50 dark:disabled:hover:bg-transparent"
             >
               PDF
             </button>

@@ -15,6 +15,9 @@ class CvResource extends JsonResource
             'template' => $this->template,
             'language' => $this->language,
             'updated_at' => $this->updated_at,
+            // Dipakai Dashboard untuk men-disable tombol PDF tanpa harus tahu
+            // detail kelengkapan. Sumber kebenaran sama dengan guard PDF server.
+            'is_complete' => $this->isComplete(),
         ];
 
         if ($request->routeIs('cvs.show') || $request->isMethod('post') || $request->isMethod('put')) {

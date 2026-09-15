@@ -120,9 +120,11 @@ Butuh cookie Sanctum dan kepemilikan CV. Controller membangun HTML `print.html` 
 
 → `200` binary `application/pdf`, header `Content-Disposition: attachment; filename="Nama_CV.pdf"`.
 
-→ `422` JSON `{ "message": "Lengkapi dulu sebelum mengunduh.", "errors": { "data.personal.name": ["Nama wajib diisi."], ... } }` bila `title` atau `data.personal.{name,email,phone,address}` kosong, **atau** format email/telepon salah (`data.personal.email` bukan email valid, `data.personal.phone` bukan angka + simbol `+ - ( ) . spasi` dengan min 7 digit). Guard ini cerminan `REQUIRED_FIELDS` + `INVALID_FORMATS` klien (`web/src/lib/cv-validation.ts`); jaga keduanya tetap sinkron.
+→ `422` JSON `{ "message": "Lengkapi dulu sebelum mengunduh.", "errors": { "data.personal.name": ["Nama wajib diisi."], ... } }` bila `title` atau `data.personal.{name,email,phone,address}` kosong, **atau** format email/telepon salah (`data.personal.email` bukan email valid, `data.personal.phone` bukan angka + simbol `+ - ( ) . spasi` dengan min 7 digit), **atau** ada entri berulang setengah jadi (`data.<section>.<i>.<field>`, mis. `data.certificates.0.issuer`). Guard ini cerminan `REQUIRED_FIELDS` + `INVALID_FORMATS` + `ENTRY_RULES` klien (`web/src/lib/cv-validation.ts`) dan `Cv::missingForPdf()` di server; jaga ketiganya tetap sinkron.
 
-> **Catatan (2026-09-15):** selain kepemilikan, endpoint ini kini memvalidasi kelengkapan minimum + format sebelum membuat PDF (guard server, "Opsi B"). Gate klien di tombol `Download PDF` editor tetap ada untuk umpan balik instan; tombol `PDF` di Dashboard mengandalkan `422` server ini.
+> **Catatan (2026-09-15):** selain kepemilikan, endpoint ini kini memvalidasi kelengkapan minimum + format + entri sebelum membuat PDF (guard server, "Opsi B"). Prinsipnya: apa yang tak bisa disimpan (`required`/`required_with`/format), tak bisa diunduh. Tombol `PDF` di Dashboard di-disable lewat `cv.is_complete`; gate klien di editor tetap ada untuk umpan balik instan.
+
+**Field `is_complete` (2026-09-15):** `CvResource` menyertakan boolean `is_complete` (= `Cv::isComplete()`) di setiap item — termasuk list `GET /cvs` — agar UI bisa men-disable tombol unduh tanpa perlu memuat `data` penuh. Ringan (satu boolean per CV).
 
 **Validasi format (semua endpoint tulis):** `data.personal.email` → `email`; `data.personal.phone` → `regex:/^[0-9+().\-\s]{7,30}$/`. Pesan Indonesia lewat `StoreCvRequest::messages()` (locale aplikasi `en`). Draft (`?draft=1`) melonggarkan `required*` → `nullable` tetapi **tetap** menegakkan format bila field terisi.
 

@@ -83,7 +83,7 @@ class CvController extends Controller
         // Gate kelengkapan: tolak PDF setengah jadi. Selaras dengan cek klien di
         // `CvForm.isComplete()` — terutama untuk tombol Dashboard yang tak punya
         // form untuk divalidasi. 422 + pesan field, bukan PDF.
-        $missing = $this->missingForPdf($cv);
+        $missing = $cv->missingForPdf();
         if ($missing !== []) {
             return response()->json([
                 'message' => 'Lengkapi dulu sebelum mengunduh.',
@@ -99,50 +99,6 @@ class CvController extends Controller
         }, $name . '_CV.pdf', [
             'Content-Type' => 'application/pdf',
         ]);
-    }
-
-    /**
-     * Field wajib + format sebelum PDF boleh dibuat. Cerminan `REQUIRED_FIELDS`
-     * dan `INVALID_FORMATS` klien (`web/src/lib/cv-validation.ts`) — jaga
-     * keduanya tetap sinkron.
-     *
-     * @return array<string, array<int, string>>
-     */
-    private function missingForPdf(Cv $cv): array
-    {
-        $missing = [];
-        $label = fn (string $path, string $text): array => [$path => [$text]];
-
-        if (blank($cv->title)) {
-            $missing += $label('title', 'Judul CV wajib diisi.');
-        }
-
-        $personal = $cv->data['personal'] ?? [];
-        $fields = [
-            'name' => 'Nama',
-            'email' => 'Email',
-            'phone' => 'Telepon',
-            'address' => 'Alamat',
-        ];
-
-        foreach ($fields as $key => $text) {
-            if (blank($personal[$key] ?? null)) {
-                $missing += $label("data.personal.$key", "$text wajib diisi.");
-            }
-        }
-
-        // Format: hanya berlaku bila terisi (kosong sudah ditangani di atas).
-        $email = $personal['email'] ?? null;
-        if (filled($email) && ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $missing += $label('data.personal.email', 'Email belum valid — contoh: nama@email.com');
-        }
-
-        $phone = $personal['phone'] ?? null;
-        if (filled($phone) && ! preg_match('/^[0-9+().\-\s]{7,30}$/', $phone)) {
-            $missing += $label('data.personal.phone', 'Telepon hanya boleh angka dan simbol + - ( ) . serta minimal 7 digit.');
-        }
-
-        return $missing;
     }
 
     public function print(Request $request, Cv $cv)
