@@ -76,9 +76,20 @@ class CvController extends Controller
         return response()->json(null, 204);
     }
 
-    public function pdf(Request $request, Cv $cv): StreamedResponse
+    public function pdf(Request $request, Cv $cv): StreamedResponse|JsonResponse
     {
         $this->authorizeOwner($request, $cv);
+
+        // Gate kelengkapan: tolak PDF setengah jadi. Selaras dengan cek klien di
+        // `CvForm.isComplete()` — terutama untuk tombol Dashboard yang tak punya
+        // form untuk divalidasi. 422 + pesan field, bukan PDF.
+        $missing = $this->missingForPdf($cv);
+        if ($missing !== []) {
+            return response()->json([
+                'message' => 'Lengkapi dulu sebelum mengunduh.',
+                'errors' => $missing,
+            ], 422);
+        }
 
         $name = preg_replace('/[^\p{L}\p{N} _-]/u', '', $cv->data['personal']['name'] ?? 'CV') ?: 'CV';
         $html = $this->resolvePrintHtml($cv->data ?? [], $cv->template ?? 'modern', $cv->language ?? 'id');
@@ -88,6 +99,38 @@ class CvController extends Controller
         }, $name . '_CV.pdf', [
             'Content-Type' => 'application/pdf',
         ]);
+    }
+
+    /**
+     * Field wajib sebelum PDF boleh dibuat. Cerminan `REQUIRED_FIELDS` klien
+     * (`web/src/lib/cv-validation.ts`) — jaga keduanya tetap sinkron.
+     *
+     * @return array<string, array<int, string>>
+     */
+    private function missingForPdf(Cv $cv): array
+    {
+        $missing = [];
+        $label = fn (string $path, string $text): array => [$path => [$text]];
+
+        if (blank($cv->title)) {
+            $missing += $label('title', 'Judul CV wajib diisi.');
+        }
+
+        $personal = $cv->data['personal'] ?? [];
+        $fields = [
+            'name' => 'Nama',
+            'email' => 'Email',
+            'phone' => 'Telepon',
+            'address' => 'Alamat',
+        ];
+
+        foreach ($fields as $key => $text) {
+            if (blank($personal[$key] ?? null)) {
+                $missing += $label("data.personal.$key", "$text wajib diisi.");
+            }
+        }
+
+        return $missing;
     }
 
     public function print(Request $request, Cv $cv)

@@ -137,7 +137,8 @@ Tombol `Download PDF` di editor menolak mengunduh CV yang belum lengkap. Pola in
 - **Cek sinkron dulu:** `downloadPdf()` memanggil `formRef.isComplete()` — fungsi murni (tanpa prune/efek samping) — sebelum menyentuh `window.open`. Kalau kurang, **window tidak pernah dibuka** (bukan dibuka lalu ditutup, agar tidak ada tab berkelip terbuka-tutup).
 - **Feedback saat gagal:** `prepareSubmit()` dijalankan agar error inline + banner persisten muncul dan pengguna dipindah ke step bermasalah, ditambah toast ringkas `"Lengkapi dulu sebelum mengunduh."`.
 - **Saat lengkap:** `win.open(url, "_blank")` dipanggil **sinkron** dari handler klik (tidak lewat `await`) agar lolos kebijakan popup-blocker browser.
-- **Batasannya:** gate ini murni klien. `GET /cvs/{id}/pdf` hanya memeriksa kepemilikan, jadi pemanggil langsung (termasuk tombol `PDF` di Dashboard) tidak tergate. Guard server-side (Opsi B) belum diterapkan.
+- **Guard server (Opsi B, 2026-09-15):** `CvController::pdf()` memanggil `missingForPdf()` dan mengembalikan `422` + `{message, errors}` bila `title`/`data.personal.{name,email,phone,address}` kosong — cerminan `REQUIRED_FIELDS` klien. Pertahanan berlapis: pemanggil langsung tidak bisa mengunduh PDF setengah jadi.
+- **Dashboard (`PDF`):** tak punya form untuk validasi klien, jadi mengandalkan guard server. `downloadPdf()` di `DashboardView` `fetch` endpoint dulu: `422` → pesan error halaman (tanpa tab), `200` → unduh blob lewat anchor + object URL (bukan `window.open`, tahan popup-blocker).
 
 ## 4. Keamanan
 

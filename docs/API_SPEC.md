@@ -120,7 +120,9 @@ Butuh cookie Sanctum dan kepemilikan CV. Controller membangun HTML `print.html` 
 
 → `200` binary `application/pdf`, header `Content-Disposition: attachment; filename="Nama_CV.pdf"`.
 
-> **Catatan (2026-09-15):** endpoint ini **tidak** memvalidasi kelengkapan CV — hanya kepemilikan. Gate "harus lengkap dulu" ada di klien (tombol `Download PDF` di editor memanggil `isComplete()` sebelum membuka tab). Pemanggil langsung tetap bisa mendapat PDF setengah jadi. Belum ada guard server (Opsi B).
+→ `422` JSON `{ "message": "Lengkapi dulu sebelum mengunduh.", "errors": { "data.personal.name": ["Nama wajib diisi."], ... } }` bila `title` atau `data.personal.{name,email,phone,address}` kosong. Guard ini cerminan `REQUIRED_FIELDS` klien (`web/src/lib/cv-validation.ts`); jaga keduanya tetap sinkron.
+
+> **Catatan (2026-09-15):** selain kepemilikan, endpoint ini kini memvalidasi kelengkapan minimum sebelum membuat PDF (guard server, "Opsi B"). Gate klien di tombol `Download PDF` editor tetap ada untuk umpan balik instan; tombol `PDF` di Dashboard mengandalkan `422` server ini.
 
 ### `GET /cvs/{id}/print` (signed, shell debug internal)
 

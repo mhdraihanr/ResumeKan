@@ -89,14 +89,13 @@ POST   /api/v1/cvs { projects: [{ title, role, link: "github.com/x" }] } → 201
 
 **PDF (Fase 5):** dengan session aktif, `GET /api/v1/cvs/{id}/pdf` → `200 application/pdf`; cek signature awal `%PDF-`, nama file di header `Content-Disposition`, dan ukuran file lebih dari satu halaman kosong. Dari halaman edit, klik **Download PDF** dan pastikan file bernama `{nama}_CV.pdf` terunduh serta kontennya sama dengan preview. Bila PDF kosong, cek bahwa `PdfService` memakai `Browsershot::html()` dan argumen Chromium untuk module dari shell `file://`, bukan request URL print balik ke API. Cek paginasi (2026-09-08): PDF multi-halaman tidak memotong judul section/entry di tengah (break-inside avoid) dan titik pecah halaman sama dengan preview editor.
 
-**Gate Download PDF (2026-09-15):** tombol `Download PDF` di editor hanya mengunduh untuk CV yang **lengkap**; jika kurang, tidak ada tab/window yang dibuka. Yang diuji:
+**Gate Download PDF (2026-09-15):** tombol `Download PDF`/`PDF` hanya mengunduh untuk CV yang **lengkap**; jika kurang, tidak ada tab/window yang dibuka. Gate berlapis: cek klien di editor + guard server di endpoint.
 
-1. **Data kurang:** buka CV yang Judul/Data Pribadinya kosong → klik `Download PDF` → pindah ke step bermasalah, banner `role="alert"` + error inline muncul, toast `Lengkapi dulu sebelum mengunduh.`; **tidak ada tab baru** (`window.open` tidak terpanggil sama sekali — bukan dibuka lalu ditutup, agar tidak ada tab berkelip).
-2. **Data lengkap:** isi minimal Judul + Nama/Email/Telepon/Alamat → klik `Download PDF` → tab PDF terbuka (`window.open` dipanggil sinkron dari handler klik, jadi tidak kena popup blocker).
-3. **Batas server:** `GET /cvs/{id}/pdf` **tidak** memvalidasi kelengkapan (hanya cek kepemilikan). Gate ini murni klien — endpoint bisa saja menghasilkan PDF setengah jadi bila dipanggil langsung. Tombol `PDF` di Dashboard menembak endpoint yang sama tanpa form untuk divalidasi, jadi **tidak** tergate (lihat catatan Opsi B di bawah).
-4. **Catatan aksesibilitas:** error yang muncul dari gate ini identik dengan jalur submit (banner persisten + teks di deskripsi field), bukan toast saja.
-5. **Opsi B (belum diterapkan):** guard server-side (mis. `422` bila `data.personal.name` kosong) untuk pertahanan berlapis dan agar tombol Dashboard ikut tergate. Belum diputuskan.
-
+1. **Editor, data kurang:** buka CV yang Judul/Data Pribadinya kosong → klik `Download PDF` → pindah ke step bermasalah, banner `role="alert"` + error inline muncul, toast `Lengkapi dulu sebelum mengunduh.`; **tidak ada tab baru** (`window.open` tidak terpanggil sama sekali — bukan dibuka lalu ditutup, agar tidak ada tab berkelip).
+2. **Editor, data lengkap:** isi minimal Judul + Nama/Email/Telepon/Alamat → klik `Download PDF` → tab PDF terbuka (`window.open` dipanggil sinkron dari handler klik, jadi tidak kena popup blocker).
+3. **Guard server (Opsi B, 2026-09-15):** `CvController::pdf()` menolak dengan `422` + `{"message":"Lengkapi dulu sebelum mengunduh.","errors":{...}}` bila `title` atau `data.personal.{name,email,phone,address}` kosong. Verifikasi via reflection `missingForPdf`: CV lengkap → `[]`, CV kosong → 4 entri error. Jalur editor lolos klien dulu sehingga 422 nyaris tak mungkin terpicu di UI; guard ini untuk pemanggil langsung.
+4. **Dashboard (`PDF`):** tombol tanpa form validasi, jadi mengandalkan guard server. Alur: `fetch` endpoint dengan cookie → `422` → pesan `Lengkapi dulu sebelum mengunduh.` ditampilkan (tanpa tab); `200` → blob diunduh lewat anchor + object URL (bukan `window.open`, tahan popup-blocker). Diuji: CV kosong → 422, tanpa `window.open`/unduhan, pesan muncul; CV lengkap → 200 (≈94 KB), anchor blob diklik, terunduh.
+5. **Catatan aksesibilitas:** error editor dari gate ini identik dengan jalur submit (banner persisten + teks di deskripsi field), bukan toast saja; pesan Dashboard memakai pola error inline halaman yang sama (`role` teks, bukan hanya warna).
 
 ## 2. SPA (browser)
 

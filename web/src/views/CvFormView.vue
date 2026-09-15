@@ -132,6 +132,11 @@ async function draftSave() {
  *
  * Kalau kurang: jalankan `prepareSubmit()` agar error inline muncul dan
  * pengguna dipindah ke step bermasalah, lalu tampilkan toast.
+ *
+ * Setelah lolos, `win.open` dipanggil TANPA `await` sebelumnya agar tetap
+ * dianggap user-gesture dan tidak kena popup-blocker. Server punya guard
+ * kelengkapan sendiri sebagai pertahanan berlapis untuk pemanggil langsung
+ * (mis. tombol PDF di Dashboard), tetapi jalur editor sudah dijamin klien.
  */
 async function downloadPdf() {
   if (!formRef.value?.isComplete()) {

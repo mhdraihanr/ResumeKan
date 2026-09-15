@@ -42,8 +42,43 @@ async function duplicateTranslate(cv: Cv) {
   }
 }
 
-function downloadPdf(id: number) {
-  window.open(`/api/v1/cvs/${id}/pdf`, "_blank");
+async function downloadPdf(id: number) {
+  cvStore.error = "";
+
+  // Cek kelengkapan lewat server DULU tanpa membuka tab: CV belum lengkap ->
+  // 422 JSON yang akan tampil jelek bila dibuka langsung sebagai tab.
+  const res = await fetch(`/api/v1/cvs/${id}/pdf`, {
+    credentials: "include",
+    headers: { Accept: "application/pdf" },
+  }).catch(() => null);
+
+  if (!res) {
+    cvStore.error = "Gagal mengunduh PDF. Coba lagi.";
+    return;
+  }
+
+  if (res.status === 422) {
+    const body = await res.json().catch(() => null);
+    cvStore.error = body?.message ?? "Lengkapi dulu sebelum mengunduh.";
+    return;
+  }
+
+  if (!res.ok) {
+    cvStore.error = "Gagal mengunduh PDF. Coba lagi.";
+    return;
+  }
+
+  // Sukses: unduh lewat anchor + object URL (bukan window.open) supaya tahan
+  // popup-blocker dan tetap tersimpan sebagai attachment.
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 function fmtDate(s: string) {
