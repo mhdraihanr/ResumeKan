@@ -7,6 +7,7 @@
 
 - `401` belum login · `403` bukan pemilik resource · `404` tidak ada · `422` validasi · `429` rate limit.
 - Semua route, selain auth dan shell print internal bertanda tangan, butuh login.
+- `422` membawa `errors` dengan kunci berpath JSON (`data.certificates.0.name`). Klien **tidak** menampilkan `message` mentahnya: `mapServerErrors` di `lib/cv-validation.ts` membuang awalan `data.` dan memetakan tiap kunci ke error inline pada field yang bersangkutan. `message` mentah hanya ditampilkan sebagai banner untuk kegagalan operasional (network/5xx) — lihat [ARCHITECTURE.md §4](ARCHITECTURE.md). Berlaku untuk submit final **dan** simpan draft (yang juga memakai jalur `errors` → inline, bukan toast pesan mentah).
 
 ## Auth
 
@@ -67,6 +68,8 @@ Klien lalu `POST` ke `https://api.cloudinary.com/v1_1/{cloud_name}/image/upload`
 ```
 
 → `201 { cv }`. Gagal jika user sudah punya 10 CV → `422`.
+
+**Mode draft (`?draft=1`)** — dipakai tombol `Simpan Draft`, yang menyimpan progres setengah jadi. `StoreCvRequest::isDraft()` mendeteksi flag dan melonggarkan ruleset: setiap `required`/`required_with` → `nullable`, sedangkan tipe/`max`/`in` tetap dicek bila field terisi. `title` kosong diisi placeholder `"CV Tanpa Judul"` oleh `CvController::payload()` (kolom `title` NOT NULL). Submit final **tanpa** flag tetap memakai ruleset ketat. Berlaku juga untuk `PUT /cvs/{id}?draft=1`.
 
 > `data.projects` terstruktur: array objek `{ title, role, objective, techStack, link? }` (max 8, `link` opsional ≤500 dinormalisasi `https://`). `data.certificates` terstruktur: array objek `{ name, issuer, year, credentialId? }` (max 5, section sendiri). Nilai lama `string` masih diterima untuk keduanya (backward compat, dikonversi ke 1 item). `data.education[].gpa` opsional `≤10`, `data.education[].location` opsional, `data.education[].degree` = gelar & jurusan digabung (field `major` dihapus), `data.education[].achievements` opsional `≤1000` (bullet newline), `data.organizations` array max 5, `data.experiences[].employmentType` opsional `in: Full-time,Part-time,Internship,Contract,Freelance` — lihat `DATA_MODEL.md`.
 

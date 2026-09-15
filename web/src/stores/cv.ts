@@ -35,16 +35,19 @@ export const useCvStore = defineStore("cv", () => {
     }
   }
 
-  async function create(payload: {
-    title: string;
-    template: string;
-    language: string;
-    data: CvData;
-  }) {
+  async function create(
+    payload: {
+      title: string;
+      template: string;
+      language: string;
+      data: CvData;
+    },
+    draft = false,
+  ) {
     loading.value = true;
     error.value = null;
     try {
-      const res = await cvApi.create(payload);
+      const res = await cvApi.create(payload, draft);
       list.value.unshift(res.cv);
       return res.cv;
     } catch (e) {
@@ -63,11 +66,12 @@ export const useCvStore = defineStore("cv", () => {
       language: string;
       data: CvData;
     },
+    draft = false,
   ) {
     loading.value = true;
     error.value = null;
     try {
-      const res = await cvApi.update(id, payload);
+      const res = await cvApi.update(id, payload, draft);
       const idx = list.value.findIndex((c) => c.id === id);
       if (idx !== -1) list.value[idx] = res.cv;
       current.value = res.cv;

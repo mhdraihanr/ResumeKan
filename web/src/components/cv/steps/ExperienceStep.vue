@@ -7,6 +7,13 @@ import FormTextarea from "../form/FormTextarea.vue";
 
 const data = defineModel<CvData>({ required: true });
 
+/** Peta path field -> pesan error inline, mis. `experiences.0.company`. */
+const props = defineProps<{ errors?: Record<string, string> }>();
+
+function err(i: number, field: string): string | undefined {
+  return props.errors?.[`experiences.${i}.${field}`];
+}
+
 function addExp() {
   data.value.experiences ??= [];
   data.value.experiences.push({
@@ -62,15 +69,17 @@ function removeExp(i: number) {
       <div class="grid gap-2.5 sm:grid-cols-2">
         <label class="space-y-1"
           ><FormLabel label="Perusahaan *" /><FormInput
+            :id="`exp-${i}-company`"
             v-model="exp.company"
             placeholder="PT Maju Jaya"
-            required
+            :error="err(i, 'company')"
         /></label>
         <label class="space-y-1"
           ><FormLabel label="Posisi *" /><FormInput
+            :id="`exp-${i}-position`"
             v-model="exp.position"
             placeholder="Backend Engineer"
-            required
+            :error="err(i, 'position')"
         /></label>
         <label class="space-y-1"
           ><FormLabel label="Lokasi" /><FormInput
@@ -91,15 +100,17 @@ function removeExp(i: number) {
         <div class="grid grid-cols-2 gap-2.5">
           <label class="space-y-1"
             ><FormLabel label="Mulai *" /><FormInput
+              :id="`exp-${i}-startDate`"
               v-model="exp.startDate"
               placeholder="2022-01"
-              required
+              :error="err(i, 'startDate')"
           /></label>
           <label class="space-y-1"
             ><FormLabel label="Selesai *" /><FormInput
+              :id="`exp-${i}-endDate`"
               v-model="exp.endDate"
               placeholder="2024-12 / Present"
-              required
+              :error="err(i, 'endDate')"
           /></label>
         </div>
       </div>

@@ -136,7 +136,7 @@ async function submit() {
         <p
           v-if="auth.error"
           aria-live="polite"
-          class="mt-4 rounded-base border-2 border-error bg-red-50 p-3 text-sm font-medium text-error dark:bg-red-900/20 dark:text-red-400"
+          class="mt-4 rounded-base border-2 border-error bg-red-50 p-3 text-sm font-medium text-error dark:bg-red-900/20 dark:text-red-300"
         >
           {{ auth.error }}
         </p>

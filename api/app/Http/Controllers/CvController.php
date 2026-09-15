@@ -31,7 +31,7 @@ class CvController extends Controller
             ], 422);
         }
 
-        $cv = $request->user()->cvs()->create($request->validated());
+        $cv = $request->user()->cvs()->create($this->payload($request));
 
         return response()->json(['cv' => new CvResource($cv)], 201);
     }
@@ -47,9 +47,24 @@ class CvController extends Controller
     {
         $this->authorizeOwner($request, $cv);
 
-        $cv->update($request->validated());
+        $cv->update($this->payload($request));
 
         return response()->json(['cv' => new CvResource($cv)]);
+    }
+
+    /**
+     * Kolom `title` NOT NULL, sedangkan draft boleh disimpan tanpa judul.
+     * Lengkapi dengan placeholder agar draft parsial tetap bisa dipersist.
+     */
+    private function payload(StoreCvRequest $request): array
+    {
+        $data = $request->validated();
+
+        if ($request->isDraft()) {
+            $data['title'] = filled($data['title'] ?? null) ? $data['title'] : 'CV Tanpa Judul';
+        }
+
+        return $data;
     }
 
     public function destroy(Request $request, Cv $cv): JsonResponse

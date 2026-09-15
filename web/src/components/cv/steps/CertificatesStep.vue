@@ -5,6 +5,13 @@ import FormInput from "../form/FormInput.vue";
 
 const data = defineModel<CvData>({ required: true });
 
+/** Peta path field -> pesan error inline, mis. `certificates.0.name`. */
+const props = defineProps<{ errors?: Record<string, string> }>();
+
+function err(i: number, field: string): string | undefined {
+  return props.errors?.[`certificates.${i}.${field}`];
+}
+
 function addCert() {
   const c = data.value.certificates;
   if (Array.isArray(c))
@@ -57,24 +64,27 @@ function removeCert(i: number) {
       <div class="grid gap-2.5 sm:grid-cols-2">
         <label class="space-y-1"
           ><FormLabel label="Nama sertifikat *" /><FormInput
+            :id="`cert-${i}-name`"
             v-model="cert.name"
-            required
             maxlength="100"
             placeholder="AWS Solutions Architect"
+            :error="err(i, 'name')"
         /></label>
         <label class="space-y-1"
           ><FormLabel label="Penerbit *" /><FormInput
+            :id="`cert-${i}-issuer`"
             v-model="cert.issuer"
-            required
             maxlength="100"
             placeholder="Amazon Web Services"
+            :error="err(i, 'issuer')"
         /></label>
         <label class="space-y-1"
           ><FormLabel label="Tahun terbit *" /><FormInput
+            :id="`cert-${i}-year`"
             v-model="cert.year"
-            required
             maxlength="10"
             placeholder="2024"
+            :error="err(i, 'year')"
         /></label>
         <label class="space-y-1"
           ><FormLabel label="Credential ID (opsional)" /><FormInput

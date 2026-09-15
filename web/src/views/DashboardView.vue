@@ -97,7 +97,7 @@ function fmtDate(s: string) {
       <!-- Error -->
       <p
         v-if="cvStore.error"
-        class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400"
+        class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300"
       >
         {{ cvStore.error }}
       </p>
@@ -185,7 +185,7 @@ function fmtDate(s: string) {
             </button>
             <button
               @click="handleDelete(cv.id)"
-              class="rounded-lg px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400"
+              class="rounded-lg px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-300"
             >
               Hapus
             </button>

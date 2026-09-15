@@ -122,6 +122,10 @@ Index: `user_id`. Tidak perlu index lain.
 Aturan validasi global: setiap array maksimal sesuai catatan; total payload JSON ≤ 50 KB.
 Backward compat: `projects`/`certificates` lama berupa `string` diterima dan dikonversi ke array 1 item saat validasi (lihat `StoreCvRequest::prepareForValidation`). Frontend juga menormalisasi saat load via `normalizeCvData()` di `types/cv.ts` (dipakai `CvFormView`, `CvPreview`, `print-main`) agar data lama tidak render kosong.
 
+Entri berulang (`experiences`, `education`, `organizations`, `certificates`, `projects`) punya field wajib bersyarat (`required_with`): begitu array berisi entri, field wajibnya harus terisi. Sisi klien menyelaraskan diri lewat dua aturan di `lib/cv-validation.ts`: (1) entri yang **seluruh** field wajibnya kosong dibuang otomatis saat submit — "klik + Tambah lalu batal" bukan error; (2) entri yang **terisi sebagian** dipertahankan dan memunculkan error inline. Karena itu backend tidak perlu aturan tambahan; pruning murni keputusan UX klien dan tidak mengubah kontrak API.
+
+**Mode draft (`?draft=1`, 2026-09-15):** saat flag draft aktif, `StoreCvRequest` melonggarkan semua `required`/`required_with` menjadi `nullable` (tipe/`max`/`in` tetap dicek), sehingga progres setengah jadi bisa dipersist. Kolom `title` (NOT NULL) diisi placeholder `"CV Tanpa Judul"` oleh `CvController::payload()` bila kosong. Submit final tanpa flag tetap memakai aturan ketat. Struktur `CvData` **tidak berubah** — hanya kewajiban isinya yang berbeda per mode.
+
 ## Estimasi Ukuran
 
 1 CV ≈ 2–5 KB → kapasitas Neon free (0.5 GB) ≫ kebutuhan bertahun-tahun.

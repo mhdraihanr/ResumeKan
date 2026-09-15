@@ -2,7 +2,12 @@
 import FormLabel from "../form/FormLabel.vue";
 import { CV_TEMPLATES } from "@/lib/cv-templates";
 
-defineProps<{ title: string; template: string; language: string }>();
+defineProps<{
+  title: string;
+  template: string;
+  language: string;
+  titleError?: string;
+}>();
 defineEmits<{
   "update:title": [v: string];
   "update:template": [v: string];
@@ -19,15 +24,29 @@ defineEmits<{
       <label class="space-y-1">
         <FormLabel label="Judul CV *" />
         <input
+          id="cv-title"
           :value="title"
-          required
           maxlength="100"
           placeholder="CV Backend"
-          class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus:border-ring"
+          :aria-invalid="titleError ? 'true' : undefined"
+          :aria-describedby="titleError ? 'cv-title-error' : undefined"
+          class="w-full rounded-lg border px-3 py-1.5 text-xs focus:outline-none dark:bg-secondary-background dark:text-foreground dark:focus:border-ring"
+          :class="
+            titleError
+              ? 'border-red-500 focus:border-red-500 dark:border-red-500'
+              : 'border-slate-300 focus:border-slate-900 dark:border-border'
+          "
           @input="
             $emit('update:title', ($event.target as HTMLInputElement).value)
           "
         />
+        <p
+          v-if="titleError"
+          id="cv-title-error"
+          class="text-[11px] font-medium text-red-700 dark:text-red-300"
+        >
+          {{ titleError }}
+        </p>
       </label>
       <label class="space-y-1">
         <FormLabel label="Template" />

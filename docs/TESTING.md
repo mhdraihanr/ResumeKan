@@ -66,6 +66,25 @@ POST   /api/v1/cvs { projects: [{ title, role, link: "github.com/x" }] } → 201
 
 **Simpan Draft (Fase 3):** di halaman `/cvs/new` isi minimal (judul + data pribadi) → klik `Simpan Draft` → toast `Draft tersimpan` muncul, URL tetap `/cvs/new`, heading berubah jadi "Edit CV", tombol `Download PDF` muncul; refresh halaman → data masih ada. Di halaman edit: ubah field → `Simpan Draft` → toast muncul tanpa keluar halaman; cek DB `updated_at` berubah.
 
+**Validasi submit (2026-09-15):** `Simpan CV` tidak lagi memakai bubble HTML native maupun pesan 422 mentah. Yang diuji:
+
+1. Kosongkan Judul CV, klik `Simpan CV` dari step mana pun (mis. dari step 10) → pindah ke step 1 "Info", fokus ke heading `Info CV`, muncul banner `role="alert"` ("Ada N isian yang perlu diperbaiki...") + teks inline `Judul CV wajib diisi.` di bawah field, input `aria-invalid="true"`, stepper step 1 bertanda `!` merah.
+2. Sebelum percobaan simpan pertama, stepper **tidak** menandai field kosong dengan `!` (jangan menghukum sebelum pengguna diberi tahu).
+3. Isi Judul CV → error inline hilang otomatis tanpa submit ulang (re-validasi live).
+4. Kosongkan field Pribadi (Nama/Email/Telepon/Alamat) → submit → pindah ke step 2 "Pribadi" dengan banner menyebut jumlah yang kurang.
+5. **Entri kosong:** klik `+ Tambah` di Sertifikat/Proyek/Pengalaman lalu tidak diisi → `Simpan CV` → entri dibuang otomatis, **tidak ada error**, muncul catatan halus `1 entri kosong diabaikan`; cek DB `data.certificates = []`.
+6. **Entri setengah terisi:** isi hanya Nama sertifikat → submit → entri **dipertahankan**, error inline di Penerbit + Tahun terbit (`Penerbit (Sertifikat #1) wajib diisi.`), pindah ke step 9.
+7. Verifikasi aksesibilitas: pesan error terbaca sebagai bagian deskripsi field (nama aksesibel input menyertakan teks error), dan toast draft punya `role="status"`/`aria-live="polite"`.
+8. Kontras teks error: light `#c10007` di atas putih 6.42:1; dark `red-300` (`#ffa2a2`) di atas kartu gelap `#3f3f46` 5.44:1 — keduanya lolos WCAG AA. Error tidak pernah ditandai warna saja (selalu ada teks + `!` di stepper). Catatan: warna error dark hanya berlaku bila blok `.cv-form` di `CvForm.vue` berada di dalam `@layer components` — CSS unlayered selalu menimpa utility Tailwind ber-layer tanpa peduli specificity (bug 2026-09-15: `.dark .cv-form p` unlayered menimpa `dark:text-red-300` sehingga semua pesan error jadi abu).
+
+**Simpan draft parsial (`?draft=1`, 2026-09-15):** tombol `Simpan Draft` menyimpan progres setengah jadi dan **tidak** menampilkan pesan 422 mentah.
+
+1. Isi form kosong (judul kosong), klik `Simpan Draft` → `POST /cvs?draft=1` → `201`, toast `Draft tersimpan`, DB `title = "CV Tanpa Judul"` (placeholder). Sebelumnya: `422` + toast mentah `The data.title field is required...`.
+2. Klik `+ Tambah` Sertifikat lalu biarkan kosong, klik `Simpan Draft` → entri kosong di-prune di klien (`pruneEntries`) → `201`, DB `data.certificates = []`. Sebelumnya: `422 The data.certificates.0.issuer field is required when data.certificates is present. (and N more errors)`.
+3. Bila server tetap menolak (`422`), `draftSave` memetakan `errors` ke error inline via `applyServerErrors` + toast ringkas `Ada isian yang perlu diperbaiki. Cek penanda merah.` — bukan `message` mentah.
+4. Kegagalan operasional (network/5xx) → toast `Gagal menyimpan draft. Coba lagi.`
+5. Submit final **tanpa** `?draft=1` tetap ketat: `title`, `data.personal.*`, dan `required_with` entri masih wajib (verifikasi ruleset strict vs draft via unit test).
+
 **AI (Fase 4):** `POST /api/v1/ai/summary` → `200`; request ke-6 dalam 1 menit → `429`.
 
 **PDF (Fase 5):** dengan session aktif, `GET /api/v1/cvs/{id}/pdf` → `200 application/pdf`; cek signature awal `%PDF-`, nama file di header `Content-Disposition`, dan ukuran file lebih dari satu halaman kosong. Dari halaman edit, klik **Download PDF** dan pastikan file bernama `{nama}_CV.pdf` terunduh serta kontennya sama dengan preview. Bila PDF kosong, cek bahwa `PdfService` memakai `Browsershot::html()` dan argumen Chromium untuk module dari shell `file://`, bukan request URL print balik ke API. Cek paginasi (2026-09-08): PDF multi-halaman tidak memotong judul section/entry di tengah (break-inside avoid) dan titik pecah halaman sama dengan preview editor.

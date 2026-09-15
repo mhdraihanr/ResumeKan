@@ -37,14 +37,17 @@ async function req<T>(path: string, opts: RequestInit = {}): Promise<T> {
 export const cvApi = {
   list: () => req<{ data: Cv[] }>("/api/v1/cvs"),
   get: (id: number) => req<{ cv: Cv }>(`/api/v1/cvs/${id}`),
-  create: (payload: {
-    title: string;
-    template: string;
-    language: string;
-    data: CvData;
-  }) =>
+  create: (
+    payload: {
+      title: string;
+      template: string;
+      language: string;
+      data: CvData;
+    },
+    draft = false,
+  ) =>
     csrf().then(() =>
-      req<{ cv: Cv }>("/api/v1/cvs", {
+      req<{ cv: Cv }>(`/api/v1/cvs${draft ? "?draft=1" : ""}`, {
         method: "POST",
         body: JSON.stringify(payload),
       }),
@@ -57,9 +60,10 @@ export const cvApi = {
       language: string;
       data: CvData;
     },
+    draft = false,
   ) =>
     csrf().then(() =>
-      req<{ cv: Cv }>(`/api/v1/cvs/${id}`, {
+      req<{ cv: Cv }>(`/api/v1/cvs/${id}${draft ? "?draft=1" : ""}`, {
         method: "PUT",
         body: JSON.stringify(payload),
       }),

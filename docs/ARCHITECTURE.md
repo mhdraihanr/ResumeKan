@@ -76,7 +76,7 @@ web/
 │   ├── stores/              # auth.ts, cv.ts (Pinia)
 │   ├── views/               # HomeView, CvFormView, DashboardView, LoginView, RegisterView
 │   ├── composables/         # useDarkMode.ts
-│   ├── lib/                 # cv-templates.ts (token template), utils.ts
+│   ├── lib/                 # cv-templates.ts (token template), cv-validation.ts (aturan wajib + peta error), utils.ts
 │   ├── components/
 │   │   ├── cv/              # CvForm (shell), CvPreview, form/, steps/, sections/
 │   │   └── ui/              # shadcn-vue (badge, button, card)
@@ -88,10 +88,11 @@ Detail `components/cv/` (refactor 2026-08-31, lihat [REFACTOR_PLAN.md](phases/RE
 
 ```
 components/cv/
-├── CvForm.vue              # shell: stepper nav 9 langkah + state (~150 baris)
-├── form/                   # FormInput, FormTextarea, FormSelect, FormLabel (1 sumber kelas input)
-├── steps/                  # 9 langkah: Meta, Personal, Summary, Experience, Education,
-│                           # Organization, Skills, Projects, Other
+├── CvForm.vue              # shell: stepper nav 10 langkah + state, validasi submit, penanda error per step
+├── form/                   # FormInput (dukung error inline + aria-invalid/aria-describedby),
+│                           # FormTextarea, FormSelect, FormLabel (1 sumber kelas input)
+├── steps/                  # 10 langkah: Meta, Personal, Summary, Experience, Education,
+│                           # Organization, Skills, Projects, Certificates, Other
 ├── CvPreview.vue           # router: pilih CvModern/CvClassic/CvNeon via comp computed
 ├── templates/              # 1 template = 1 file (header include masing-masing)
 │   ├── CvModern.vue        # single-column, navy accent
@@ -100,11 +101,38 @@ components/cv/
 └── sections/               # PreviewSection, EntryRow, BulletList (shared)
 
 lib/cv-templates.ts         # token per template: font, headerAlign, h1Class, linkClass, otherMode, layout, accent, hasBorder, hasQr
+lib/cv-validation.ts        # REQUIRED_FIELDS + ENTRY_RULES (cermin StoreCvRequest), pruneEmptyEntries, collectMissing, mapServerErrors
 ```
+
+### Umpan balik validasi (2026-09-15)
+
+Error validasi field **selalu inline**, tidak lewat toast. Alasan: toast auto-dismiss sebelum pengguna selesai membaca dan tidak terikat ke field, sehingga pengguna harus mencocokkan pesan dengan field secara manual (NN/g _10 Design Guidelines for Reporting Errors in Forms_; js-form-validation.com _Inline vs Toast vs Modal_). Pembagian kanal:
+
+| Jenis                                            | Kanal                                                       | Sifat                      |
+| ------------------------------------------------ | ----------------------------------------------------------- | -------------------------- |
+| Field wajib / format (422 field-level)           | Inline di bawah field + `aria-invalid` + `aria-describedby` | Persist sampai field valid |
+| Hasil operasi (sukses simpan draft, network/500) | Toast `role="status"` / `role="alert"`                      | Transien (2,6 detik)       |
+
+Detail perilaku:
+
+- Submit memanggil `prepareSubmit()` di `CvForm`: **prune entri kosong dulu**, baru validasi.
+- Entri berulang (pengalaman/pendidikan/organisasi/sertifikat/proyek) yang seluruh field wajibnya kosong **dibuang otomatis** — "klik + Tambah lalu batal" bukan kesalahan. Entri yang terisi sebagian tetap dipertahankan dan memunculkan error inline.
+- Kalau ada yang kurang, pengguna **dipindah ke step pemilik error pertama**, dengan fokus ke heading step (bukan langsung ke input) supaya perpindahan terbaca, bukan lompatan diam. Kalau error ada di step yang sedang aktif, fokus langsung ke field invalid pertama.
+- Stepper menandai step bermasalah dengan `!` merah. Penanda baru muncul **setelah percobaan simpan pertama**, supaya field kosong tidak dihukum sebelum pengguna diberi tahu apa pun.
+- Setelah percobaan simpan, error dihapus begitu field diperbaiki (re-validasi live).
+- Payload `422` dari server dipetakan ke kunci field sisi klien lewat `mapServerErrors` (awalan `data.` dibuang), jadi pesan tidak pernah tampil mentah. `error` banner hanya dipakai untuk kegagalan operasional (network/5xx) — di situ pesan mentah berguna untuk debug.
+
+### Simpan draft parsial (`?draft=1`, 2026-09-15)
+
+Tombol `Simpan Draft` menyimpan progres setengah jadi; `Simpan CV` memvalidasi seperti data final. Pemisahan ini mengikuti panduan autosave (uxpatternsguide.com _Autosave form_: "clear separation between autosaved draft progress and final submit"):
+
+- **Klien:** `draftSave()` memanggil `formRef.pruneEntries()` lebih dulu, lalu `POST/PUT` dengan `?draft=1`. `pruneEntries()` dipisah dari `prepareSubmit()` agar draft bisa membuang entri kosong tanpa memicu validasi wajib.
+- **Server:** `StoreCvRequest::isDraft()` (public, dipanggil juga `CvController`) melonggarkan ruleset — `required`/`required_with` → `nullable`, tipe/`max`/`in` tetap. `CvController::payload()` mengisi `title` placeholder `"CV Tanpa Judul"` bila kosong (kolom NOT NULL).
+- **Error draft:** `422` → `errors` dipetakan inline (sama seperti submit) + toast ringkas; kegagalan operasional → toast `"Gagal menyimpan draft. Coba lagi."`. Tidak pernah menampilkan `message` mentah.
 
 ## 4. Keamanan
 
-- Validasi input dua sisi: VeeValidate (FE) + Form Request (BE). BE adalah sumber kebenaran.
+- Validasi input dua sisi: validator klien (`web/src/lib/cv-validation.ts`) + Form Request (BE). BE adalah sumber kebenaran; validator klien hanya memberi umpan balik lebih awal dan tidak menggantikan validasi server.
 - Rate limit global API + khusus endpoint AI.
 - CORS dibatasi ke origin frontend saja.
 - Endpoint AI memvalidasi ukuran payload (CV data ≤ ~50 KB).

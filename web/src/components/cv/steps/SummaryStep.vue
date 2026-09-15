@@ -27,7 +27,7 @@ const data = defineModel<CvData>({ required: true });
         {{ aiLoading ? "Memproses..." : "Generate AI" }}
       </button>
     </div>
-    <p v-if="aiError" class="text-xs text-red-600 dark:text-red-400">
+    <p v-if="aiError" class="text-xs text-red-600 dark:text-red-300">
       {{ aiError }}
     </p>
     <FormTextarea

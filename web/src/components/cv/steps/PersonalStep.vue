@@ -7,6 +7,13 @@ import FormInput from "../form/FormInput.vue";
 
 const data = defineModel<CvData>({ required: true });
 
+/** Peta path field -> pesan error inline, mis. `personal.name`. */
+const props = defineProps<{ errors?: Record<string, string> }>();
+
+function err(path: string): string | undefined {
+  return props.errors?.[path];
+}
+
 const uploading = ref(false);
 const uploadError = ref("");
 const showPhoto = ref(false);
@@ -51,37 +58,45 @@ function clearPhoto() {
       <label class="space-y-1">
         <FormLabel label="Nama *" />
         <FormInput
+          id="personal-name"
           v-model="data.personal.name"
           required
           maxlength="100"
           placeholder="Budi Santoso"
+          :error="err('personal.name')"
         />
       </label>
       <label class="space-y-1">
         <FormLabel label="Email *" />
         <FormInput
+          id="personal-email"
           v-model="data.personal.email"
           type="email"
           required
           placeholder="budi@email.com"
+          :error="err('personal.email')"
         />
       </label>
       <label class="space-y-1">
         <FormLabel label="Telepon *" />
         <FormInput
+          id="personal-phone"
           v-model="data.personal.phone"
           required
           maxlength="30"
           placeholder="+62 812-3456-7890"
+          :error="err('personal.phone')"
         />
       </label>
       <label class="space-y-1">
         <FormLabel label="Alamat *" />
         <FormInput
+          id="personal-address"
           v-model="data.personal.address"
           required
           maxlength="200"
           placeholder="Jakarta, Indonesia"
+          :error="err('personal.address')"
         />
       </label>
       <label class="space-y-1">
@@ -121,7 +136,7 @@ function clearPhoto() {
           </p>
           <p
             v-if="uploadError"
-            class="text-[11px] text-red-600 dark:text-red-400"
+            class="text-[11px] text-red-600 dark:text-red-300"
           >
             {{ uploadError }}
           </p>

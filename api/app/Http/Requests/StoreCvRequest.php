@@ -11,7 +11,39 @@ class StoreCvRequest extends FormRequest
         return true;
     }
 
+    /**
+     * Draft (`?draft=1`) menyimpan progres setengah jadi, jadi field wajib
+     * tidak dipaksakan — hanya bentuk/tipe yang dicek. Submit final memakai
+     * ruleset ketat seperti semula.
+     */
+    public function isDraft(): bool
+    {
+        return filter_var($this->query('draft', false), FILTER_VALIDATE_BOOLEAN);
+    }
+
     public function rules(): array
+    {
+        $rules = $this->strictRules();
+
+        if (! $this->isDraft()) {
+            return $rules;
+        }
+
+        // Draft: `required`/`required_with` → `nullable`. Field tetap harus
+        // bertipe benar bila ada isinya, tapi boleh kosong.
+        return array_map(static function (string $rule): string {
+            $parts = array_filter(
+                explode('|', $rule),
+                static fn (string $p): bool => $p !== 'required'
+                    && ! str_starts_with($p, 'required_')
+                    && $p !== 'nullable',
+            );
+
+            return implode('|', array_merge(['nullable'], $parts));
+        }, $rules);
+    }
+
+    protected function strictRules(): array
     {
         return [
             'title' => 'required|string|max:100',

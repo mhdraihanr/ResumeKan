@@ -21,6 +21,7 @@ const data = ref<CvData>(emptyCvData());
 const error = ref<string | null>(null);
 const saving = ref(false);
 const drafting = ref(false);
+const formRef = ref<InstanceType<typeof CvForm> | null>(null);
 const toast = ref<{ msg: string; ok: boolean } | null>(null);
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -28,6 +29,20 @@ function showToast(msg: string, ok = true) {
   toast.value = { msg, ok };
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => (toast.value = null), 2600);
+}
+
+/** Ringkasan entri kosong yang dibuang saat submit, mis. `2 entri kosong diabaikan`. */
+const removedNote = ref("");
+let removedTimer: ReturnType<typeof setTimeout> | undefined;
+
+function onRemovedEntries(count: number) {
+  clearTimeout(removedTimer);
+  if (count === 0) {
+    removedNote.value = "";
+    return;
+  }
+  removedNote.value = `${count} entri kosong diabaikan`;
+  removedTimer = setTimeout(() => (removedNote.value = ""), 4000);
 }
 
 onMounted(async () => {
@@ -44,6 +59,11 @@ onMounted(async () => {
 
 async function submit() {
   error.value = null;
+
+  // Validasi klien dulu; kalau ada yang kurang, `CvForm` menampilkan error
+  // inline dan memindahkan pengguna ke step yang bermasalah.
+  if (!(await formRef.value?.prepareSubmit())) return;
+
   saving.value = true;
   try {
     const payload = {
@@ -56,7 +76,14 @@ async function submit() {
     else await cvStore.create(payload);
     router.push("/dashboard");
   } catch (e) {
-    error.value = e instanceof Error ? e.message : "Gagal menyimpan CV";
+    const err = e as { status?: number; message?: string; errors?: unknown };
+    if (err.status === 422 && err.errors) {
+      // Field-level: petakan ke error inline, bukan tampilkan pesan mentah.
+      await formRef.value?.applyServerErrors(err.errors);
+    } else {
+      // Kegagalan operasional (network/500) — pesan mentah berguna untuk debug.
+      error.value = err.message ?? "Gagal menyimpan CV";
+    }
   } finally {
     saving.value = false;
   }
@@ -64,6 +91,11 @@ async function submit() {
 
 async function draftSave() {
   error.value = null;
+
+  // Buang entri kosong lebih dulu (klik "+ Tambah" lalu batal bukan kesalahan),
+  // supaya draft tidak gagal hanya karena entri setengah jadi.
+  await formRef.value?.pruneEntries();
+
   drafting.value = true;
   try {
     const payload = {
@@ -73,14 +105,21 @@ async function draftSave() {
       data: data.value,
     };
     if (cvId.value) {
-      await cvStore.update(cvId.value, payload);
+      await cvStore.update(cvId.value, payload, true);
     } else {
-      const cv = await cvStore.create(payload);
+      const cv = await cvStore.create(payload, true);
       cvId.value = cv.id;
     }
     showToast("Draft tersimpan");
   } catch (e) {
-    showToast(e instanceof Error ? e.message : "Gagal menyimpan draft", false);
+    const err = e as { status?: number; message?: string; errors?: unknown };
+    if (err.status === 422 && err.errors) {
+      // Server menolak; petakan ke error inline, bukan tampilkan pesan mentah.
+      await formRef.value?.applyServerErrors(err.errors);
+      showToast("Ada isian yang perlu diperbaiki. Cek penanda merah.", false);
+    } else {
+      showToast("Gagal menyimpan draft. Coba lagi.", false);
+    }
   } finally {
     drafting.value = false;
   }
@@ -137,23 +176,31 @@ async function draftSave() {
           >
             <p
               v-if="error"
-              class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400"
+              class="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300"
             >
               {{ error }}
             </p>
             <CvForm
+              ref="formRef"
               v-model="data"
               v-model:title="title"
               v-model:template="template"
               v-model:language="language"
               :cv-id="cvId"
               @submit="submit"
+              @update:removed-entries="onRemovedEntries"
             />
             <p
               v-if="saving"
               class="mt-3 text-center text-xs text-slate-400 dark:text-foreground/60"
             >
               Menyimpan...
+            </p>
+            <p
+              v-if="removedNote"
+              class="mt-3 text-center text-xs text-slate-500 dark:text-foreground/60"
+            >
+              {{ removedNote }}
             </p>
           </div>
 
@@ -182,7 +229,10 @@ async function draftSave() {
       </div>
     </div>
 
-    <!-- Toast draft tersimpan -->
+    <!--
+      Live region tetap ada di DOM (role berubah, bukan elemennya yang
+      dimunculkan) supaya screen reader mengumumkan perubahan teks dengan andal.
+    -->
     <transition
       enter-active-class="transition duration-200 ease-out"
       enter-from-class="opacity-0 translate-y-1"
@@ -190,15 +240,17 @@ async function draftSave() {
       leave-to-class="opacity-0"
     >
       <div
-        v-if="toast"
+        :role="toast && !toast.ok ? 'alert' : 'status'"
+        :aria-live="toast && !toast.ok ? 'assertive' : 'polite'"
+        :aria-atomic="true"
         class="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg px-4 py-2 text-sm font-medium text-white shadow-lg"
         :class="
-          toast.ok
-            ? 'bg-slate-900 dark:bg-secondary-background dark:text-foreground'
-            : 'bg-red-600 dark:bg-red-900'
+          toast && !toast.ok
+            ? 'bg-red-600 dark:border dark:border-red-400/60 dark:bg-red-900'
+            : 'bg-slate-900 dark:border dark:border-border dark:bg-secondary-background dark:text-foreground'
         "
       >
-        {{ toast.msg }}
+        {{ toast?.msg ?? "" }}
       </div>
     </transition>
   </main>

@@ -6,6 +6,13 @@ import FormTextarea from "../form/FormTextarea.vue";
 
 const data = defineModel<CvData>({ required: true });
 
+/** Peta path field -> pesan error inline, mis. `organizations.0.organization`. */
+const props = defineProps<{ errors?: Record<string, string> }>();
+
+function err(i: number, field: string): string | undefined {
+  return props.errors?.[`organizations.${i}.${field}`];
+}
+
 function addOrg() {
   data.value.organizations ??= [];
   data.value.organizations.push({
@@ -58,21 +65,24 @@ function removeOrg(i: number) {
       <div class="grid gap-2.5 sm:grid-cols-2">
         <label class="space-y-1"
           ><FormLabel label="Organisasi *" /><FormInput
+            :id="`org-${i}-organization`"
             v-model="org.organization"
             placeholder="BEM Fasilkom"
-            required
+            :error="err(i, 'organization')"
         /></label>
         <label class="space-y-1"
           ><FormLabel label="Peran *" /><FormInput
+            :id="`org-${i}-role`"
             v-model="org.role"
             placeholder="Ketua Divisi"
-            required
+            :error="err(i, 'role')"
         /></label>
         <label class="space-y-1 sm:col-span-2"
           ><FormLabel label="Periode *" /><FormInput
+            :id="`org-${i}-period`"
             v-model="org.period"
             placeholder="2022 - 2024"
-            required
+            :error="err(i, 'period')"
         /></label>
       </div>
       <label class="space-y-1 block">

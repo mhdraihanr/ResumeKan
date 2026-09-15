@@ -6,6 +6,13 @@ import FormTextarea from "../form/FormTextarea.vue";
 
 const data = defineModel<CvData>({ required: true });
 
+/** Peta path field -> pesan error inline, mis. `education.0.institution`. */
+const props = defineProps<{ errors?: Record<string, string> }>();
+
+function err(i: number, field: string): string | undefined {
+  return props.errors?.[`education.${i}.${field}`];
+}
+
 function addEdu() {
   data.value.education ??= [];
   data.value.education.push({
@@ -60,15 +67,17 @@ function removeEdu(i: number) {
       <div class="grid gap-2.5 sm:grid-cols-2">
         <label class="space-y-1"
           ><FormLabel label="Institusi *" /><FormInput
+            :id="`edu-${i}-institution`"
             v-model="edu.institution"
             placeholder="Universitas Indonesia"
-            required
+            :error="err(i, 'institution')"
         /></label>
         <label class="space-y-1"
           ><FormLabel label="Gelar &amp; Jurusan *" /><FormInput
+            :id="`edu-${i}-degree`"
             v-model="edu.degree"
             placeholder="S1 Teknik Informatika / Bachelor of Science in Computer Science"
-            required
+            :error="err(i, 'degree')"
         /></label>
         <label class="space-y-1"
           ><FormLabel label="Lokasi" /><FormInput
@@ -77,9 +86,10 @@ function removeEdu(i: number) {
         /></label>
         <label class="space-y-1"
           ><FormLabel label="Tahun *" /><FormInput
+            :id="`edu-${i}-year`"
             v-model="edu.year"
             placeholder="2020 - 2024"
-            required
+            :error="err(i, 'year')"
         /></label>
       </div>
       <div class="grid gap-2.5 sm:grid-cols-2">

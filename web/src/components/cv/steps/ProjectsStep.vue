@@ -6,6 +6,13 @@ import FormTextarea from "../form/FormTextarea.vue";
 
 const data = defineModel<CvData>({ required: true });
 
+/** Peta path field -> pesan error inline, mis. `projects.0.title`. */
+const props = defineProps<{ errors?: Record<string, string> }>();
+
+function err(i: number, field: string): string | undefined {
+  return props.errors?.[`projects.${i}.${field}`];
+}
+
 function addProject() {
   const p = data.value.projects;
   if (Array.isArray(p))
@@ -58,17 +65,19 @@ function removeProject(i: number) {
       <div class="grid gap-2.5 sm:grid-cols-2">
         <label class="space-y-1"
           ><FormLabel label="Nama proyek *" /><FormInput
+            :id="`proj-${i}-title`"
             v-model="proj.title"
-            required
             maxlength="100"
             placeholder="ResumeKan"
+            :error="err(i, 'title')"
         /></label>
         <label class="space-y-1"
           ><FormLabel label="Peran *" /><FormInput
+            :id="`proj-${i}-role`"
             v-model="proj.role"
-            required
             maxlength="100"
             placeholder="Fullstack"
+            :error="err(i, 'role')"
         /></label>
       </div>
       <label class="space-y-1 block">
