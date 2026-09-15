@@ -130,6 +130,15 @@ Tombol `Simpan Draft` menyimpan progres setengah jadi; `Simpan CV` memvalidasi s
 - **Server:** `StoreCvRequest::isDraft()` (public, dipanggil juga `CvController`) melonggarkan ruleset — `required`/`required_with` → `nullable`, tipe/`max`/`in` tetap. `CvController::payload()` mengisi `title` placeholder `"CV Tanpa Judul"` bila kosong (kolom NOT NULL).
 - **Error draft:** `422` → `errors` dipetakan inline (sama seperti submit) + toast ringkas; kegagalan operasional → toast `"Gagal menyimpan draft. Coba lagi."`. Tidak pernah menampilkan `message` mentah.
 
+### Gate Download PDF (2026-09-15)
+
+Tombol `Download PDF` di editor menolak mengunduh CV yang belum lengkap. Pola ini mengikuti praktik builder resume (cth. resume-forge, cv-embed: skor kelengkapan + error inline sebelum ekspor) dan prinsip aksesibilitas "errors persist and are tied to fields, not transient toasts".
+
+- **Cek sinkron dulu:** `downloadPdf()` memanggil `formRef.isComplete()` — fungsi murni (tanpa prune/efek samping) — sebelum menyentuh `window.open`. Kalau kurang, **window tidak pernah dibuka** (bukan dibuka lalu ditutup, agar tidak ada tab berkelip terbuka-tutup).
+- **Feedback saat gagal:** `prepareSubmit()` dijalankan agar error inline + banner persisten muncul dan pengguna dipindah ke step bermasalah, ditambah toast ringkas `"Lengkapi dulu sebelum mengunduh."`.
+- **Saat lengkap:** `win.open(url, "_blank")` dipanggil **sinkron** dari handler klik (tidak lewat `await`) agar lolos kebijakan popup-blocker browser.
+- **Batasannya:** gate ini murni klien. `GET /cvs/{id}/pdf` hanya memeriksa kepemilikan, jadi pemanggil langsung (termasuk tombol `PDF` di Dashboard) tidak tergate. Guard server-side (Opsi B) belum diterapkan.
+
 ## 4. Keamanan
 
 - Validasi input dua sisi: validator klien (`web/src/lib/cv-validation.ts`) + Form Request (BE). BE adalah sumber kebenaran; validator klien hanya memberi umpan balik lebih awal dan tidak menggantikan validasi server.

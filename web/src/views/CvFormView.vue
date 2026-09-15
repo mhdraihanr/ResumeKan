@@ -124,6 +124,23 @@ async function draftSave() {
     drafting.value = false;
   }
 }
+
+/**
+ * Unduh PDF hanya untuk CV yang sudah lengkap. Kelengkapan dicek SINKRON lewat
+ * `isComplete()` dulu, jadi window tidak pernah dibuka saat data kurang —
+ * pengguna tidak melihat tab berkelip terbuka lalu tertutup.
+ *
+ * Kalau kurang: jalankan `prepareSubmit()` agar error inline muncul dan
+ * pengguna dipindah ke step bermasalah, lalu tampilkan toast.
+ */
+async function downloadPdf() {
+  if (!formRef.value?.isComplete()) {
+    await formRef.value?.prepareSubmit();
+    showToast("Lengkapi dulu sebelum mengunduh.", false);
+    return;
+  }
+  win.open(`/api/v1/cvs/${cvId.value}/pdf`, "_blank");
+}
 </script>
 
 <template>
@@ -159,7 +176,7 @@ async function draftSave() {
             </button>
             <button
               v-if="isEdit"
-              @click="win.open(`/api/v1/cvs/${cvId}/pdf`, '_blank')"
+              @click="downloadPdf"
               class="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-main dark:hover:bg-blue-700"
             >
               Download PDF

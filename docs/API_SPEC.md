@@ -120,6 +120,8 @@ Butuh cookie Sanctum dan kepemilikan CV. Controller membangun HTML `print.html` 
 
 → `200` binary `application/pdf`, header `Content-Disposition: attachment; filename="Nama_CV.pdf"`.
 
+> **Catatan (2026-09-15):** endpoint ini **tidak** memvalidasi kelengkapan CV — hanya kepemilikan. Gate "harus lengkap dulu" ada di klien (tombol `Download PDF` di editor memanggil `isComplete()` sebelum membuka tab). Pemanggil langsung tetap bisa mendapat PDF setengah jadi. Belum ada guard server (Opsi B).
+
 ### `GET /cvs/{id}/print` (signed, shell debug internal)
 
 → `200` `text/html`. Route ini menerima `?expires=&signature=` melalui middleware `signed`, lalu me-return shell print dengan data CV ter-embed. Route dipertahankan untuk inspeksi internal, tetapi `PdfService` tidak memanggilnya. Jangan panggil langsung dari frontend.

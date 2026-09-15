@@ -135,6 +135,15 @@ async function prepareSubmit(): Promise<boolean> {
   return validateAndFocus();
 }
 
+/**
+ * Cek kelengkapan TANPA efek samping (tidak prune, tidak ubah error, tidak
+ * pindah step). Dipakai `CvFormView` untuk memutuskan buka/tidak buka tab PDF
+ * secara sinkron — sehingga window tidak pernah dibuka kalau data kurang.
+ */
+function isComplete(): boolean {
+  return collectMissing(local.value, props.title).length === 0;
+}
+
 /** Terapkan error 422 dari server ke field yang bersangkutan. */
 async function applyServerErrors(errors: unknown): Promise<void> {
   submitAttempted.value = true;
@@ -156,7 +165,7 @@ async function applyServerErrors(errors: unknown): Promise<void> {
   }
 }
 
-defineExpose({ prepareSubmit, pruneEntries, applyServerErrors });
+defineExpose({ prepareSubmit, pruneEntries, applyServerErrors, isComplete });
 
 /**
  * Setelah percobaan simpan, error dihapus begitu field-nya diperbaiki —
