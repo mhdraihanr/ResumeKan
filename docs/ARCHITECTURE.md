@@ -126,15 +126,16 @@ Detail perilaku:
 
 Tombol `Simpan Draft` menyimpan progres setengah jadi; `Simpan CV` memvalidasi seperti data final. Pemisahan ini mengikuti panduan autosave (uxpatternsguide.com _Autosave form_: "clear separation between autosaved draft progress and final submit"):
 
-- **Klien:** `draftSave()` memanggil `formRef.pruneEntries()` lebih dulu, lalu `POST/PUT` dengan `?draft=1`. `pruneEntries()` dipisah dari `prepareSubmit()` agar draft bisa membuang entri kosong tanpa memicu validasi wajib.
-- **Server:** `StoreCvRequest::isDraft()` (public, dipanggil juga `CvController`) melonggarkan ruleset — `required`/`required_with` → `nullable`, tipe/`max`/`in` tetap. `CvController::payload()` mengisi `title` placeholder `"CV Tanpa Judul"` bila kosong (kolom NOT NULL).
-- **Error draft:** `422` → `errors` dipetakan inline (sama seperti submit) + toast ringkas; kegagalan operasional → toast `"Gagal menyimpan draft. Coba lagi."`. Tidak pernah menampilkan `message` mentah.
+- **Klien:** `draftSave()` memanggil `formRef.pruneEntries()` lebih dulu, lalu `checkFormats()`, baru `POST/PUT` dengan `?draft=1`. `pruneEntries()` dipisah dari `prepareSubmit()` agar draft bisa membuang entri kosong tanpa memicu validasi wajib.
+- **Server:** `StoreCvRequest::isDraft()` (public, dipanggil juga `CvController`) melonggarkan ruleset — `required`/`required_with` → `nullable`, tipe/`max`/`in`/`regex`/`email` **tetap**. `CvController::payload()` mengisi `title` placeholder `"CV Tanpa Judul"` bila kosong (kolom NOT NULL).
+- **Format ≠ wajib:** draft melonggarkan *harus diisi*, **bukan** format. Email harus email valid dan telepon harus angka + simbol (`+ - ( ) . spasi`, min 7 digit) bila terisi — dicek dua sisi (`INVALID_FORMATS` klien + rule `regex`/`email` server). Format salah memblokir Simpan Draft, Simpan, dan Download.
+- **Error draft:** `422` → `errors` dipetakan inline (sama seperti submit) + toast ringkas; kegagalan operasional → toast `"Gagal menyimpan draft. Coba lagi."`. Tidak pernah menampilkan `message` mentah. `StoreCvRequest::messages()`/`attributes()` menyediakan pesan Indonesia (locale aplikasi `en`, jadi pesan default Inggris harus ditimpa eksplisit).
 
 ### Gate Download PDF (2026-09-15)
 
 Tombol `Download PDF` di editor menolak mengunduh CV yang belum lengkap. Pola ini mengikuti praktik builder resume (cth. resume-forge, cv-embed: skor kelengkapan + error inline sebelum ekspor) dan prinsip aksesibilitas "errors persist and are tied to fields, not transient toasts".
 
-- **Cek sinkron dulu:** `downloadPdf()` memanggil `formRef.isComplete()` — fungsi murni (tanpa prune/efek samping) — sebelum menyentuh `window.open`. Kalau kurang, **window tidak pernah dibuka** (bukan dibuka lalu ditutup, agar tidak ada tab berkelip terbuka-tutup).
+- **Cek sinkron dulu:** `downloadPdf()` memanggil `formRef.isComplete()` — fungsi murni (tanpa prune/efek samping) yang kini juga memeriksa **format** email/telepon (`collectInvalid`) — sebelum menyentuh `window.open`. Kalau kurang atau format salah, **window tidak pernah dibuka** (bukan dibuka lalu ditutup, agar tidak ada tab berkelip terbuka-tutup).
 - **Feedback saat gagal:** `prepareSubmit()` dijalankan agar error inline + banner persisten muncul dan pengguna dipindah ke step bermasalah, ditambah toast ringkas `"Lengkapi dulu sebelum mengunduh."`.
 - **Saat lengkap:** `win.open(url, "_blank")` dipanggil **sinkron** dari handler klik (tidak lewat `await`) agar lolos kebijakan popup-blocker browser.
 - **Guard server (Opsi B, 2026-09-15):** `CvController::pdf()` memanggil `missingForPdf()` dan mengembalikan `422` + `{message, errors}` bila `title`/`data.personal.{name,email,phone,address}` kosong — cerminan `REQUIRED_FIELDS` klien. Pertahanan berlapis: pemanggil langsung tidak bisa mengunduh PDF setengah jadi.

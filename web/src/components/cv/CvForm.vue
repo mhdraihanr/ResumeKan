@@ -3,6 +3,7 @@ import { computed, nextTick, ref, watch } from "vue";
 import type { CvData } from "@/types/cv";
 import { cvApi } from "@/api/cv";
 import {
+  collectInvalid,
   collectMissing,
   mapServerErrors,
   messageFor,
@@ -73,7 +74,9 @@ function err(path: string): string | undefined {
 const submitAttempted = ref(false);
 const errorSteps = computed(() => {
   if (!submitAttempted.value) return new Set<number>();
-  return new Set(collectMissing(local.value, props.title).map((m) => m.step));
+  const missing = collectMissing(local.value, props.title).map((m) => m.step);
+  const invalid = collectInvalid(local.value).map((m) => m.step);
+  return new Set([...missing, ...invalid]);
 });
 
 /**
@@ -87,17 +90,21 @@ const errorSteps = computed(() => {
 async function validateAndFocus(): Promise<boolean> {
   submitAttempted.value = true;
   const missing = collectMissing(local.value, props.title);
+  const invalid = collectInvalid(local.value);
   const next: Record<string, string> = {};
   for (const m of missing) next[m.path] = messageFor(m.label);
+  for (const m of invalid) next[m.path] = m.message;
   fieldErrors.value = next;
 
-  if (missing.length === 0) {
+  const total = missing.length + invalid.length;
+  if (total === 0) {
     submitError.value = "";
     return true;
   }
 
-  submitError.value = `Ada ${missing.length} isian yang perlu diperbaiki. Cek penanda merah di bawah.`;
-  const firstStep = missing[0]!.step;
+  submitError.value = `Ada ${total} isian yang perlu diperbaiki. Cek penanda merah di bawah.`;
+  const first = [...missing, ...invalid].sort((a, b) => a.step - b.step)[0]!;
+  const firstStep = first.step;
 
   if (firstStep === activeStep.value) {
     // Sudah di step yang bermasalah: langsung ke field pertama yang invalid.
@@ -141,7 +148,46 @@ async function prepareSubmit(): Promise<boolean> {
  * secara sinkron — sehingga window tidak pernah dibuka kalau data kurang.
  */
 function isComplete(): boolean {
-  return collectMissing(local.value, props.title).length === 0;
+  return (
+    collectMissing(local.value, props.title).length === 0 &&
+    collectInvalid(local.value).length === 0
+  );
+}
+
+/**
+ * Validasi FORMAT saja (email/telepon) — dipakai draft, yang boleh kurang isi
+ * tapi tetap harus bentuknya benar bila ada isinya. Menampilkan error inline
+ * dan pindah ke step bermasalah; kembalikan `false` bila ada yang salah.
+ */
+async function checkFormats(): Promise<boolean> {
+  const invalid = collectInvalid(local.value);
+  if (invalid.length === 0) {
+    // Bersihkan error format yang mungkin tersisa tanpa mengusik error lain.
+    const next: Record<string, string> = {};
+    for (const [path, msg] of Object.entries(fieldErrors.value)) {
+      if (!invalid.some((i) => i.path === path)) next[path] = msg;
+    }
+    fieldErrors.value = next;
+    return true;
+  }
+
+  submitAttempted.value = true;
+  const next: Record<string, string> = { ...fieldErrors.value };
+  for (const m of invalid) next[m.path] = m.message;
+  fieldErrors.value = next;
+  submitError.value = `Ada ${invalid.length} isian yang perlu diperbaiki. Cek penanda merah di bawah.`;
+
+  const firstStep = invalid[0]!.step;
+  if (firstStep !== activeStep.value) {
+    activeStep.value = firstStep;
+    await nextTick();
+    await focusStepHeading();
+  } else {
+    await nextTick();
+    document.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+  }
+
+  return false;
 }
 
 /** Terapkan error 422 dari server ke field yang bersangkutan. */
@@ -154,9 +200,11 @@ async function applyServerErrors(errors: unknown): Promise<void> {
   if (paths.length > 0) {
     submitError.value =
       "Ada isian yang perlu diperbaiki. Cek penanda merah di bawah.";
-    const first = collectMissing(local.value, props.title).find((m) =>
-      paths.includes(m.path),
-    );
+    const candidates = [
+      ...collectMissing(local.value, props.title),
+      ...collectInvalid(local.value),
+    ];
+    const first = candidates.find((m) => paths.includes(m.path));
     if (first && first.step !== activeStep.value) {
       activeStep.value = first.step;
       await nextTick();
@@ -165,7 +213,13 @@ async function applyServerErrors(errors: unknown): Promise<void> {
   }
 }
 
-defineExpose({ prepareSubmit, pruneEntries, applyServerErrors, isComplete });
+defineExpose({
+  prepareSubmit,
+  pruneEntries,
+  applyServerErrors,
+  isComplete,
+  checkFormats,
+});
 
 /**
  * Setelah percobaan simpan, error dihapus begitu field-nya diperbaiki —
@@ -175,12 +229,13 @@ watch(
   () => [local.value, props.title] as const,
   () => {
     if (!submitAttempted.value) return;
-    const stillMissing = new Set(
-      collectMissing(local.value, props.title).map((m) => m.path),
-    );
+    const valid = new Set([
+      ...collectMissing(local.value, props.title).map((m) => m.path),
+      ...collectInvalid(local.value).map((m) => m.path),
+    ]);
     const next: Record<string, string> = {};
     for (const [path, msg] of Object.entries(fieldErrors.value)) {
-      if (stillMissing.has(path)) next[path] = msg;
+      if (valid.has(path)) next[path] = msg;
     }
     fieldErrors.value = next;
     if (Object.keys(next).length === 0) submitError.value = "";

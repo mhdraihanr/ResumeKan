@@ -200,6 +200,61 @@ export function messageFor(label: string): string {
 }
 
 /**
+ * Aturan FORMAT — hanya berlaku bila field berisi (kosong = belum diisi, bukan
+ * salah). Format salah memblokir Simpan Draft, Simpan, dan Download.
+ *
+ * Cerminan rule backend (`StoreCvRequest`): `email` + regex telepon. Draft
+ * melonggarkan "wajib diisi", BUKAN format.
+ */
+export const INVALID_FORMATS: {
+  path: string;
+  step: number;
+  label: string;
+  test: (value: string) => boolean;
+  message: string;
+}[] = [
+  {
+    path: "personal.email",
+    step: STEP_PERSONAL,
+    label: "Email",
+    test: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+    message: "Email belum valid — contoh: nama@email.com",
+  },
+  {
+    path: "personal.phone",
+    step: STEP_PERSONAL,
+    label: "Telepon",
+    test: (v) => /^[0-9+().\-\s]{7,30}$/.test(v) && (v.match(/\d/g)?.length ?? 0) >= 7,
+    message: "Telepon hanya boleh angka dan simbol + - ( ) . serta minimal 7 digit.",
+  },
+];
+
+/** Field yang formatnya salah (terisi tapi tidak valid). */
+export function collectInvalid(
+  data: CvData,
+): { path: string; label: string; step: number; message: string }[] {
+  const out: { path: string; label: string; step: number; message: string }[] =
+    [];
+
+  for (const rule of INVALID_FORMATS) {
+    const value = rule.path.startsWith("personal.")
+      ? data.personal?.[rule.path.slice("personal.".length) as "email" | "phone"]
+      : undefined;
+    if (blank(value)) continue;
+    if (!rule.test(String(value).trim())) {
+      out.push({
+        path: rule.path,
+        label: rule.label,
+        step: rule.step,
+        message: rule.message,
+      });
+    }
+  }
+
+  return out;
+}
+
+/**
  * Petakan payload 422 Laravel ke kunci error sisi klien.
  *
  * Laravel memakai `data.certificates.0.name`; UI memakai path yang sama tanpa

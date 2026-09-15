@@ -96,6 +96,13 @@ async function draftSave() {
   // supaya draft tidak gagal hanya karena entri setengah jadi.
   await formRef.value?.pruneEntries();
 
+  // Draft boleh kurang isi, tapi FORMAT (email/telepon) tetap harus benar.
+  // Dicek di klien agar error inline muncul tanpa round-trip 422 mentah.
+  if (!(await formRef.value?.checkFormats())) {
+    showToast("Perbaiki dulu isian yang salah format.", false);
+    return;
+  }
+
   drafting.value = true;
   try {
     const payload = {

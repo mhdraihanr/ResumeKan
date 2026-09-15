@@ -31,9 +31,14 @@ class StoreCvRequest extends FormRequest
 
         // Draft: `required`/`required_with` → `nullable`. Field tetap harus
         // bertipe benar bila ada isinya, tapi boleh kosong.
-        return array_map(static function (string $rule): string {
+        //
+        // Rule bisa berupa string (`a|b`) atau array (`['a', 'regex:...']`) —
+        // keduanya dinormalkan ke bentuk pipa agar penggantian seragam.
+        return array_map(static function (string|array $rule): string {
+            $parts = is_array($rule) ? $rule : explode('|', $rule);
+
             $parts = array_filter(
-                explode('|', $rule),
+                $parts,
                 static fn (string $p): bool => $p !== 'required'
                     && ! str_starts_with($p, 'required_')
                     && $p !== 'nullable',
@@ -43,17 +48,49 @@ class StoreCvRequest extends FormRequest
         }, $rules);
     }
 
+    /**
+     * Pesan bahasa Indonesia. Placeholder `:attribute` diisi `attributes()`
+     * supaya pengguna melihat "Telepon" alih-alih "data.personal.phone".
+     */
+    public function messages(): array
+    {
+        return [
+            'title.required' => 'Judul CV wajib diisi.',
+            'data.personal.name.required' => 'Nama wajib diisi.',
+            'data.personal.email.required' => 'Email wajib diisi.',
+            'data.personal.email.email' => 'Email belum valid — contoh: nama@email.com',
+            'data.personal.phone.required' => 'Telepon wajib diisi.',
+            'data.personal.phone.regex' => 'Telepon hanya boleh angka dan simbol + - ( ) . serta minimal 7 digit.',
+            'data.personal.phone.max' => 'Telepon maksimal 30 karakter.',
+            'data.personal.address.required' => 'Alamat wajib diisi.',
+        ];
+    }
+
+    /**
+     * Label ramah untuk field wajib. Tanpa ini, pesan default Laravel memakai
+     * path mentah (mis. "data.personal.phone").
+     */
+    public function attributes(): array
+    {
+        return [
+            'title' => 'Judul CV',
+            'data.personal.name' => 'Nama',
+            'data.personal.email' => 'Email',
+            'data.personal.phone' => 'Telepon',
+            'data.personal.address' => 'Alamat',
+        ];
+    }
+
     protected function strictRules(): array
     {
         return [
-            'title' => 'required|string|max:100',
-            'template' => 'required|in:modern,classic,neon',
+            'title' => 'required|string|max:100',            'template' => 'required|in:modern,classic,neon',
             'language' => 'required|in:id,en',
             'data' => 'required|array',
             'data.personal' => 'required|array',
             'data.personal.name' => 'required|string|max:100',
             'data.personal.email' => 'required|email',
-            'data.personal.phone' => 'required|string|max:30',
+            'data.personal.phone' => ['required', 'string', 'max:30', 'regex:/^[0-9+().\-\s]{7,30}$/'],
             'data.personal.address' => 'required|string|max:200',
             'data.personal.linkedin' => 'nullable|string|max:500',
             'data.personal.website' => 'nullable|string|max:500',
