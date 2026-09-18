@@ -35,7 +35,7 @@ function removeExp(i: number) {
   <section class="space-y-2.5">
     <div class="flex items-center justify-between">
       <h2
-        class="text-sm font-semibold uppercase tracking-widest text-slate-500"
+        class="text-sm font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300"
       >
         Pengalaman Kerja
       </h2>
@@ -55,7 +55,7 @@ function removeExp(i: number) {
     >
       <div class="flex justify-between">
         <span
-          class="text-xs font-semibold text-slate-500 dark:text-foreground/60"
+          class="text-xs font-semibold text-slate-500 dark:text-foreground/75"
           >#{{ i + 1 }}</span
         >
         <button
@@ -123,12 +123,15 @@ function removeExp(i: number) {
           placeholder="Memimpin migrasi 12 orang, potong backlog 35%&#10;Bangun onboarding React, naikkan aktivasi 18%"
         />
       </label>
-      <p class="text-right text-xs text-slate-400">
+      <p class="text-right text-xs text-slate-500 dark:text-slate-300">
         {{ (exp.description ?? "").split("\n").filter(Boolean).length }} bullet
         · {{ (exp.description ?? "").length }}/1500
       </p>
     </div>
-    <p v-if="!data.experiences?.length" class="text-xs text-slate-400">
+    <p
+      v-if="!data.experiences?.length"
+      class="text-xs text-slate-500 dark:text-slate-300"
+    >
       Belum ada pengalaman. Klik Tambah.
     </p>
   </section>

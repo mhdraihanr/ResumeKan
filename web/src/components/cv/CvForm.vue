@@ -289,7 +289,7 @@ async function generateSummary(jobDescription?: string) {
             ? 'bg-slate-900 text-white dark:bg-main'
             : i < activeStep
               ? 'text-slate-700 hover:bg-slate-200 dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground'
-              : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:text-foreground/60 dark:hover:bg-white/15 dark:hover:text-foreground'
+              : 'text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:text-foreground/75 dark:hover:bg-white/15 dark:hover:text-foreground'
         "
         :aria-current="i === activeStep ? 'step' : undefined"
         @click="activeStep = i"
@@ -398,7 +398,7 @@ async function generateSummary(jobDescription?: string) {
         ← Sebelumnya
       </button>
       <div v-else></div>
-      <span class="text-xs text-slate-400 dark:text-foreground/60"
+      <span class="text-xs text-slate-500 dark:text-foreground/75"
         >Langkah {{ activeStep + 1 }} / {{ steps.length }}</span
       >
       <button

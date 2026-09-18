@@ -33,7 +33,7 @@ function removeEdu(i: number) {
   <section class="space-y-2.5">
     <div class="flex items-center justify-between">
       <h2
-        class="text-sm font-semibold uppercase tracking-widest text-slate-500"
+        class="text-sm font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300"
       >
         Pendidikan
       </h2>
@@ -53,7 +53,7 @@ function removeEdu(i: number) {
     >
       <div class="flex justify-between">
         <span
-          class="text-xs font-semibold text-slate-500 dark:text-foreground/60"
+          class="text-xs font-semibold text-slate-500 dark:text-foreground/75"
           >#{{ i + 1 }}</span
         >
         <button
@@ -109,12 +109,15 @@ function removeEdu(i: number) {
           placeholder="Cum Laude&#10;Anggota Himpan Mahasiswa Informatika 2021-2023"
         />
       </label>
-      <p class="text-right text-xs text-slate-400">
+      <p class="text-right text-xs text-slate-500 dark:text-slate-300">
         {{ (edu.achievements ?? "").split("\n").filter(Boolean).length }} bullet
         · {{ (edu.achievements ?? "").length }}/1000
       </p>
     </div>
-    <p v-if="!data.education?.length" class="text-xs text-slate-400">
+    <p
+      v-if="!data.education?.length"
+      class="text-xs text-slate-500 dark:text-slate-300"
+    >
       Belum ada pendidikan. Klik Tambah.
     </p>
   </section>

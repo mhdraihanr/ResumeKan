@@ -31,7 +31,7 @@ function removeOrg(i: number) {
   <section class="space-y-2.5">
     <div class="flex items-center justify-between">
       <h2
-        class="text-sm font-semibold uppercase tracking-widest text-slate-500"
+        class="text-sm font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300"
       >
         Organisasi
       </h2>
@@ -51,7 +51,7 @@ function removeOrg(i: number) {
     >
       <div class="flex justify-between">
         <span
-          class="text-xs font-semibold text-slate-500 dark:text-foreground/60"
+          class="text-xs font-semibold text-slate-500 dark:text-foreground/75"
           >#{{ i + 1 }}</span
         >
         <button
@@ -94,12 +94,15 @@ function removeOrg(i: number) {
           placeholder="Koordinasi 20 anggota, selenggarakan 5 workshop&#10;Kelola anggaran Rp 15jt"
         />
       </label>
-      <p class="text-right text-xs text-slate-400">
+      <p class="text-right text-xs text-slate-500 dark:text-slate-300">
         {{ (org.description ?? "").split("\n").filter(Boolean).length }} bullet
         · {{ (org.description ?? "").length }}/800
       </p>
     </div>
-    <p v-if="!data.organizations?.length" class="text-xs text-slate-400">
+    <p
+      v-if="!data.organizations?.length"
+      class="text-xs text-slate-500 dark:text-slate-300"
+    >
       Belum ada organisasi. Klik Tambah (max 5).
     </p>
   </section>

@@ -348,6 +348,21 @@ onBeforeUnmount(() => ro?.disconnect());
     break-inside: avoid;
     page-break-inside: avoid;
   }
+  /*
+    Ketajaman teks PDF (2026-09-18). Hint `antialiased` (grayscale AA) yang di-set
+    untuk layar terbawa ke render Chromium print dan membuat glyph terlihat lebih
+    tipis/halus, terutama saat viewer memang meng-zoom-out (blur tambahan datang
+    dari rasterisasi canvas viewer, bukan dari isi PDF: teks tetap vektor dan
+    selectable). Di print, kembalikan subpixel AA bawaan dan pakai
+    geometricPrecision agar kelurusan stem/outline glyph tetap presisi di
+    berbagai ukuran. Hanya berlaku media print, preview di layar tidak berubah.
+  */
+  .cv-page,
+  .a4-page-inner {
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
+    text-rendering: geometricPrecision;
+  }
 }
 
 /* Paged preview: tiap lembar terlihat seperti kertas A4 mini */

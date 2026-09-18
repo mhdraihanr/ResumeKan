@@ -31,7 +31,7 @@ function removeProject(i: number) {
   <section class="space-y-2.5">
     <div class="flex items-center justify-between">
       <h2
-        class="text-sm font-semibold uppercase tracking-widest text-slate-500"
+        class="text-sm font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300"
       >
         Proyek
       </h2>
@@ -51,7 +51,7 @@ function removeProject(i: number) {
     >
       <div class="flex justify-between">
         <span
-          class="text-xs font-semibold text-slate-500 dark:text-foreground/60"
+          class="text-xs font-semibold text-slate-500 dark:text-foreground/75"
           >#{{ i + 1 }}</span
         >
         <button
@@ -106,7 +106,10 @@ function removeProject(i: number) {
         />
       </label>
     </div>
-    <p v-if="!data.projects?.length" class="text-xs text-slate-400">
+    <p
+      v-if="!data.projects?.length"
+      class="text-xs text-slate-500 dark:text-slate-300"
+    >
       Belum ada proyek. Klik Tambah (max 8). Pilih 3-4 paling relevan agar CV
       tetap 1 halaman.
     </p>

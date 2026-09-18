@@ -51,7 +51,9 @@ function clearPhoto() {
 
 <template>
   <section class="space-y-2.5">
-    <h2 class="text-sm font-semibold uppercase tracking-widest text-slate-500">
+    <h2
+      class="text-sm font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300"
+    >
       Data Pribadi
     </h2>
     <div class="grid gap-2.5 sm:grid-cols-2">
@@ -129,9 +131,12 @@ function clearPhoto() {
             :disabled="uploading"
             aria-label="Pilih foto profil"
             @change="onPhotoChange"
-            class="block w-full text-sm text-slate-500 file:mr-3 file:rounded-base file:border-2 file:border-ink file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-slate-900 hover:file:bg-slate-100"
+            class="block w-full text-sm text-slate-500 file:mr-3 file:rounded-base file:border-2 file:border-ink file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-slate-900 hover:file:bg-slate-100 dark:text-slate-300"
           />
-          <p v-if="uploading" class="text-[11px] text-slate-500">
+          <p
+            v-if="uploading"
+            class="text-[11px] text-slate-500 dark:text-slate-300"
+          >
             Mengunggah foto...
           </p>
           <p
@@ -155,7 +160,7 @@ function clearPhoto() {
               class="h-14 w-14 rounded object-cover"
             />
           </button>
-          <div class="text-[11px] text-slate-500 dark:text-slate-400">
+          <div class="text-[11px] text-slate-500 dark:text-slate-300">
             <button
               type="button"
               @click="clearPhoto"
@@ -189,7 +194,10 @@ function clearPhoto() {
             />
           </div>
         </Teleport>
-        <p v-if="!data.personal.photo" class="text-[11px] text-slate-500">
+        <p
+          v-if="!data.personal.photo"
+          class="text-[11px] text-slate-500 dark:text-slate-300"
+        >
           Hanya dipakai template Neon. Kosong = tanpa foto. Maks 2 MB.
         </p>
       </div>

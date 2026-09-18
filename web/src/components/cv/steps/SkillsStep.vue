@@ -8,7 +8,9 @@ const data = defineModel<CvData>({ required: true });
 
 <template>
   <section class="space-y-2.5">
-    <h2 class="text-sm font-semibold uppercase tracking-widest text-slate-500">
+    <h2
+      class="text-sm font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300"
+    >
       Keahlian
     </h2>
     <label class="space-y-1 block">

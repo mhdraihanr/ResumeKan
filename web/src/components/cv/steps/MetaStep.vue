@@ -28,7 +28,9 @@ const selectedTpl = computed(
 
 <template>
   <section class="space-y-2.5">
-    <h2 class="text-sm font-semibold uppercase tracking-widest text-slate-500">
+    <h2
+      class="text-sm font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300"
+    >
       Info CV
     </h2>
     <div class="grid gap-2.5 sm:grid-cols-3">
@@ -90,7 +92,7 @@ const selectedTpl = computed(
         >
           Format satu kolom standar, direkomendasikan untuk ATS.
         </p>
-        <p v-else class="text-[11px] text-slate-500 dark:text-slate-400">
+        <p v-else class="text-[11px] text-slate-500 dark:text-slate-300">
           Format modern dengan aksen visual dan foto profil.
         </p>
       </label>
@@ -110,7 +112,7 @@ const selectedTpl = computed(
     </div>
 
     <h2
-      class="mt-4 text-sm font-semibold uppercase tracking-widest text-slate-500"
+      class="mt-4 text-sm font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300"
     >
       Tampilan Font
     </h2>
@@ -125,7 +127,7 @@ const selectedTpl = computed(
             {{ f.label }}
           </option>
         </select>
-        <p class="text-[11px] text-slate-500 dark:text-slate-400">
+        <p class="text-[11px] text-slate-500 dark:text-slate-300">
           Berlaku untuk tampilan preview dan hasil download PDF.
         </p>
       </label>
@@ -139,7 +141,7 @@ const selectedTpl = computed(
             {{ s.label }}
           </option>
         </select>
-        <p class="text-[11px] text-slate-500 dark:text-slate-400">
+        <p class="text-[11px] text-slate-500 dark:text-slate-300">
           Kompak muat lebih banyak konten, Lega lebih santai dibaca.
         </p>
       </label>

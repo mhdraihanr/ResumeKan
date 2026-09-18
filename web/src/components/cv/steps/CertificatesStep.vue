@@ -30,7 +30,7 @@ function removeCert(i: number) {
   <section class="space-y-2.5">
     <div class="flex items-center justify-between">
       <h2
-        class="text-sm font-semibold uppercase tracking-widest text-slate-500"
+        class="text-sm font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300"
       >
         Sertifikat
       </h2>
@@ -50,7 +50,7 @@ function removeCert(i: number) {
     >
       <div class="flex justify-between">
         <span
-          class="text-xs font-semibold text-slate-500 dark:text-foreground/60"
+          class="text-xs font-semibold text-slate-500 dark:text-foreground/75"
           >#{{ i + 1 }}</span
         >
         <button
@@ -94,7 +94,10 @@ function removeCert(i: number) {
         /></label>
       </div>
     </div>
-    <p v-if="!data.certificates?.length" class="text-xs text-slate-400">
+    <p
+      v-if="!data.certificates?.length"
+      class="text-xs text-slate-500 dark:text-slate-300"
+    >
       Belum ada sertifikat. Klik Tambah (max 5).
     </p>
   </section>

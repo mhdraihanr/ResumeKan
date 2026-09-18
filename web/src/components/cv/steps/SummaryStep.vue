@@ -21,7 +21,7 @@ function handleGenerate() {
   <section class="space-y-3">
     <div class="flex items-center justify-between">
       <h2
-        class="text-sm font-semibold uppercase tracking-widest text-slate-500"
+        class="text-sm font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300"
       >
         Ringkasan
       </h2>
@@ -69,7 +69,7 @@ function handleGenerate() {
           <svg
             viewBox="0 0 20 20"
             fill="currentColor"
-            class="h-3.5 w-3.5 text-slate-400 transition-transform"
+            class="h-3.5 w-3.5 text-slate-400 transition-transform dark:text-slate-300"
             :class="showTailor ? 'rotate-180' : ''"
             aria-hidden="true"
           >
@@ -102,7 +102,7 @@ function handleGenerate() {
         v-show="showTailor"
         class="mt-2 space-y-1.5 border-t border-slate-200/80 pt-2 dark:border-border/80"
       >
-        <p class="text-[11px] text-slate-500 dark:text-slate-400">
+        <p class="text-[11px] text-slate-500 dark:text-slate-300">
           Tempel syarat posisi atau deskripsi lowongan kerja. AI akan
           menyelaraskan kata kunci ATS dengan pengalaman aslimu tanpa mengarang
           fakta.
@@ -115,13 +115,13 @@ function handleGenerate() {
           class="w-full rounded-md border border-slate-300 bg-white p-2 text-xs focus:border-slate-900 focus:outline-none dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus:border-ring"
         />
         <div
-          class="flex items-center justify-between text-[10px] text-slate-400"
+          class="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-300"
         >
           <span>{{ jobDescription.length }}/1500 karakter</span>
           <button
             v-if="jobDescription"
             type="button"
-            class="text-slate-500 underline hover:text-red-500"
+            class="text-slate-500 underline hover:text-red-500 dark:text-slate-300 dark:hover:text-red-300"
             @click="jobDescription = ''"
           >
             Hapus teks
@@ -139,7 +139,7 @@ function handleGenerate() {
       rows="3"
       placeholder="Ringkasan profesional singkat... (klik Generate AI jika CV sudah tersimpan)"
     />
-    <p class="text-right text-xs text-slate-400">
+    <p class="text-right text-xs text-slate-500 dark:text-slate-300">
       {{ (data.summary ?? "").length }}/600
     </p>
   </section>
