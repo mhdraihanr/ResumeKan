@@ -12,12 +12,12 @@ const {
   displayUrl,
   hrefUrl,
   bullets,
-  hardList,
-  softList,
+  skillGroups,
   sortedExperiences,
 } = useCvData(
   () => props.data,
   () => "neon",
+  () => props.language ?? "id",
 );
 
 // Ikon Material inline (SVG path) untuk tiap tipe kontak, mengikuti referensi.
@@ -185,25 +185,20 @@ const contactItems = computed(() => {
     </div>
   </section>
 
-  <section v-if="hardList.length || softList.length" class="mb-5">
+  <section v-if="skillGroups.length" class="mb-5">
     <h2
       class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
     >
       {{ t.skills }}
     </h2>
     <p
-      v-if="hardList.length"
-      class="mt-2 text-[10pt] leading-relaxed text-[#111]"
+      v-for="(g, i) in skillGroups"
+      :key="g.key"
+      class="text-[10pt] leading-relaxed text-[#111]"
+      :class="i === 0 ? 'mt-2' : 'mt-1'"
     >
-      <span class="font-semibold text-[#111]">{{ t.hardSkills }}</span>
-      {{ hardList.join(" · ") }}
-    </p>
-    <p
-      v-if="softList.length"
-      class="mt-1 text-[10pt] leading-relaxed text-[#111]"
-    >
-      <span class="font-semibold text-[#111]">{{ t.softSkills }}</span>
-      {{ softList.join(" · ") }}
+      <span class="font-semibold text-[#111]">{{ g.label }}:</span>
+      {{ g.items.join(" · ") }}
     </p>
   </section>
 

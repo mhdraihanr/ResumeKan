@@ -44,3 +44,13 @@ export type CvLabels = (typeof LABELS)[CvLanguage];
 export function getLabels(language?: string): CvLabels {
   return LABELS[language === "en" ? "en" : "id"];
 }
+
+/**
+ * Label grup skill: dua grup bawaan diterjemahkan, grup custom milik user
+ * dibiarkan apa adanya (konten user tidak pernah diterjemahkan).
+ */
+export function skillLabel(label: string, t: CvLabels): string {
+  if (label === "Hard skills") return t.hardSkills.replace(/:$/, "");
+  if (label === "Soft skills") return t.softSkills.replace(/:$/, "");
+  return label;
+}

@@ -114,8 +114,12 @@ Gunakan browser bawaan Copilot (bukan devtools eksternal). Pola uji per fase:
 ## 3. Otomatis
 
 ```bash
-cd api && php artisan test          # backend (PHPUnit)
-cd web && pnpm run type-check       # frontend (vue-tsc)
+cd api && ./vendor/bin/phpunit     # backend (PHPUnit)
+cd web && pnpm run type-check      # frontend (vue-tsc)
 ```
 
+> Catatan: pakai `./vendor/bin/phpunit`, bukan `php artisan test`. Di Git Bash (MINGW64)
+> Laravel menolak jalan karena stdin bukan TTY ("stdout is not a tty").
+
 Keduanya wajib hijau sebelum fase dinyatakan selesai. Test fitur baru ditulis saat fase bersangkutan dikerjakan.
+Test yang ada: `tests/Feature/CvSkillsGroupsTest.php` (validasi grup keahlian kustom: migrasi bentuk lama, batas 5 grup, panjang label/items) dan `tests/Feature/NormalizeCvSkillsCommandTest.php` (Artisan `cv:normalize-skills`, termasuk idempotensi & `--dry-run`).

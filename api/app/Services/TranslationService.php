@@ -49,9 +49,19 @@ class TranslationService
             $push($o['role'] ?? null);
             $push($o['description'] ?? null);
         }
+        // skills kini array grup [{label, items}] (2026-09-18). `items`
+        // diterjemahkan; `label` dibiarkan apa adanya karena grup bawaan
+        // mengikuti `cv-labels.ts` dan label kustom adalah konten user.
         if (isset($data['skills']) && is_array($data['skills'])) {
-            $push($data['skills']['hard'] ?? null);
-            $push($data['skills']['soft'] ?? null);
+            if (array_is_list($data['skills'])) {
+                foreach ($data['skills'] as $g) {
+                    if (is_array($g)) $push($g['items'] ?? null);
+                }
+            } else {
+                // Data lama { hard, soft } — tetap didukung.
+                $push($data['skills']['hard'] ?? null);
+                $push($data['skills']['soft'] ?? null);
+            }
         }
         $push($data['languages'] ?? null);
         foreach ($data['certificates'] ?? [] as $c) {
@@ -157,8 +167,15 @@ class TranslationService
         }
 
         if (isset($data['skills']) && is_array($data['skills'])) {
-            $set($data['skills']['hard']);
-            $set($data['skills']['soft']);
+            if (array_is_list($data['skills'])) {
+                foreach ($data['skills'] as $gi => $g) {
+                    if (is_array($g)) $set($data['skills'][$gi]['items']);
+                }
+            } else {
+                // Data lama { hard, soft } — tetap didukung.
+                $set($data['skills']['hard']);
+                $set($data['skills']['soft']);
+            }
         }
         $set($data['languages']);
 

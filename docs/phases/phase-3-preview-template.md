@@ -50,7 +50,7 @@
 - Single-column, whitespace lega, hierarchy tipografi saja — tanpa warna/sidebar/icon
 - Nama uppercase `ALEX JOHNSON`, header centered, kontak `·` separator
 - Section title uppercase + garis `border-b-[1.5px] border-slate-900` berwarna di bawah title (bukan hairline abu) — 8 section seragam 1.5px incl. Organisasi
-- Skills pisah `Hard skills:` / `Soft skills:` (ATS: hard dominan, soft dibuktikan di bullets), Certificates section sendiri (terstruktur name/issuer/year/credentialId), Languages di Other
+- Skills dirender sebagai baris berlabel `Hard skills:` / `Soft skills:` (ATS: hard dominan, soft dibuktikan di bullets) — sejak 2026-09-18 berupa loop grup berlabel sehingga pengguna bisa menambah kategori kustom (mis. `Library & Frameworks:`), lihat [Fase 2](phase-2-crud-cv.md#enhancement--grup-keahlian-kustom-2026-09-18). Certificates section sendiri (terstruktur name/issuer/year/credentialId), Languages di Other
 - Real-text PDF, lolos Workday/Greenhouse/Lever/iCIMS/Taleo
 - LinkedIn/Website/GitHub: sama seperti modern — dukung `www.` tanpa scheme
 - Cocok: konservatif, ATS-heavy, lintas industri — "safest choice"

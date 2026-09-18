@@ -109,7 +109,7 @@ Menerjemahkan konten CV (`data`) dari bahasa sumber ke target tanpa menyimpan �
 { "data": { ...CvData terjemahan } }
 ```
 
-Field yang diterjemahkan: `summary`, `experiences[].position/description`, `education[].degree/achievements`, `organizations[].role/description`, `skills.hard/soft`, `languages`, `certificates[].name`, `projects[].title/objective`. Nama, perusahaan, institusi, URL, dan angka dibiarkan verbatim (Google menerjemahkannya apa adanya).
+Field yang diterjemahkan: `summary`, `experiences[].position/description`, `education[].degree/achievements`, `organizations[].role/description`, `skills[].items`, `languages`, `certificates[].name`, `projects[].title/objective`. Nama, perusahaan, institusi, URL, dan angka dibiarkan verbatim (Google menerjemahkannya apa adanya). Label grup skill (`skills[].label`) **tidak** diterjemahkan — grup bawaan mengikuti `cv-labels.ts`, grup kustom dianggap konten user.
 
 Implementasi: `TranslationService` memanggil endpoint gratis Google gtx (`translate.googleapis.com/translate_a/single?client=gtx`). Semua field digabung dengan delimiter `@@@` dalam satu request lalu dipecah kembali; jika Google merusak delimiter, fallback per-field. Service dipakai di `App\Services\TranslationService` — konten field per item, satu request per CV. Error layanan → `502 { "message": "Layanan terjemahan tidak tersedia" }`.
 

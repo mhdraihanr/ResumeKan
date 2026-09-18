@@ -117,6 +117,11 @@ const ENTRY_RULES: EntryRule[] = [
   },
 ];
 
+/** Indeks step Keahlian di stepper (lihat `CvForm.vue`). */
+const STEP_SKILLS = 6;
+/** Grup bawaan dikecualikan dari aturan label wajib. */
+const BUILTIN_SKILL_LABELS = ["Hard skills", "Soft skills"];
+
 function blank(v: unknown): boolean {
   return typeof v !== "string" || v.trim() === "";
 }
@@ -152,6 +157,18 @@ export function pruneEmptyEntries(data: CvData): {
     removed += list.length - kept.length;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (next as any)[rule.key] = kept;
+  }
+
+  // Grup skill kustom yang benar-benar kosong (label & item kosong) dibuang —
+  // sama seperti "klik Tambah lalu batal" pada entri lain. Grup bawaan (Hard/
+  // Soft) selalu dipertahankan karena form menampilkannya secara tetap.
+  if (Array.isArray(next.skills)) {
+    const kept = next.skills.filter((g, i) => {
+      if (i < 2) return true;
+      return !(blank(g.label) && blank(g.items));
+    });
+    removed += next.skills.length - kept.length;
+    next.skills = kept;
   }
 
   return { data: next, removed };
@@ -190,6 +207,20 @@ export function collectMissing(
       }
     });
   }
+
+  // Grup skill kustom: begitu ada isinya, namanya wajib diisi. Tanpa nama,
+  // baris di CV hanya jadi ":" tanpa keterangan kategori.
+  (data.skills ?? []).forEach((g, i) => {
+    const isBuiltin = BUILTIN_SKILL_LABELS.includes(g.label);
+    if (isBuiltin) return;
+    if (!blank(g.items) && blank(g.label)) {
+      missing.push({
+        path: `skills.${i}.label`,
+        label: `Nama grup keahlian #${i - 1}`,
+        step: STEP_SKILLS,
+      });
+    }
+  });
 
   return missing.sort((a, b) => a.step - b.step);
 }

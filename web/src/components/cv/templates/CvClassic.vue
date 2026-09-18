@@ -15,13 +15,13 @@ const {
   contactLinks,
   hasAnyContact,
   bullets,
-  hardList,
-  softList,
+  skillGroups,
   sortedExperiences,
   hrefUrl,
 } = useCvData(
   () => props.data,
   () => "classic",
+  () => props.language ?? "id",
 );
 </script>
 
@@ -112,21 +112,16 @@ const {
     </div>
   </section>
 
-  <section v-if="hardList.length || softList.length" class="mb-5">
+  <section v-if="skillGroups.length" class="mb-5">
     <PreviewSection :title="t.skills" />
     <p
-      v-if="hardList.length"
-      class="mt-2 text-[10pt] leading-relaxed text-slate-900"
+      v-for="(g, i) in skillGroups"
+      :key="g.key"
+      class="text-[10pt] leading-relaxed text-slate-900"
+      :class="i === 0 ? 'mt-2' : 'mt-1'"
     >
-      <span class="font-semibold">{{ t.hardSkills }}</span>
-      {{ hardList.join(" · ") }}
-    </p>
-    <p
-      v-if="softList.length"
-      class="mt-1 text-[10pt] leading-relaxed text-slate-900"
-    >
-      <span class="font-semibold">{{ t.softSkills }}</span>
-      {{ softList.join(" · ") }}
+      <span class="font-semibold">{{ g.label }}:</span>
+      {{ g.items.join(" · ") }}
     </p>
   </section>
 

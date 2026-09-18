@@ -1,13 +1,21 @@
 import { computed, toValue } from "vue";
 import type { CvData } from "@/types/cv";
+import { filledSkillGroups } from "@/types/cv";
 import { getTemplateConfig } from "@/lib/cv-templates";
+import { getLabels, skillLabel } from "@/lib/cv-labels";
 
 export function useCvData(
   dataRef: CvData | (() => CvData),
   templateRef: string | (() => string),
+  languageRef: string | (() => string) = "id",
 ) {
   const data = () =>
     typeof dataRef === "function" ? (dataRef as () => CvData)() : dataRef;
+  const language = computed(() =>
+    typeof languageRef === "function"
+      ? (languageRef as () => string)()
+      : languageRef,
+  );
   const tpl = computed(() =>
     getTemplateConfig(
       typeof templateRef === "function"
@@ -49,17 +57,22 @@ export function useCvData(
     () => contactDirect.value.length > 0 || contactLinks.value.length > 0,
   );
 
-  const hardList = computed(() =>
-    (data().skills?.hard ?? "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean),
-  );
-  const softList = computed(() =>
-    (data().skills?.soft ?? "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean),
+  /**
+   * Grup keahlian siap render: hanya grup berisi item, item dipecah koma.
+   * Label grup bawaan diterjemahkan lewat `cv-labels.ts`; label custom dipakai
+   * apa adanya (konten user tidak diterjemahkan).
+   */
+  const skillGroups = computed(() =>
+    filledSkillGroups(data().skills)
+      .map((g) => ({
+        key: g.label,
+        label: skillLabel(g.label, getLabels(language.value)),
+        items: g.items
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+      }))
+      .filter((g) => g.items.length > 0),
   );
 
   function parseDate(s?: string): number {
@@ -98,8 +111,7 @@ export function useCvData(
     contactDirect,
     contactLinks,
     hasAnyContact,
-    hardList,
-    softList,
+    skillGroups,
     sortedExperiences,
     displayName,
   };

@@ -119,9 +119,9 @@ class StoreCvRequest extends FormRequest
             'data.organizations.*.role' => 'required_with:data.organizations|string|max:100',
             'data.organizations.*.period' => 'required_with:data.organizations|string|max:30',
             'data.organizations.*.description' => 'nullable|string|max:800',
-            'data.skills' => 'nullable|array',
-            'data.skills.hard' => 'nullable|string|max:500',
-            'data.skills.soft' => 'nullable|string|max:300',
+            'data.skills' => 'nullable|array|max:5',
+            'data.skills.*.label' => 'required_with:data.skills|string|max:40',
+            'data.skills.*.items' => 'nullable|string|max:500',
             'data.languages' => 'nullable|string|max:200',
             'data.certificates' => 'nullable|array|max:5',
             'data.certificates.*.name' => 'required_with:data.certificates|string|max:100',
@@ -190,6 +190,21 @@ class StoreCvRequest extends FormRequest
                 }
                 $data['projects'][$i]['link'] = $t;
             }
+        }
+
+        // Backward compat: skills object lama `{hard, soft}` -> array grup.
+        // Grup default `Hard skills`/`Soft skills` selalu di dua posisi pertama;
+        // grup yang items-nya kosong dibuang supaya tidak jadi section hampa.
+        if (isset($data['skills']) && ! array_is_list($data['skills'])) {
+            $old = $data['skills'];
+            $groups = [
+                ['label' => 'Hard skills', 'items' => $old['hard'] ?? ''],
+                ['label' => 'Soft skills', 'items' => $old['soft'] ?? ''],
+            ];
+            $data['skills'] = array_values(array_filter(
+                $groups,
+                static fn (array $g): bool => trim((string) $g['items']) !== '',
+            ));
         }
         $this->merge(['data' => $data]);
     }

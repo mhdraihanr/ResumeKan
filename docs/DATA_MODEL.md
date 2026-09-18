@@ -85,10 +85,13 @@ Index: `user_id`. Tidak perlu index lain.
       "achievements": "string ≤1000, opsional — prestasi/deskripsi/ekstrakurikuler, bullet dipisah newline",
     },
   ],
-  "skills": {
-    "hard": "string ≤500, comma-separated",
-    "soft": "string ≤300, comma-separated",
-  },
+  "skills": [
+    {
+      // array, max 5 item — grup keahlian
+      "label": "string ≤40 — nama grup, mis. 'Hard skills' / 'Library & Frameworks'",
+      "items": "string ≤500, opsional — comma-separated, mis. 'Vue 3, React, Tailwind'",
+    },
+  ],
   "languages": "string ≤200",
   "certificates": [
     {
@@ -123,6 +126,10 @@ Index: `user_id`. Tidak perlu index lain.
 
 Aturan validasi global: setiap array maksimal sesuai catatan; total payload JSON ≤ 50 KB.
 Backward compat: `projects`/`certificates` lama berupa `string` diterima dan dikonversi ke array 1 item saat validasi (lihat `StoreCvRequest::prepareForValidation`). Field tipografi `fontFamily` dan `fontSize` bersifat opsional dan otomatis diberi nilai default `"default"` jika belum ada di data lama. Frontend juga menormalisasi saat load via `normalizeCvData()` di `types/cv.ts` (dipakai `CvFormView`, `CvPreview`, `print-main`) agar data lama tidak render kosong.
+
+**Backward compat `skills` (2026-09-18):** `skills` dulu objek tetap `{ hard, soft }`, kini array grup `[{ label, items }]` supaya pengguna bisa menambah grup kustom (mis. "Library & Frameworks"). Data lama dikonversi di tiga tempat — `StoreCvRequest::prepareForValidation()` (server, saat simpan), `normalizeSkills()` di `types/cv.ts` (klien, saat load), dan Artisan command `cv:normalize-skills` (`--dry-run` tersedia, idempotent) untuk merapikan baris lama di database sekaligus — dengan aturan: `hard` → `{ label: "Hard skills", items }`, `soft` → `{ label: "Soft skills", items }`, dan grup yang `items`-nya kosong dibuang. Dua grup bawaan selalu menempati dua posisi pertama dan **tidak bisa dihapus/di-rename** dari form; labelnya diterjemahkan per bahasa via `skillLabel()` di `cv-labels.ts` (label kustom dibiarkan apa adanya karena konten user tidak diterjemahkan). Klien lama yang masih mengirim objek `{ hard, soft }` tetap diterima.
+
+**Pruning grup skill:** sisi klien (`lib/cv-validation.ts`) membuang grup kustom yang label **dan** items-nya kosong ("klik Tambah grup lalu batal" bukan error), sejalan dengan aturan pruning entri lain. Grup kustom yang berisi items tapi tanpa label memunculkan error inline (`Nama grup keahlian wajib diisi`).
 
 Entri berulang (`experiences`, `education`, `organizations`, `certificates`, `projects`) punya field wajib bersyarat (`required_with`): begitu array berisi entri, field wajibnya harus terisi. Sisi klien menyelaraskan diri lewat dua aturan di `lib/cv-validation.ts`: (1) entri yang **seluruh** field wajibnya kosong dibuang otomatis saat submit — "klik + Tambah lalu batal" bukan error; (2) entri yang **terisi sebagian** dipertahankan dan memunculkan error inline. Karena itu backend tidak perlu aturan tambahan; pruning murni keputusan UX klien dan tidak mengubah kontrak API.
 

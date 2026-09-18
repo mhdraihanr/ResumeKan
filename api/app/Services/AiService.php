@@ -100,9 +100,22 @@ class AiService
             if (!empty($e['description'])) $line .= ' — ' . mb_substr(trim($e['description']), 0, 180);
             $parts[] = $line;
         }
+        // skills kini array grup [{label, items}] (2026-09-18); data lama
+        // berbentuk { hard, soft } tetap didukung.
         $skills = $cvData['skills'] ?? [];
-        if (!empty($skills['hard'])) $parts[] = 'Hard skills: ' . $skills['hard'];
-        if (!empty($skills['soft'])) $parts[] = 'Soft skills: ' . $skills['soft'];
+        if (is_array($skills) && array_is_list($skills)) {
+            foreach ($skills as $g) {
+                if (!is_array($g)) continue;
+                $items = trim((string) ($g['items'] ?? ''));
+                $label = trim((string) ($g['label'] ?? ''));
+                if ($items !== '') {
+                    $parts[] = ($label !== '' ? $label : 'Keahlian') . ': ' . $items;
+                }
+            }
+        } elseif (is_array($skills)) {
+            if (!empty($skills['hard'])) $parts[] = 'Hard skills: ' . $skills['hard'];
+            if (!empty($skills['soft'])) $parts[] = 'Soft skills: ' . $skills['soft'];
+        }
         $edu = $cvData['education'] ?? [];
         foreach (array_slice($edu, 0, 2) as $ed) {
             $gpa = !empty($ed['gpa']) ? ' IPK ' . $ed['gpa'] : '';

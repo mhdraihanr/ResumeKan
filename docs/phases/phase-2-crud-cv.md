@@ -75,11 +75,27 @@
 
 > Analisis Exa ATS: comma-separated sudah parseable; sweet spot 12–20 skill, urut sesuai JD, spesifik > umum.
 
-| Hal         | Detail                                                                                                                                      |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| Input       | `skills.hard`/`skills.soft` dari `<input>` single-line → textarea auto-expand (pola `.auto-expand` yang sama) — isi panjang terlihat semua. |
-| Placeholder | Contoh lebih panjang (8 item) + `placeholder:text-slate-400` (konsisten input lain, WCAG 3.3.2).                                            |
-| Hint ATS    | Hard: urut sesuai JD, spesifik ("PostgreSQL" bukan "database"), ideal 12–20. Soft: hanya yang disebut JD, sisanya dibuktikan di bullet.     |
+| Hal         | Detail                                                                                                                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Input       | ~~`skills.hard`/`skills.soft` dari `<input>` single-line → textarea auto-expand~~ (digantikan Grup Keahlian Kustom 2026-09-18 di bawah) — pola `.auto-expand`, isi panjang terlihat semua. |
+| Placeholder | Contoh lebih panjang (8 item) + `placeholder:text-slate-400` (konsisten input lain, WCAG 3.3.2).                                                                                           |
+| Hint ATS    | Hard: urut sesuai JD, spesifik ("PostgreSQL" bukan "database"), ideal 12–20. Soft: hanya yang disebut JD, sisanya dibuktikan di bullet.                                                    |
+
+## Enhancement — Grup Keahlian Kustom (2026-09-18)
+
+> Analisis Exa ATS: mengelompokkan skill ke kategori berlabel **netral/positif** untuk ATS, bukan merugikan. Parser mengekstrak entitas skill lalu menormalisasi via taxonomy — tidak butuh vocabulary kategori tetap. Risiko ATS nyata adalah heading section tidak standar, tabel, kolom, ikon, dan skill meter (ResumeKan sudah bebas dari semuanya). Rekomendasi: 2–5 kategori, ~3–6 item per kategori.
+
+| Hal         | Detail                                                                                                                                                                                                                                                |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Skema       | `skills` dari objek tetap `{ hard, soft }` → array grup `[{ label ≤40, items ≤500 }]`, max 5 grup. Lihat [DATA_MODEL.md](../DATA_MODEL.md)                                                                                                            |
+| Validasi    | `StoreCvRequest` — `data.skills` `array\|max:5`, `data.skills.*.label` `required_with\|string\|max:40`, `data.skills.*.items` `nullable\|string\|max:500`                                                                                             |
+| Migrasi     | Dua sisi: `prepareForValidation()` (server) + `normalizeSkills()` di `types/cv.ts` (klien). `hard` → `{label:"Hard skills"}`, `soft` → `{label:"Soft skills"}`; grup ber-`items` kosong dibuang. CV lama render identik                               |
+| Grup bawaan | `Hard skills`/`Soft skills` selalu di posisi 2 teratas, tidak bisa dihapus/di-rename dari form. Labelnya diterjemahkan per bahasa via `skillLabel()`; label kustom dibiarkan apa adanya                                                               |
+| UI          | `SkillsStep.vue` — 2 textarea tetap + tombol "+ Tambah grup" (disabled di 5 grup) + card per grup kustom (`FormInput` label + `FormTextarea` items). `FormTextarea` ditambah prop `error`/`id` agar bisa menampilkan error inline seperti `FormInput` |
+| Render      | `useCvData()` mengekspos `skillGroups` (menggantikan `hardList`/`softList`): hanya grup ber-isi, `items` dipecah koma, dirender `label:` + join `·`. Ketiga template pakai satu `v-for` loop — section hilang bila tidak ada grup terisi              |
+| Pruning     | `pruneEmptyEntries()` membuang grup kustom yang label & items-nya kosong; `collectMissing()` menandai grup kustom ber-`items` tanpa label sebagai error inline di step Keahlian (indeks 6)                                                            |
+| Layanan     | `TranslationService` menerjemahkan `skills[].items` saja (label tidak); `AiService` menyusun konteks dari semua grup berlabel. Keduanya tetap menerima bentuk lama `{hard, soft}`                                                                     |
+| Test        | `api/tests/Feature/CvSkillsGroupsTest.php` — 12 test / 23 assertion: migrasi objek lama, grup kustom utuh, batas 5 grup & 40/500 char, label kosong ditolak, items kosong diterima                                                                    |
 
 ## Definisi Selesai
 

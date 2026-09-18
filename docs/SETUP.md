@@ -59,6 +59,17 @@ curl http://127.0.0.1:8000/up   # → 200
 # buka http://127.0.0.1:5173
 ```
 
+### Opsional: normalisasi skills CV lama
+
+Baris CV lama menyimpan skills sebagai objek `{ hard, soft }`. Aplikasi tetap
+membacanya, tapi kalau ingin merapikan semua baris sekaligus:
+
+```bash
+cd api
+php artisan cv:normalize-skills --dry-run   # pratinjau, tidak menulis apa pun
+php artisan cv:normalize-skills             # eksekusi; idempotent, aman diulang
+```
+
 ## Perintah Awal (dijalankan saat scaffold)
 
 ```bash

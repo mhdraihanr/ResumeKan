@@ -2,7 +2,7 @@ import "./assets/main.css";
 import { createApp, h } from "vue";
 import CvPreview from "./components/cv/CvPreview.vue";
 import type { CvData } from "./types/cv";
-import { normalizeCvData } from "./types/cv";
+import { defaultSkillGroups, normalizeCvData } from "./types/cv";
 
 declare global {
   interface Window {
@@ -19,7 +19,7 @@ const data: CvData = normalizeCvData(
     experiences: [],
     education: [],
     organizations: [],
-    skills: { hard: "", soft: "" },
+    skills: defaultSkillGroups(),
     languages: "",
     certificates: [],
     projects: [],

@@ -56,10 +56,14 @@ const sample: CvData = {
     },
   ],
   organizations: [],
-  skills: {
-    hard: "Vue.js, TypeScript, Tailwind CSS, Git",
-    soft: "Komunikasi, Kerja tim",
-  },
+  skills: [
+    {
+      label: "Hard skills",
+      items: "Vue.js, TypeScript, Tailwind CSS, Git",
+    },
+    { label: "Soft skills", items: "Komunikasi, Kerja tim" },
+    { label: "Library & Frameworks", items: "Vue 3, Pinia, Vitest" },
+  ],
   languages: "Indonesia (native), Inggris (menengah)",
   certificates: [],
   projects: [],
