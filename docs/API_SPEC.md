@@ -71,7 +71,7 @@ Klien lalu `POST` ke `https://api.cloudinary.com/v1_1/{cloud_name}/image/upload`
 
 **Mode draft (`?draft=1`)** — dipakai tombol `Simpan Draft`, yang menyimpan progres setengah jadi. `StoreCvRequest::isDraft()` mendeteksi flag dan melonggarkan ruleset: setiap `required`/`required_with` → `nullable`, sedangkan tipe/`max`/`in` tetap dicek bila field terisi. `title` kosong diisi placeholder `"CV Tanpa Judul"` oleh `CvController::payload()` (kolom `title` NOT NULL). Submit final **tanpa** flag tetap memakai ruleset ketat. Berlaku juga untuk `PUT /cvs/{id}?draft=1`.
 
-> `data.projects` terstruktur: array objek `{ title, role, objective, techStack, link? }` (max 8, `link` opsional ≤500 dinormalisasi `https://`). `data.certificates` terstruktur: array objek `{ name, issuer, year, credentialId? }` (max 5, section sendiri). Nilai lama `string` masih diterima untuk keduanya (backward compat, dikonversi ke 1 item). `data.education[].gpa` opsional `≤10`, `data.education[].location` opsional, `data.education[].degree` = gelar & jurusan digabung (field `major` dihapus), `data.education[].achievements` opsional `≤1000` (bullet newline), `data.organizations` array max 5, `data.experiences[].employmentType` opsional `in: Full-time,Part-time,Internship,Contract,Freelance` — lihat `DATA_MODEL.md`.
+> `data.projects` terstruktur: array objek `{ title, role, objective, techStack, link? }` (max 8, `link` opsional ≤500 dinormalisasi `https://`). `data.certificates` terstruktur: array objek `{ name, issuer, year, credentialId? }` (max 5, section sendiri). Nilai lama `string` masih diterima untuk keduanya (backward compat, dikonversi ke 1 item). `data.education[].gpa` opsional `≤10`, `data.education[].location` opsional, `data.education[].degree` = gelar & jurusan digabung (field `major` dihapus), `data.education[].achievements` opsional `≤1000` (bullet newline), `data.organizations` array max 5, `data.experiences[].employmentType` opsional `in: Full-time,Part-time,Internship,Contract,Freelance`. Field tipografi opsional: `data.fontFamily` (`string ≤50`, in: `default,inter,source-sans,lora,merriweather`, default: `default`) dan `data.fontSize` (`string ≤50`, in: `compact,default,spacious`, default: `default`) — lihat `DATA_MODEL.md`.
 
 ### `GET /cvs/{id}` → `200 { cv }` (lengkap dengan `data`)
 
@@ -119,7 +119,7 @@ Implementasi: `TranslationService` memanggil endpoint gratis Google gtx (`transl
 
 ### `GET /cvs/{id}/pdf`
 
-Butuh cookie Sanctum dan kepemilikan CV. Controller membangun HTML `print.html` dengan `window.__CV_DATA__`/`__CV_TEMPLATE__`/`__CV_LANGUAGE__`, lalu memberikannya langsung ke `Browsershot::html()`. `__CV_LANGUAGE__` dipakai oleh `cv-labels.ts` untuk merender judul section sesuai bahasa pilihan.
+Butuh cookie Sanctum dan kepemilikan CV. Controller membangun HTML `print.html` dengan `window.__CV_DATA__`/`__CV_TEMPLATE__`/`__CV_LANGUAGE__`, lalu memberikannya langsung ke `Browsershot::html()`. `__CV_LANGUAGE__` dipakai oleh `cv-labels.ts` untuk merender judul section sesuai bahasa pilihan. Data tipografi (`fontFamily` & `fontSize`) yang ada di `__CV_DATA__` diterapkan langsung oleh `print-main.ts` ke komponen `CvPreview` dan menunggu `document.fonts.ready` sebelum Browsershot mengambil snapshot PDF agar font dan skala ukuran 100% konsisten dengan preview.
 
 → `200` binary `application/pdf`, header `Content-Disposition: attachment; filename="Nama_CV.pdf"`.
 

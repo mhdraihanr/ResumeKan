@@ -87,6 +87,8 @@ class StoreCvRequest extends FormRequest
             'title' => 'required|string|max:100',            'template' => 'required|in:modern,classic,neon',
             'language' => 'required|in:id,en',
             'data' => 'required|array',
+            'data.fontFamily' => 'nullable|string|max:50',
+            'data.fontSize' => 'nullable|string|max:50',
             'data.personal' => 'required|array',
             'data.personal.name' => 'required|string|max:100',
             'data.personal.email' => 'required|email',

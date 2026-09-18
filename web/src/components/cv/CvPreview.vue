@@ -9,7 +9,8 @@ import {
 } from "vue";
 import type { CvData } from "@/types/cv";
 import { normalizeCvData } from "@/types/cv";
-import { getTemplateConfig } from "@/lib/cv-templates";
+import { getTemplateConfig, CV_FONTS, CV_FONT_SIZES } from "@/lib/cv-templates";
+import type { CvFontSizeId } from "@/lib/cv-templates";
 import CvModern from "./templates/CvModern.vue";
 import CvClassic from "./templates/CvClassic.vue";
 import CvNeon from "./templates/CvNeon.vue";
@@ -22,8 +23,17 @@ const props = withDefaults(
     compact?: boolean;
     paged?: boolean;
     zoom?: number | "fit";
+    fontFamily?: string;
+    fontSize?: string;
   }>(),
-  { compact: false, language: "id", paged: false, zoom: "fit" },
+  {
+    compact: false,
+    language: "id",
+    paged: false,
+    zoom: "fit",
+    fontFamily: "system-sans",
+    fontSize: "default",
+  },
 );
 
 const emit = defineEmits<{
@@ -42,6 +52,29 @@ const comp = computed(() =>
       ? CvClassic
       : CvModern,
 );
+
+const resolvedFont = computed(
+  () => CV_FONTS.find((f) => f.id === props.fontFamily) ?? CV_FONTS[0]!,
+);
+const isCustomFont = computed(() => resolvedFont.value.googleFamily !== null);
+const fontFamilyStyle = computed(() =>
+  isCustomFont.value ? resolvedFont.value.family : undefined,
+);
+const fontClass = computed(() =>
+  isCustomFont.value ? undefined : tpl.value.font,
+);
+const sizeClass = computed(() => `cv-size-${props.fontSize || "default"}`);
+const googleFontUrl = computed(() => {
+  const gf = resolvedFont.value.googleFamily;
+  if (!gf) return null;
+  return `https://fonts.googleapis.com/css2?family=${gf}:wght@400;600;700&display=swap`;
+});
+const resolvedFontSize = computed(() => {
+  return (
+    CV_FONT_SIZES.find((s) => s.id === (props.fontSize as CvFontSizeId)) ??
+    CV_FONT_SIZES[1]!
+  );
+});
 
 // --- Paged mode (preview multi-halaman identik PDF) ---
 // Print layout: @page margin 14mm(top/bottom) + 16mm(left/right) pada A4 (210×297mm)
@@ -127,7 +160,7 @@ function updateScale() {
   const parent = pagedWrapRef.value.parentElement;
   const available = parent?.clientWidth ?? A4_W;
   // Margin visual nyaman agar kertas dokumen memiliki ruang napas dan tidak terlalu zoom
-  const margin = available > 500 ? 80 : 24;
+  const margin = available > 500 ? 48 : 24;
   const targetAvailable = Math.max(160, available - margin);
   fitScale.value = Math.min(0.85, Math.max(0.2, targetAvailable / A4_W));
   const isFit = props.zoom === "fit" || props.zoom == null;
@@ -141,9 +174,18 @@ function updateScale() {
 }
 
 watch(
-  () => [props.data, props.template, props.language],
+  () => [
+    props.data,
+    props.template,
+    props.language,
+    props.fontFamily,
+    props.fontSize,
+  ],
   () => {
     nextTick(() => setTimeout(remeasure, 50));
+    if (typeof document !== "undefined" && document.fonts) {
+      document.fonts.ready.then(() => nextTick(remeasure));
+    }
   },
   { deep: true },
 );
@@ -173,15 +215,23 @@ onBeforeUnmount(() => ro?.disconnect());
 </script>
 
 <template>
+  <Teleport to="head">
+    <link v-if="googleFontUrl" rel="stylesheet" :href="googleFontUrl" />
+  </Teleport>
+
   <!-- Non-paged: continous scroll (HomeView, print shell) -->
   <div
     v-if="!paged"
     :id="`cv-preview-${tpl.id}`"
     :class="[
       'cv-paper mx-auto w-full max-w-[800px] bg-white text-slate-900 antialiased',
-      tpl.font,
+      fontClass,
+      sizeClass,
     ]"
-    style="font-size: 11pt; line-height: 1.5"
+    :style="{
+      lineHeight: 1.5,
+      fontFamily: fontFamilyStyle,
+    }"
   >
     <div :class="['cv-page', compact ? 'px-0 py-4' : 'px-8 py-8 sm:px-10']">
       <component :is="comp" :data="normal" :language="language" />
@@ -198,17 +248,17 @@ onBeforeUnmount(() => ro?.disconnect());
     <!-- Hidden measure container → lebar konten identik print -->
     <div
       ref="measureRef"
-      :class="[tpl.font]"
-      style="
-        position: fixed;
-        left: -99999px;
-        top: 0;
-        width: 673px;
-        font-size: 11pt;
-        line-height: 1.5;
-        z-index: -1;
-        pointer-events: none;
-      "
+      :class="[fontClass, sizeClass]"
+      :style="{
+        position: 'fixed',
+        left: '-99999px',
+        top: '0',
+        width: '673px',
+        lineHeight: '1.5',
+        zIndex: '-1',
+        pointerEvents: 'none',
+        fontFamily: fontFamilyStyle,
+      }"
     >
       <div
         class="cv-page bg-white text-slate-900 antialiased"
@@ -247,8 +297,12 @@ onBeforeUnmount(() => ro?.disconnect());
         >
           <div :style="{ transform: `translateY(-${start}px)` }">
             <div
-              :class="['a4-page-inner', tpl.font]"
-              style="width: 673px; font-size: 11pt; line-height: 1.5"
+              :class="['a4-page-inner', fontClass, sizeClass]"
+              :style="{
+                width: '673px',
+                lineHeight: '1.5',
+                fontFamily: fontFamilyStyle,
+              }"
             >
               <div
                 class="cv-page bg-white text-slate-900 antialiased"

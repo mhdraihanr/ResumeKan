@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import FormLabel from "../form/FormLabel.vue";
-import { CV_TEMPLATES } from "@/lib/cv-templates";
+import { CV_TEMPLATES, CV_FONTS, CV_FONT_SIZES } from "@/lib/cv-templates";
 
 const props = defineProps<{
   title: string;
@@ -14,6 +14,9 @@ defineEmits<{
   "update:template": [v: string];
   "update:language": [v: string];
 }>();
+
+const fontFamily = defineModel<string>("fontFamily", { default: "default" });
+const fontSize = defineModel<string>("fontSize", { default: "default" });
 
 const selectedTpl = computed(
   () =>
@@ -103,6 +106,42 @@ const selectedTpl = computed(
           <option value="id">Indonesia</option>
           <option value="en">English</option>
         </select>
+      </label>
+    </div>
+
+    <h2
+      class="mt-4 text-sm font-semibold uppercase tracking-widest text-slate-500"
+    >
+      Tampilan Font
+    </h2>
+    <div class="grid gap-2.5 sm:grid-cols-2">
+      <label class="space-y-1">
+        <FormLabel label="Jenis Font" />
+        <select
+          v-model="fontFamily"
+          class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus:border-ring"
+        >
+          <option v-for="f in CV_FONTS" :key="f.id" :value="f.id">
+            {{ f.label }}
+          </option>
+        </select>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400">
+          Berlaku untuk tampilan preview dan hasil download PDF.
+        </p>
+      </label>
+      <label class="space-y-1">
+        <FormLabel label="Ukuran Font" />
+        <select
+          v-model="fontSize"
+          class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus:border-ring"
+        >
+          <option v-for="s in CV_FONT_SIZES" :key="s.id" :value="s.id">
+            {{ s.label }}
+          </option>
+        </select>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400">
+          Kompak muat lebih banyak konten, Lega lebih santai dibaca.
+        </p>
       </label>
     </div>
   </section>

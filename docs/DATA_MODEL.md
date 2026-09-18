@@ -49,6 +49,8 @@ Index: `user_id`. Tidak perlu index lain.
 
 ```jsonc
 {
+  "fontFamily": "string ≤50, opsional — in: default, inter, source-sans, lora, merriweather (default: 'default')",
+  "fontSize": "string ≤50, opsional — in: compact, default, spacious (default: 'default')",
   "personal": {
     "name": "string ≤100",
     "email": "email",
@@ -120,7 +122,7 @@ Index: `user_id`. Tidak perlu index lain.
 ```
 
 Aturan validasi global: setiap array maksimal sesuai catatan; total payload JSON ≤ 50 KB.
-Backward compat: `projects`/`certificates` lama berupa `string` diterima dan dikonversi ke array 1 item saat validasi (lihat `StoreCvRequest::prepareForValidation`). Frontend juga menormalisasi saat load via `normalizeCvData()` di `types/cv.ts` (dipakai `CvFormView`, `CvPreview`, `print-main`) agar data lama tidak render kosong.
+Backward compat: `projects`/`certificates` lama berupa `string` diterima dan dikonversi ke array 1 item saat validasi (lihat `StoreCvRequest::prepareForValidation`). Field tipografi `fontFamily` dan `fontSize` bersifat opsional dan otomatis diberi nilai default `"default"` jika belum ada di data lama. Frontend juga menormalisasi saat load via `normalizeCvData()` di `types/cv.ts` (dipakai `CvFormView`, `CvPreview`, `print-main`) agar data lama tidak render kosong.
 
 Entri berulang (`experiences`, `education`, `organizations`, `certificates`, `projects`) punya field wajib bersyarat (`required_with`): begitu array berisi entri, field wajibnya harus terisi. Sisi klien menyelaraskan diri lewat dua aturan di `lib/cv-validation.ts`: (1) entri yang **seluruh** field wajibnya kosong dibuang otomatis saat submit — "klik + Tambah lalu batal" bukan error; (2) entri yang **terisi sebagian** dipertahankan dan memunculkan error inline. Karena itu backend tidak perlu aturan tambahan; pruning murni keputusan UX klien dan tidak mengubah kontrak API.
 

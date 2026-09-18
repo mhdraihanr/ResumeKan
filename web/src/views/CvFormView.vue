@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useCvStore } from "@/stores/cv";
 import { emptyCvData, normalizeCvData } from "@/types/cv";
@@ -17,6 +17,8 @@ const cvId = ref<number | undefined>(props.id ? Number(props.id) : undefined);
 const title = ref("");
 const template = ref("modern");
 const language = ref("id");
+const fontFamily = ref("default");
+const fontSize = ref("default");
 const data = ref<CvData>(emptyCvData());
 const error = ref<string | null>(null);
 const saving = ref(false);
@@ -86,9 +88,19 @@ onMounted(async () => {
       title.value = cvStore.current.title;
       template.value = cvStore.current.template;
       language.value = cvStore.current.language;
-      data.value = normalizeCvData(cvStore.current.data ?? emptyCvData());
+      const normalized = normalizeCvData(cvStore.current.data ?? emptyCvData());
+      data.value = normalized;
+      fontFamily.value = normalized.fontFamily ?? "default";
+      fontSize.value = normalized.fontSize ?? "default";
     }
   }
+});
+
+watch(fontFamily, (f) => {
+  data.value.fontFamily = f;
+});
+watch(fontSize, (s) => {
+  data.value.fontSize = s;
 });
 
 async function submit() {
@@ -185,7 +197,31 @@ async function downloadPdf() {
     showToast("Lengkapi dulu sebelum mengunduh.", false);
     return;
   }
-  win.open(`/api/v1/cvs/${cvId.value}/pdf`, "_blank");
+
+  // Buka tab sinkron di awal dalam user-gesture agar tidak diblokir popup blocker
+  const pdfWin = win.open("about:blank", "_blank");
+
+  // Simpan data terbaru (font, size, dan teks) sebelum server render PDF
+  if (cvId.value) {
+    try {
+      const payload = {
+        title: title.value,
+        template: template.value,
+        language: language.value,
+        data: data.value,
+      };
+      await cvStore.update(cvId.value, payload, true);
+    } catch {
+      // jika auto-save gagal, tetap arahkan window
+    }
+  }
+
+  const pdfUrl = `/api/v1/cvs/${cvId.value}/pdf`;
+  if (pdfWin) {
+    pdfWin.location.href = pdfUrl;
+  } else {
+    win.open(pdfUrl, "_blank");
+  }
 }
 </script>
 
@@ -249,6 +285,8 @@ async function downloadPdf() {
               v-model:title="title"
               v-model:template="template"
               v-model:language="language"
+              v-model:font-family="fontFamily"
+              v-model:font-size="fontSize"
               :cv-id="cvId"
               @submit="submit"
               @update:removed-entries="onRemovedEntries"
@@ -368,6 +406,8 @@ async function downloadPdf() {
                 :data="data"
                 :template="template"
                 :language="language"
+                :font-family="fontFamily"
+                :font-size="fontSize"
                 :zoom="zoom"
                 @scale-change="onScaleChange"
                 paged

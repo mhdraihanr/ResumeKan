@@ -35,6 +35,8 @@ const emit = defineEmits<{
 }>();
 
 const local = defineModel<CvData>("modelValue", { required: true });
+const fontFamily = defineModel<string>("fontFamily", { default: "default" });
+const fontSize = defineModel<string>("fontSize", { default: "default" });
 
 const aiLoading = ref(false);
 const aiError = ref("");
@@ -324,6 +326,8 @@ async function generateSummary(jobDescription?: string) {
         :title="title"
         :template="template"
         :language="language"
+        v-model:font-family="fontFamily"
+        v-model:font-size="fontSize"
         :title-error="err('title')"
         @update:title="emit('update:title', $event)"
         @update:template="emit('update:template', $event)"

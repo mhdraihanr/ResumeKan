@@ -57,10 +57,34 @@ tanpa blur, warna flat, tapi tetap rapi dan profesional untuk audiens pencari ke
 
 ## 4. Tipografi
 
-- Font stack: Tailwind default (system sans: `ui-sans-serif, system-ui, sans-serif`). Tanpa Google Font eksternal.
+### Tipografi Antarmuka Aplikasi (UI)
+
+- Font stack UI: Tailwind default (system sans: `ui-sans-serif, system-ui, sans-serif`).
 - Heading: weight `font-black` (900), sama seperti heading preview CV (kontinuitas, R-07).
 - Body: weight `font-normal`, `text-slate-700` di light mode, max 12 kata per baris di landing.
 - Angka besar di landing: `font-black tabular-nums`.
+
+### Tipografi Dokumen CV (Kustomisasi Font & Ukuran)
+
+Dokumen CV mendukung pemilihan jenis font dan ukuran teks terkurasi untuk fleksibilitas keterbacaan serta optimasi batas halaman (A4 ATS-friendly):
+
+1. **Pilihan Jenis Font (`fontFamily`)**
+   - **Bawaan Template (`default`)**: Menggunakan font default bawaan template (`font-serif` untuk Classic, `font-sans` untuk Modern & Neon).
+   - **Inter (`inter`)**: Modern Sans, bersih, netral, sangat optimal untuk tech dan startup.
+   - **Source Sans 3 (`source-sans`)**: Corporate Sans, keterbacaan tinggi, standar korporat & institusi.
+   - **Lora (`lora`)**: Formal Serif kontemporer, elegan, cocok untuk akademisi, hukum, dan manajemen.
+   - **Merriweather (`merriweather`)**: Classic Editorial Serif, kokoh dan berbobot untuk posisi senior dan industri kreatif.
+   - _Mekanisme Web Font_: Font non-default dimuat via Google Fonts CDN (`<Teleport to="head">` di `CvPreview.vue`). Penghitungan tinggi halaman otomatis menunggu `document.fonts.ready` sebelum paginasi dijalankan.
+
+2. **Pilihan Skala Ukuran Teks (`fontSize`)**
+   - **Kompak (`compact`)**: Base 10pt (body 9pt, heading skala ~0.9x). Berguna untuk memadatkan isi CV agar pas dalam 1 atau 2 halaman utuh tanpa memotong teks.
+   - **Standar (`default`)**: Base 11pt (body 10pt). Rasio seimbang standar industri.
+   - **Lega (`spacious`)**: Base 12pt (body 11pt, heading skala ~1.1x). Cocok untuk profil ringkas dengan pengalaman terpilih agar mengisi halaman secara proporsional.
+   - _Mekanisme CSS_: Menggunakan kelas kontainer `.cv-size-compact` dan `.cv-size-spacious` di `main.css` dengan aturan spesifisitas tinggi (`!important`) untuk menimpa kelas `text-[10pt]` / `text-[9pt]` Tailwind v4 secara deterministik.
+
+3. **Sinkronisasi Single-Source Preview & PDF**
+   - Nilai `fontFamily` dan `fontSize` disimpan dalam struktur JSON `data` CV, divalidasi oleh `StoreCvRequest.php`, dan diinjeksikan langsung ke `print.html` melalui `print-main.ts`.
+   - Browser rendering di Browsershot menguji `document.fonts.ready` sebelum mengambil snapshot PDF, memastikan hasil cetak PDF 100% identik dengan apa yang dilihat pengguna di preview kanvas.
 
 ## 5. Copy
 

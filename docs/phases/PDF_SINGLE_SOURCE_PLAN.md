@@ -34,7 +34,7 @@ GET /api/v1/cvs/{cv}/pdf (cookie Sanctum + owner check)
 </script>
 ```
 
-`print-main.ts` membaca dua nilai tersebut dan mount `CvPreview.vue` tanpa router, Pinia, atau navbar. Jadi isi PDF selalu dirender dari komponen template Vue yang juga dipakai preview.
+`print-main.ts` membaca nilai-nilai tersebut (termasuk properti `fontFamily` dan `fontSize` di dalam `window.__CV_DATA__`), menunggu kesiapan font web via `await document.fonts.ready`, dan me-mount `CvPreview.vue` tanpa router, Pinia, atau navbar. Jadi isi PDF selalu dirender dari komponen template Vue yang juga dipakai preview dengan tipografi yang 100% konsisten.
 
 ### 2.3 Shell print dan module Vite
 

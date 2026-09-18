@@ -80,3 +80,59 @@ export function getTemplateConfig(id: string): CvTemplateConfig {
     CV_TEMPLATES.classic
   );
 }
+
+export interface CvFontOption {
+  id: string;
+  label: string;
+  /** Tailwind class or inline font-family value */
+  family: string;
+  /** Google Fonts family name for <link> loading. Null = system font, no load needed. */
+  googleFamily: string | null;
+}
+
+export const CV_FONTS: CvFontOption[] = [
+  {
+    id: "default",
+    label: "Bawaan Template",
+    family: "",
+    googleFamily: null,
+  },
+  {
+    id: "inter",
+    label: "Inter (Modern Sans)",
+    family: "'Inter', sans-serif",
+    googleFamily: "Inter",
+  },
+  {
+    id: "source-sans",
+    label: "Source Sans 3 (Corporate)",
+    family: "'Source Sans 3', sans-serif",
+    googleFamily: "Source+Sans+3",
+  },
+  {
+    id: "lora",
+    label: "Lora (Formal Serif)",
+    family: "'Lora', serif",
+    googleFamily: "Lora",
+  },
+  {
+    id: "merriweather",
+    label: "Merriweather (Classic Editorial)",
+    family: "'Merriweather', serif",
+    googleFamily: "Merriweather",
+  },
+];
+
+export type CvFontSizeId = "compact" | "default" | "spacious";
+
+export interface CvFontSizeOption {
+  id: CvFontSizeId;
+  label: string;
+  bodyPt: number;
+}
+
+export const CV_FONT_SIZES: CvFontSizeOption[] = [
+  { id: "compact", label: "Kompak (10pt base)", bodyPt: 10 },
+  { id: "default", label: "Standar (11pt base)", bodyPt: 11 },
+  { id: "spacious", label: "Lega (12pt base)", bodyPt: 12 },
+];

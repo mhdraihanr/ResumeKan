@@ -1,4 +1,6 @@
 export interface CvData {
+  fontFamily?: string;
+  fontSize?: string;
   personal: {
     name: string;
     email: string;
@@ -64,6 +66,8 @@ export interface Cv {
 
 export function emptyCvData(): CvData {
   return {
+    fontFamily: "default",
+    fontSize: "default",
     personal: { name: "", email: "", phone: "", address: "" },
     summary: "",
     experiences: [],
@@ -90,6 +94,8 @@ type LegacyCvData = Omit<CvData, "certificates" | "projects"> & {
 /** Normalisasi data lama — konversi string certificates ke array, dll. */
 export function normalizeCvData(input: CvData): CvData {
   const d = input as LegacyCvData;
+  if (!d.fontFamily) d.fontFamily = "default";
+  if (!d.fontSize) d.fontSize = "default";
   if (typeof d.certificates === "string") {
     const lines = d.certificates
       .split("\n")

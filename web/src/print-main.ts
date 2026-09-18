@@ -28,9 +28,29 @@ const data: CvData = normalizeCvData(
 const template: string = window.__CV_TEMPLATE__ ?? "modern";
 const language: string = window.__CV_LANGUAGE__ ?? "id";
 
-const app = createApp({
-  render() {
-    return h(CvPreview, { data, template, language, compact: true });
-  },
-});
-app.mount("#print-app");
+async function bootstrap() {
+  const app = createApp({
+    render() {
+      return h(CvPreview, {
+        data,
+        template,
+        language,
+        compact: true,
+        fontFamily: data.fontFamily ?? "default",
+        fontSize: data.fontSize ?? "default",
+      });
+    },
+  });
+  app.mount("#print-app");
+
+  // Tunggu Google Fonts ter-load penuh sebelum Puppeteer mengambil snapshot PDF
+  if (typeof document !== "undefined" && document.fonts) {
+    try {
+      await document.fonts.ready;
+    } catch {
+      // ignore
+    }
+  }
+}
+
+bootstrap();
