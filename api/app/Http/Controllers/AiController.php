@@ -15,6 +15,7 @@ class AiController extends Controller
             'cv_id' => 'required|integer|exists:cvs,id',
             'language' => 'nullable|in:id,en',
             'data' => 'nullable|array',
+            'job_description' => 'nullable|string|max:3000',
         ]);
 
         $cv = Cv::findOrFail($request->input('cv_id'));
@@ -25,9 +26,10 @@ class AiController extends Controller
 
         $lang = $request->input('language') ?? $cv->language ?? 'id';
         $data = $request->input('data') ?? $cv->data ?? [];
+        $jobDescription = $request->input('job_description');
 
         try {
-            $summary = $ai->generateSummary($data, $lang);
+            $summary = $ai->generateSummary($data, $lang, $jobDescription);
         } catch (\RuntimeException $e) {
             $msg = $e->getMessage();
             if (str_contains($msg, 'AI_API_KEY')) {

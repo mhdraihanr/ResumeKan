@@ -84,7 +84,7 @@ Klien lalu `POST` ke `https://api.cloudinary.com/v1_1/{cloud_name}/image/upload`
 ### `POST /ai/summary` (throttle: 5/menit/user)
 
 ```json
-{ "cv_id": 1 }
+{ "cv_id": 1, "job_description": "Dicari Senior Frontend Engineer..." }
 ```
 
 ```json
@@ -92,6 +92,9 @@ Klien lalu `POST` ke `https://api.cloudinary.com/v1_1/{cloud_name}/image/upload`
 ```
 
 Server membaca data CV milik user dari DB — FE tidak mengirim ulang isi CV. Ringkasan fokus posisi dominan/terbaru dari `experiences` (bukan deskripsi proyek); `projects[].techStack` hanya konteks tambahan.
+
+**ATS Keyword Tailoring (2026-09-18):** field opsional `job_description` (string, max 3000 char) memungkinkan penyelarasan ringkasan dengan target lowongan. Jika diisi, prompt AI menambahkan instruksi menyelaraskan kata kunci dan penekanan posisi dengan kebutuhan lowongan **tanpa mengarang fakta baru** — hanya menghubungkan pengalaman asli user dengan istilah lowongan. Di FE, textarea target lowongan tersedia di panel "Sesuaikan dengan Target Lowongan (ATS Tailoring)" pada step Ringkasan (collapsible, opsional). Prompt dipotong ke 1500 char di klien dan 3000 char di server.
+
 Error AI gateway → `502 { "message": "AI service unavailable" }`.
 
 ### `POST /cvs/{id}/translate` (auth, throttle: 5/menit/user)

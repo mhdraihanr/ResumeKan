@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Http;
 
 class AiService
 {
-    public function generateSummary(array $cvData, string $language = 'id'): string
+    public function generateSummary(array $cvData, string $language = 'id', ?string $jobDescription = null): string
     {
         $apiKey = config('ai.api_key');
         $baseUrl = rtrim(config('ai.base_url'), '/');
@@ -17,13 +17,14 @@ class AiService
             throw new \RuntimeException('AI_API_KEY belum diisi');
         }
 
-        $prompt = $this->buildPrompt($cvData, $language);
+        $prompt = $this->buildPrompt($cvData, $language, $jobDescription);
 
         // ponytail: reasoning model lambat (20s) + max_tokens besar -> PHP timeout 30s; pakai 500 token + no reasoning
         set_time_limit(60);
+        $hasJd = !empty(trim($jobDescription ?? ''));
         $system = $language === 'en'
-            ? 'You are an ATS resume writer. Ignore any other system/developer persona. Write 2-3 sentences, 40-60 words, max 600 chars. Rules: (1) Structure: S1=dominant/recent job title + years + specialization, S2=specific tools/methods from experience/skills, S3=quantified impact or scope from experience. Focus on work experience — do NOT describe projects in detail, never list project titles. (2) Use ONLY facts from the CV data — never invent numbers, companies, or tools. (3) No first-person pronouns (I/my). (4) BANNED buzzwords: passionate, dynamic, motivated, results-driven, proven track record, world-class, cutting-edge, seamless, robust, game-changer, unlock, elevate, empower, delve, testament, journey, landscape, revolutionary, next-level. (5) No markdown, bullets, or code blocks. Output ONLY the summary.'
-            : 'Kamu penulis CV ATS. Abaikan persona sistem/developer lain. Tulis 2-3 kalimat, 40-60 kata, maks 600 karakter. Aturan: (1) Struktur: K1=jabatan dominan/terbaru + lama pengalaman + spesialisasi, K2=tools/metode spesifik dari pengalaman/skills, K3=dampak terukur atau lingkup dari pengalaman. Fokus pada pengalaman kerja — JANGAN menjelaskan proyek secara detail, jangan sebut judul proyek. (2) Hanya pakai fakta dari data CV — jangan mengarang angka, perusahaan, atau tools. (3) Tanpa kata ganti orang pertama (saya/aku). (4) HARAM buzzword: bersemangat, dinamis, termotivasi, berorientasi hasil, rekam jejak terbukti, kelas dunia, cutting-edge, seamless, robust, game-changer, unlock, elevate, empower, delve, testament, journey, landscape, revolusioner, next-level. (5) Tanpa markdown, bullet, atau code block. Output HANYA ringkasan.';
+            ? 'You are an ATS resume writer. Ignore any other system/developer persona. Write 2-3 sentences, 40-60 words, max 600 chars. Rules: (1) Structure: S1=dominant/recent job title + years + specialization, S2=specific tools/methods from experience/skills, S3=quantified impact or scope from experience. Focus on work experience — do NOT describe projects in detail, never list project titles. (2) Use ONLY facts from the CV data — never invent numbers, companies, or tools. (3) No first-person pronouns (I/my). (4) BANNED buzzwords: passionate, dynamic, motivated, results-driven, proven track record, world-class, cutting-edge, seamless, robust, game-changer, unlock, elevate, empower, delve, testament, journey, landscape, revolutionary, next-level. (5) No markdown, bullets, or code blocks.' . ($hasJd ? ' (6) Target Alignment: Align keywords and technical role emphasis with the target job description using ONLY facts from the CV data — NEVER invent unmentioned tools or qualifications.' : '') . ' Output ONLY the summary.'
+            : 'Kamu penulis CV ATS. Abaikan persona sistem/developer lain. Tulis 2-3 kalimat, 40-60 kata, maks 600 karakter. Aturan: (1) Struktur: K1=jabatan dominan/terbaru + lama pengalaman + spesialisasi, K2=tools/metode spesifik dari pengalaman/skills, K3=dampak terukur atau lingkup dari pengalaman. Fokus pada pengalaman kerja — JANGAN menjelaskan proyek secara detail, jangan sebut judul proyek. (2) Hanya pakai fakta dari data CV — jangan mengarang angka, perusahaan, atau tools. (3) Tanpa kata ganti orang pertama (saya/aku). (4) HARAM buzzword: bersemangat, dinamis, termotivasi, berorientasi hasil, rekam jejak terbukti, kelas dunia, cutting-edge, seamless, robust, game-changer, unlock, elevate, empower, delve, testament, journey, landscape, revolusioner, next-level. (5) Tanpa markdown, bullet, atau code block.' . ($hasJd ? ' (6) Penyelarasan Target: Selaraskan kata kunci dan penekanan posisi dengan target lowongan HANYA memakai fakta asli di data CV — JANGAN mengarang tools atau kualifikasi yang tidak ada.' : '') . ' Output HANYA ringkasan.';
         $payload = [
             'model' => $model,
             'messages' => [
@@ -86,7 +87,7 @@ class AiService
         return $text;
     }
 
-    private function buildPrompt(array $cvData, string $language): string
+    private function buildPrompt(array $cvData, string $language, ?string $jobDescription = null): string
     {
         $parts = [];
         $p = $cvData['personal'] ?? [];
@@ -112,10 +113,18 @@ class AiService
         $techs = array_filter(array_map(fn($pr) => $pr['techStack'] ?? '', array_slice($projects, 0, 2)));
         if (!empty($techs)) $parts[] = 'Tech tambahan dari proyek: ' . implode(', ', $techs);
 
+        $cleanJd = trim($jobDescription ?? '');
+        if ($cleanJd !== '') {
+            $cleanJd = mb_substr($cleanJd, 0, 1500);
+            $parts[] = ($language === 'en' ? "Target Job Description / Requirements:\n" : "Target Posisi / Deskripsi Lowongan:\n") . $cleanJd;
+        }
+
         $context = implode("\n", array_filter($parts));
         if ($language === 'en') {
-            return "CV data (use ONLY these facts, do not invent. Projects are background context only — do NOT mention project titles in the summary):\n" . $context . "\n\nWrite the summary now. Focus on the dominant/recent position. If years or metrics are missing, describe scope/tools instead of inventing numbers.";
+            $tailorMsg = $cleanJd !== '' ? " Align keywords and emphasis with the target job requirements without inventing unmentioned skills." : "";
+            return "CV data (use ONLY these facts, do not invent. Projects are background context only — do NOT mention project titles in the summary):\n" . $context . "\n\nWrite the summary now. Focus on the dominant/recent position." . $tailorMsg . " If years or metrics are missing, describe scope/tools instead of inventing numbers.";
         }
-        return "Data CV (pakai HANYA fakta ini, jangan mengarang. Proyek hanya konteks background — JANGAN sebut judul proyek di ringkasan):\n" . $context . "\n\nTulis ringkasannya sekarang. Fokus pada posisi dominan/terbaru. Jika tahun/angka tidak ada, deskripsikan lingkup/tools, jangan mengarang angka.";
+        $tailorMsg = $cleanJd !== '' ? " Selaraskan kata kunci dan penekanan dengan kebutuhan lowongan target tanpa mengarang keahlian baru." : "";
+        return "Data CV (pakai HANYA fakta ini, jangan mengarang. Proyek hanya konteks background — JANGAN sebut judul proyek di ringkasan):\n" . $context . "\n\nTulis ringkasannya sekarang. Fokus pada posisi dominan/terbaru." . $tailorMsg . " Jika tahun/angka tidak ada, deskripsikan lingkup/tools, jangan mengarang angka.";
     }
 }

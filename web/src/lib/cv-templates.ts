@@ -3,6 +3,8 @@ export type CvTemplateId = "modern" | "classic" | "neon";
 export interface CvTemplateConfig {
   id: CvTemplateId;
   label: string;
+  badge?: string;
+  atsFriendly: boolean;
   font: string;
   headerAlign: "left" | "center";
   nameUppercase: boolean;
@@ -20,6 +22,8 @@ export const CV_TEMPLATES: Record<CvTemplateId, CvTemplateConfig> = {
   modern: {
     id: "modern",
     label: "Modern",
+    badge: "ATS Friendly",
+    atsFriendly: true,
     font: "font-sans",
     headerAlign: "left",
     nameUppercase: false,
@@ -36,6 +40,8 @@ export const CV_TEMPLATES: Record<CvTemplateId, CvTemplateConfig> = {
   classic: {
     id: "classic",
     label: "Classic",
+    badge: "ATS Friendly",
+    atsFriendly: true,
     font: "font-serif",
     headerAlign: "center",
     nameUppercase: true,
@@ -53,6 +59,7 @@ export const CV_TEMPLATES: Record<CvTemplateId, CvTemplateConfig> = {
   neon: {
     id: "neon",
     label: "Neon",
+    atsFriendly: false,
     font: "font-sans",
     headerAlign: "left",
     nameUppercase: false,

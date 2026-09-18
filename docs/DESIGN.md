@@ -137,7 +137,7 @@ Baris kontak di header tidak lagi dua tonjolan. Data pribadi non-link (email, te
 - Pemisah `·` sengaja tetap T4 (slate-300/#cad5e2): ia murni dekoratif, dan menaikkannya ke ink akan membuat baris kontak terbaca sebagai satu blok teks rapat tanpa jeda.
 - Baris placeholder `email · phone · address` saat seluruh kontak kosong juga tidak diubah (tetap `slate-600`): itu teks contoh, bukan data user, jadi justru tepat kalau lebih redup.
 - Verifikasi lewat PDF asli: email/telepon di PDF terukur `#0f172b` (modern, classic) dan alamat di Neon `#111111`, identik dengan link di dokumen yang sama; di browser media `screen` dan `print` menghasilkan `#0f172b` yang sama, jadi preview = PDF.
-- Di atas preview: toggle Modern / Classic / Neon yang mengubah template preview live (bukti fitur template).
+- Di atas preview: toggle Modern / Classic / Neon yang mengubah template preview live (bukti fitur template). Tombol Modern dan Classic dilengkapi badge mini "ATS" berbasis properti `atsFriendly`.
 - Toggle preview full render, bukan gambar. Ini juga membuktikan template asli, bukan mock.
 - Tanpa badge/eyebrow pill di atas headline (AI slop — pill badge, Exa pols.dev/slop.md, antislop-ui). Headline langsung tanpa `mt-4` kompensasi.
 - Spacing hero `py-10 lg:py-14` + teks `lg:-translate-y-12` (naik, CTA di atas fold) — bukan `py-16 lg:py-24` simetris. Preview `h-[520px] @[520px]:h-[540px] p-0` + `scale-[0.72] @[520px]:scale-[0.85] origin-top` tanpa scroll, margin kanan-kiri maksimal, simetris dengan kolom kiri. Border `1.5px`/`2px` shadow `4px`/`6px` zinc-950.

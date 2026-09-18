@@ -185,14 +185,25 @@ const openFaq = ref<number | null>(0);
                 v-for="t in Object.values(CV_TEMPLATES)"
                 :key="t.id"
                 @click="template = t.id"
-                class="rounded-base border-2 border-ink px-3 py-1 text-xs font-medium transition"
+                class="inline-flex items-center gap-1.5 rounded-base border-2 border-ink px-3 py-1 text-xs font-medium transition"
                 :class="
                   template === t.id
                     ? 'bg-navy text-white shadow-[2px_2px_0_0_#0f172a]'
                     : 'bg-white text-ink hover:bg-paper dark:bg-secondary-background dark:text-foreground dark:hover:bg-main/20'
                 "
               >
-                {{ t.label }}
+                <span>{{ t.label }}</span>
+                <span
+                  v-if="t.atsFriendly"
+                  class="rounded px-1 py-0.2 text-[9px] font-semibold"
+                  :class="
+                    template === t.id
+                      ? 'bg-white/20 text-white'
+                      : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                  "
+                >
+                  ATS
+                </span>
               </button>
             </div>
             <!-- Live preview: tinggi lebih besar di phone kecil agar tidak kepotong, scale tetap -->

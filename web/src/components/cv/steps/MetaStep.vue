@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import FormLabel from "../form/FormLabel.vue";
 import { CV_TEMPLATES } from "@/lib/cv-templates";
 
-defineProps<{
+const props = defineProps<{
   title: string;
   template: string;
   language: string;
@@ -13,6 +14,13 @@ defineEmits<{
   "update:template": [v: string];
   "update:language": [v: string];
 }>();
+
+const selectedTpl = computed(
+  () =>
+    (CV_TEMPLATES as Record<string, (typeof CV_TEMPLATES)["classic"]>)[
+      props.template
+    ] ?? CV_TEMPLATES.classic,
+);
 </script>
 
 <template>
@@ -49,7 +57,15 @@ defineEmits<{
         </p>
       </label>
       <label class="space-y-1">
-        <FormLabel label="Template" />
+        <div class="flex items-center justify-between">
+          <FormLabel label="Template" />
+          <span
+            v-if="selectedTpl.atsFriendly"
+            class="inline-flex items-center rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
+          >
+            ATS Friendly
+          </span>
+        </div>
         <select
           :value="template"
           class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus:border-ring"
@@ -65,6 +81,15 @@ defineEmits<{
             {{ t.label }}
           </option>
         </select>
+        <p
+          v-if="selectedTpl.atsFriendly"
+          class="text-[11px] text-emerald-700 dark:text-emerald-400"
+        >
+          Format satu kolom standar, direkomendasikan untuk ATS.
+        </p>
+        <p v-else class="text-[11px] text-slate-500 dark:text-slate-400">
+          Format modern dengan aksen visual dan foto profil.
+        </p>
       </label>
       <label class="space-y-1">
         <FormLabel label="Bahasa" />

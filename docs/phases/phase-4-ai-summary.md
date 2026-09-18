@@ -37,10 +37,29 @@
 | Gateway down → `502 AI service unavailable`       | ✅      |
 | Throttle ke-6/menit → `429`                       | ✅      |
 
+## ATS Keyword Tailoring (2026-09-18)
+
+Penambahan fitur penyelarasan ringkasan AI dengan deskripsi lowongan target:
+
+| File                                          | Perubahan                                                                                                                                                                                |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api/app/Services/AiService.php`              | `generateSummary()` terima `$jobDescription` opsional; system prompt tambah aturan ke-6 (selaraskan kata kunci tanpa mengarang); `buildPrompt()` tambahkan JD ke konteks (max 1500 char) |
+| `api/app/Http/Controllers/AiController.php`   | Validasi `job_description` (`nullable\|string\|max:3000`), teruskan ke `AiService`                                                                                                       |
+| `web/src/api/cv.ts`                           | `aiSummary()` terima `jobDescription?`, kirim sebagai `job_description` di body                                                                                                          |
+| `web/src/components/cv/CvForm.vue`            | `generateSummary()` terima dan teruskan `jobDescription`                                                                                                                                 |
+| `web/src/components/cv/steps/SummaryStep.vue` | Panel collapsible "Sesuaikan dengan Target Lowongan (ATS Tailoring)" + textarea (max 1500 char) + badge "Opsional" + tombol berubah "Generate dengan Lowongan" saat JD terisi            |
+
+Juga dilakukan:
+
+- Label EN `certificates` → `Certifications` di `cv-labels.ts` (standar parser ATS Workday/Taleo)
+- Badge "ATS Friendly" di selector template (`CvTemplateConfig.atsFriendly`, `MetaStep.vue`, `HomeView.vue`) — modern & classic ditandai, neon tidak. Label dropdown `<select>` tetap ringkas ("Modern", "Classic", "Neon") tanpa suffix atau em dash agar tidak overflow/terpotong di input select.
+
 ## Definisi Selesai
 
 - [x] Klik Generate → ringkasan relevan muncul ≤ 5 detik, bisa diedit manual.
 - [x] Request ke-6 dalam 1 menit → `429`.
 - [x] AI gateway down → `502 { "message": "AI service unavailable" }`.
+- [x] Generate dengan JD → ringkasan menyelaraskan kata kunci lowongan tanpa mengarang fakta baru.
+- [x] Tanpa JD → perilaku sama seperti sebelumnya (backward compatible).
 
 ← [Fase 3](phase-3-preview-template.md) · Lanjut ke [Fase 5](phase-5-pdf.md)

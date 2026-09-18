@@ -24,7 +24,7 @@ const LABELS = {
     organizations: "Organizations",
     skills: "Skills",
     projects: "Projects",
-    certificates: "Certificates",
+    certificates: "Certifications",
     languages: "Languages",
     other: "Other",
     hardSkills: "Hard skills:",

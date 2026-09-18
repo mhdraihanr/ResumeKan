@@ -90,7 +90,7 @@ Index: `user_id`. Tidak perlu index lain.
   "languages": "string ≤200",
   "certificates": [
     {
-      // array, max 5 item, opsional — section sendiri, heading ATS Sertifikasi/Certificates
+      // array, max 5 item, opsional — section sendiri, heading ATS Sertifikasi/Certifications
       "name": "string ≤100 — nama sertifikat",
       "issuer": "string ≤100 — penerbit, tampil 'by Penerbit' bold",
       "year": "string ≤10 — tahun terbit, mis. 2024",

@@ -243,7 +243,7 @@ watch(
   { deep: true },
 );
 
-async function generateSummary() {
+async function generateSummary(jobDescription?: string) {
   if (!props.cvId) {
     aiError.value = "Simpan CV dulu sebelum generate.";
     return;
@@ -251,7 +251,12 @@ async function generateSummary() {
   aiLoading.value = true;
   aiError.value = "";
   try {
-    const res = await cvApi.aiSummary(props.cvId, props.language, local.value);
+    const res = await cvApi.aiSummary(
+      props.cvId,
+      props.language,
+      local.value,
+      jobDescription,
+    );
     local.value.summary = res.summary;
   } catch (e: unknown) {
     const err = e as { status?: number; message?: string };
