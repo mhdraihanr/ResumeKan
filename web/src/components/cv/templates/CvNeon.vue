@@ -94,7 +94,7 @@ const contactItems = computed(() => {
               :href="item.href"
               target="_blank"
               rel="noopener"
-              class="min-w-0 break-words text-[#111] underline decoration-[#9ca3af] underline-offset-2 hover:decoration-[#111]"
+              class="min-w-0 break-words text-[#111] underline decoration-[#6b7280] underline-offset-2 hover:decoration-[#111]"
             >
               {{ item.label }}
             </a>
@@ -111,7 +111,7 @@ const contactItems = computed(() => {
     />
   </header>
 
-  <p v-if="data.summary" class="mb-5 text-[14px] leading-relaxed text-[#444]">
+  <p v-if="data.summary" class="mb-5 text-[14px] leading-relaxed text-[#111]">
     {{ data.summary }}
   </p>
 
@@ -134,18 +134,18 @@ const contactItems = computed(() => {
             <span class="font-bold"
               >{{ experience.position || t.position }},</span
             >
-            <em v-if="experience.company" class="ml-1 text-[#444]">{{
+            <em v-if="experience.company" class="ml-1 text-[#111]">{{
               experience.company
             }}</em>
           </p>
           <p
             v-if="experience.employmentType"
-            class="text-[9pt] leading-snug text-[#444]"
+            class="text-[9pt] leading-snug text-[#111]"
           >
             {{ experience.employmentType }}
           </p>
         </div>
-        <div class="shrink-0 text-[9pt] leading-snug text-[#444] sm:text-right">
+        <div class="shrink-0 text-[9pt] leading-snug text-[#111] sm:text-right">
           <p class="font-semibold text-[#111]">
             {{ experience.startDate }} - {{ experience.endDate }}
           </p>
@@ -169,14 +169,14 @@ const contactItems = computed(() => {
         <div class="min-w-0 text-[10.5pt] text-[#111]">
           <p>
             <span class="font-bold">{{ education.degree }},</span>
-            <em class="ml-1 text-[#444]">{{ education.institution }}</em>
+            <em class="ml-1 text-[#111]">{{ education.institution }}</em>
           </p>
-          <p v-if="education.gpa" class="text-[9pt] leading-snug text-[#444]">
+          <p v-if="education.gpa" class="text-[9pt] leading-snug text-[#111]">
             {{ t.gpa }}
             <span class="font-semibold text-[#111]">{{ education.gpa }}</span>
           </p>
         </div>
-        <div class="shrink-0 text-[9pt] leading-snug text-[#444] sm:text-right">
+        <div class="shrink-0 text-[9pt] leading-snug text-[#111] sm:text-right">
           <p class="font-semibold text-[#111]">{{ education.year }}</p>
           <p v-if="education.location">{{ education.location }}</p>
         </div>
@@ -200,7 +200,7 @@ const contactItems = computed(() => {
     </p>
     <p
       v-if="softList.length"
-      class="mt-1 text-[10pt] leading-relaxed text-[#444]"
+      class="mt-1 text-[10pt] leading-relaxed text-[#111]"
     >
       <span class="font-semibold text-[#111]">{{ t.softSkills }}</span>
       {{ softList.join(" · ") }}
@@ -223,11 +223,11 @@ const contactItems = computed(() => {
       >
         <p class="text-[10.5pt] text-[#111]">
           <span class="font-bold">{{ organization.organization }}</span>
-          <em v-if="organization.role" class="ml-1 text-[#444]">{{
+          <em v-if="organization.role" class="ml-1 text-[#111]">{{
             organization.role
           }}</em>
         </p>
-        <p class="shrink-0 text-[9pt] text-[#444] sm:text-right">
+        <p class="shrink-0 text-[9pt] text-[#111] sm:text-right">
           <span class="font-semibold text-[#111]">{{
             organization.period
           }}</span>
@@ -267,13 +267,13 @@ const contactItems = computed(() => {
       </p>
       <p
         v-if="project.objective"
-        class="mt-0.5 text-[10pt] leading-relaxed text-[#444]"
+        class="mt-0.5 text-[10pt] leading-relaxed text-[#111]"
       >
         {{ project.objective }}
       </p>
       <p
         v-if="project.role || project.techStack"
-        class="mt-0.5 text-[9pt] text-[#444]"
+        class="mt-0.5 text-[9pt] text-[#111]"
       >
         <template v-if="project.role">
           <span class="font-semibold text-[#111]">{{ t.role }}</span>
@@ -296,7 +296,7 @@ const contactItems = computed(() => {
     </h2>
     <div v-for="(cert, index) in data.certificates" :key="index" class="mt-3">
       <div class="flex items-baseline justify-between gap-4">
-        <p class="text-[10.5pt] text-[#444]">
+        <p class="text-[10.5pt] text-[#111]">
           {{ cert.name }}
           <span class="font-semibold text-[#111]">by {{ cert.issuer }}</span>
         </p>
@@ -304,7 +304,7 @@ const contactItems = computed(() => {
           {{ cert.year }}
         </p>
       </div>
-      <p v-if="cert.credentialId" class="text-[9pt] text-[#444]">
+      <p v-if="cert.credentialId" class="text-[9pt] text-[#111]">
         <span class="font-semibold text-[#111]">ID:</span>
         {{ cert.credentialId }}
       </p>
@@ -317,7 +317,7 @@ const contactItems = computed(() => {
     >
       {{ t.languages }}
     </h2>
-    <p class="mt-2 text-[10pt] leading-relaxed text-[#444]">
+    <p class="mt-2 text-[10pt] leading-relaxed text-[#111]">
       {{ data.languages }}
     </p>
   </section>

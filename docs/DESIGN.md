@@ -86,42 +86,40 @@ tanpa blur, warna flat, tapi tetap rapi dan profesional untuk audiens pencari ke
 - Struktur entry Proyek di preview (semua template): baris 1 `Judul Proyek` (bold), baris 2 `Objective` (body), baris 3 `Peran:` label ink semibold + nilai body, dipisah `·`, lalu `Tech Stack:` label ink semibold + nilai body dalam baris yang sama. Hierarki: title sebagai entitas, objective sebagai deskripsi, role + tech stack sebagai metadata berlabel satu baris (Exa ATScore: name → description → tools; TMJ Studio: stack di akhir). Metadata sengaja **tidak** pakai bullet: marker bullet menempel tepat sebelum label field sehingga parser ATS berisiko menggabungkannya ke narasi deskripsi; satu baris berlabel tanpa marker menjaga batas field tetap eksplisit (revisi 2026-09-13).
 - Struktur entry Sertifikasi di preview (semua template): baris 1 `Nama Sertifikat` + `by Penerbit` (label `by` ink semibold, nama penerbit body), baris 2 `ID:` label ink semibold + nilai body. Tahun tetap tier meta (kwartener, tanggal bukan pembeda).
 
-### Hierarki Tipografi Teks CV (revisi 2026-09-13)
+### Hierarki Tipografi Teks CV (revisi 2026-09-18 — Pure Monochrome Ink)
 
 Empat tier, dari paling kuat ke paling lemah. Angka kontras diukur di atas putih (WCAG 2.1):
 
-| Tier | Peran                   | Kelas Tailwind                                | Hex terukur | Kontras                       |
-| ---- | ----------------------- | --------------------------------------------- | ----------- | ----------------------------- |
-| T1   | Entitas + label         | `font-semibold text-slate-900` (Neon: `#111`) | `#0f172b`   | 17.83:1                       |
-| T2   | Isi / nilai / deskripsi | `text-slate-700` (Neon: `#444`)               | `#314158`   | 10.36:1                       |
-| T3   | Metadata sekunder       | `text-slate-500`                              | `#62748e`   | 4.76:1                        |
-| T4   | Dekoratif               | `text-slate-300`                              | `#cad5e2`   | 1.49:1 (sengaja, pemisah `·`) |
+| Tier | Peran                     | Kelas Tailwind                                  | Hex terukur | Kontras                          |
+| ---- | ------------------------- | ----------------------------------------------- | ----------- | -------------------------------- |
+| T1   | Entitas + label           | `font-semibold text-slate-900` (Neon: `#111`)   | `#0f172b`   | 17.83:1                          |
+| T2   | Isi / nilai / deskripsi   | `text-slate-900` (Neon: `#111`)                 | `#0f172b`   | 17.83:1                          |
+| T3   | Metadata sekunder         | `text-slate-700` (Neon: `#111` / `#314158`)     | `#314158`   | 10.36:1                          |
+| T4   | Dekoratif (pemisah/garis) | `text-slate-400` (Neon: `decoration-[#6b7280]`) | `#90a1b9`   | 2.56:1 (pemisah `·` & underline) |
 
-- Alasan (R-31): nilai informasi tidak boleh jadi teks paling pucat di dokumen. Sebelum revisi, label `Peran:` dan `Tech Stack:` pakai slate-500 (4.76:1) sehingga metadata berlabel terbaca lebih lemah daripada bullet deskripsi (slate-700, 10.36:1). Itu salah prioritas: label justru yang memandu recruiter dan parser ATS untuk mengindeks field.
-- Label + nilai dipisah dua tonjolan: label T1 semibold (pengindeks), nilai T2 regular (isi). Membaca jadi `Peran:` → `Fullstack Developer`, bukan satu blok abu-abu seragam.
-- Metadata Experience (`Employment Type · Lokasi`) dinaikkan slate-500 → slate-700 agar konsisten dengan pola Education. Satu section memakai tier berbeda untuk hal yang sama bikin dokumen terlihat tidak sengaja (R-08).
-- T3 hanya untuk tanggal, periode, dan bagian yang benar-benar opsional. Tanggal tidak membantu keputusan shortlist (O\*NET Work Importance Locator: kandidat menyaring dari peran dan skill dulu, kronologi belakangan).
-- Semua teks lolos WCAG AA (minimum 4.5:1). T4 satu-satunya di bawah AA dan hanya dipakai untuk pemisah `·` yang tidak membawa makna (`aria-hidden` secara visual, dekoratif).
-- Catatan token: kelas `text-slate-900` resolve ke `#0f172b`, sementara tabel palet §3 mencantumkan Ink `#0f172a`. Selisih 1 bit di channel biru, tidak terlihat, tapi pengukuran kontras memakai nilai hasil resolve (`#0f172b`).
+- Alasan revisi 2026-09-18 (Pure Monochrome Ink): isi deskripsi/bullet, ringkasan, dan teks body dinaikkan dari `slate-700` (`#314158`) ke `text-slate-900` (`#0f172b`, Neon `#111`) agar teks di preview dan cetak/download PDF hitam pekat maksimal, mengikuti standar resume ATS dan cetak laser. Pembeda T1 dan T2 kini murni berbasis font weight (`font-semibold`/`font-bold` vs `font-normal`), konsisten dengan standar resume Harvard.
+- Metadata sekunder (T3, periode & tanggal) dinaikkan dari `slate-500` (4.76:1) ke `text-slate-700` (10.36:1) agar tidak pudar/light abu saat dicetak di printer monokrom.
+- Elemen dekoratif T4 (pemisah `·` dan garis underline istirahat) dinaikkan dari `slate-300` (1.49:1) ke `text-slate-400` / `decoration-slate-400` (2.56:1) agar lebih kontras dan tegas tanpa mendominasi teks.
+- Semua teks terbaca jauh melampaui WCAG AA (minimum 4.5:1), dengan body text mencapai 17.83:1.
 
 ### Warna Link di Dalam Dokumen CV
 
-Link tidak memakai warna aksen. Aturannya (revisi 2026-09-13):
+Link tidak memakai warna aksen. Aturannya (revisi 2026-09-18):
 
 | Template | Warna teks                 | Underline (istirahat)  | Underline (hover)      | Kontras |
 | -------- | -------------------------- | ---------------------- | ---------------------- | ------- |
-| modern   | `text-slate-900` `#0f172b` | `decoration-slate-300` | `decoration-slate-900` | 17.83:1 |
-| classic  | `text-slate-900` `#0f172b` | `decoration-slate-300` | `decoration-slate-900` | 17.83:1 |
-| neon     | `text-[#111]` `#111111`    | `decoration-[#9ca3af]` | `decoration-[#111]`    | 18.88:1 |
+| modern   | `text-slate-900` `#0f172b` | `decoration-slate-400` | `decoration-slate-900` | 17.83:1 |
+| classic  | `text-slate-900` `#0f172b` | `decoration-slate-400` | `decoration-slate-900` | 17.83:1 |
+| neon     | `text-[#111]` `#111111`    | `decoration-[#6b7280]` | `decoration-[#111]`    | 18.88:1 |
 
 - Akar masalah (ditemukan 2026-09-13 lewat pengukuran PDF asli): `CvPreview.vue` punya `@media print { a { color: inherit !important; text-decoration: none !important } }`. Aturan `!important` itu **mengalahkan setiap class warna Tailwind** pada `<a>`, apa pun yang ditulis di template. Di Browsershot (yang merender dalam print media) link jatuh ke `inherit` = warna parent (`<p class="text-slate-600">`), jadi link di PDF selalu `#45556c` (slate-600), bukan ink, dan underline-nya hilang. Akibatnya preview di layar dan PDF memang beda persis di link, dan R5 pertama (mengubah class di template) tidak mengubah PDF sama sekali.
 - Perbaikan: aturan print dipersempit ke `a:not([class])` dan `!important` dicabut. Link tanpa class (mis. tautan di dalam teks yang ditulis user) tetap dinetralkan supaya biru default browser tidak ikut tercetak; link template CV, yang semuanya punya class warna sendiri, kini benar-benar menerapkan warnanya di PDF. Alternatif menghapus aturan print sepenuhnya ditolak karena `<a>` berwarna di dalam konten user akan ikut tercetak biru.
 - Konsekuensi: palet dokumen menyusut ke 2 netral + 1 aksen border (R-29), navy hanya dipakai untuk border heading section modern, bukan teks.
 - Underline tetap `underline` permanen (bukan `hover:underline` saja) supaya link tetap terbaca sebagai link tanpa warna. Di atas kertas, underline adalah satu-satunya sinyal link yang bertahan (WCAG 1.4.1: jangan pakai warna sebagai satu-satunya pembeda).
-- Underline istirahat pakai `decoration-slate-300` (`#cad5e2`, T4) sebagai garis tipis; hover menguat ke ink. Ini satu-satunya pemakaian T4 pada elemen fungsional, dan tepat karena garis underline bukan teks (tidak ada rasio kontras teks yang berlaku).
-- Verifikasi lewat PDF asli (bukan simulasi): warna teks link di PDF terukur `#0f172b` (modern, classic) dan `#111111` (neon), dengan garis underline `#cad5e2` dan `#9ca3af` benar-benar ada sebagai vector di PDF. Diukur juga di browser: media `screen` dan `print` menghasilkan warna dan underline identik, jadi preview = PDF.
+- Underline istirahat memakai `decoration-slate-400` (`#90a1b9`) / Neon `decoration-[#6b7280]` agar lebih kontras dari sebelumnya (`slate-300`); hover menguat ke ink.
+- Verifikasi lewat PDF asli (bukan simulasi): warna teks link di PDF terukur `#0f172b` (modern, classic) dan `#111111` (neon), dengan garis underline benar-benar ada sebagai vector di PDF. Diukur juga di browser: media `screen` dan `print` menghasilkan warna dan underline identik, jadi preview = PDF.
 
-### Warna Data Pribadi di Header (revisi 2026-09-13)
+### Warna Data Pribadi di Header (revisi 2026-09-18)
 
 Baris kontak di header tidak lagi dua tonjolan. Data pribadi non-link (email, telepon, alamat) naik dari slate-600 ke **ink**, sama dengan link:
 
@@ -129,7 +127,7 @@ Baris kontak di header tidak lagi dua tonjolan. Data pribadi non-link (email, te
 | --------------------------------- | -------------------------- | --------- | --------- |
 | email, telepon, alamat            | `text-slate-900` `#0f172b` | `#111111` | tidak     |
 | LinkedIn, Website, GitHub (`<a>`) | `text-slate-900` `#0f172b` | `#111111` | ya        |
-| pemisah `·`                       | `text-slate-300` (T4)      | n/a       | tidak     |
+| pemisah `·`                       | `text-slate-400` (T4)      | n/a       | tidak     |
 
 - Alasan: sebelumnya email/telepon/alamat dibaca lebih lemah dari link di sebelahnya (`slate-600` = `#45556c`, 7.58:1 vs ink 17.83:1) padahal keduanya sama-sama cara recruiter menghubungi kandidat. Beda tonjolan di baris yang sama membuat link terlihat lebih penting daripada nomor telepon, padahal tidak.
 - Underline **tidak** diberikan ke email/telepon/alamat. Bukan link, jadi underline akan jadi janji palsu (recruiter mengira bisa diklik). Warna saja sudah menyamakan bobot visual; underline tetap eksklusif penanda link (WCAG 1.4.1, dan konsisten dengan aturan link di atas).

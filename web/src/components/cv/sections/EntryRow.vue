@@ -9,7 +9,7 @@ defineProps<{ title: string; period: string; modern?: boolean }>();
     <p class="text-[10pt] font-semibold text-slate-900">{{ title }}</p>
     <p
       :class="[
-        'shrink-0 text-[9pt] text-slate-500',
+        'shrink-0 text-[9pt] text-slate-700',
         modern ? '' : 'tabular-nums',
       ]"
     >

@@ -38,33 +38,33 @@ const {
         class="flex flex-wrap gap-x-2 text-[10pt] text-slate-900"
       >
         <template v-for="(item, i) in contactDirect" :key="item">
-          <span v-if="i > 0" class="text-slate-300">·</span
+          <span v-if="i > 0" class="text-slate-400">·</span
           ><span>{{ item }}</span>
         </template>
       </p>
       <p
         v-if="contactLinks.length"
-        class="flex flex-wrap gap-x-2 text-[10pt] text-slate-600"
+        class="flex flex-wrap gap-x-2 text-[10pt] text-slate-700"
       >
         <template v-for="(item, i) in contactLinks" :key="item.href">
-          <span v-if="i > 0" class="text-slate-300">·</span>
+          <span v-if="i > 0" class="text-slate-400">·</span>
           <a
             :href="item.href"
             target="_blank"
             rel="noopener"
-            class="text-slate-900 underline decoration-slate-300 underline-offset-2 hover:decoration-slate-900"
+            class="text-slate-900 underline decoration-slate-400 underline-offset-2 hover:decoration-slate-900"
             >{{ item.label }}</a
           >
         </template>
       </p>
     </div>
-    <p v-else class="mt-1 text-[10pt] text-slate-600">
+    <p v-else class="mt-1 text-[10pt] text-slate-700">
       email · phone · address
     </p>
   </header>
 
   <section v-if="data.summary" class="mb-5">
-    <p class="text-[10pt] leading-relaxed text-slate-700">{{ data.summary }}</p>
+    <p class="text-[10pt] leading-relaxed text-slate-900">{{ data.summary }}</p>
   </section>
 
   <section v-if="sortedExperiences.length" class="mb-5">
@@ -77,7 +77,7 @@ const {
       />
       <p
         v-if="e.employmentType || e.location"
-        class="text-[9pt] text-slate-700"
+        class="text-[9pt] text-slate-900"
       >
         <span v-if="e.employmentType">{{ e.employmentType }}</span>
         <span v-if="e.employmentType && e.location"> · </span>
@@ -91,10 +91,10 @@ const {
     <PreviewSection :title="t.education" :modern="true" />
     <div v-for="(ed, i) in data.education" :key="i" class="mt-2">
       <EntryRow :title="ed.degree" :period="ed.year" :modern="true" />
-      <p class="text-[10pt] text-slate-700">
+      <p class="text-[10pt] text-slate-900">
         {{ ed.institution }}<span v-if="ed.location"> · {{ ed.location }}</span>
       </p>
-      <p v-if="ed.gpa" class="text-[9pt] text-slate-700">
+      <p v-if="ed.gpa" class="text-[9pt] text-slate-900">
         {{ t.gpa }} <span class="font-semibold">{{ ed.gpa }}</span>
       </p>
       <BulletList :items="bullets(ed.achievements)" />
@@ -109,7 +109,7 @@ const {
         :period="o.period"
         :modern="true"
       />
-      <p v-if="o.role" class="text-[9pt] text-slate-700">
+      <p v-if="o.role" class="text-[9pt] text-slate-900">
         <span class="font-semibold text-slate-900">{{ t.role }}</span>
         {{ o.role }}
       </p>
@@ -121,14 +121,14 @@ const {
     <PreviewSection :title="t.skills" :modern="true" />
     <p
       v-if="hardList.length"
-      class="mt-2 text-[10pt] leading-relaxed text-slate-700"
+      class="mt-2 text-[10pt] leading-relaxed text-slate-900"
     >
       <span class="font-semibold">{{ t.hardSkills }}</span>
       {{ hardList.join(" · ") }}
     </p>
     <p
       v-if="softList.length"
-      class="mt-1 text-[10pt] leading-relaxed text-slate-700"
+      class="mt-1 text-[10pt] leading-relaxed text-slate-900"
     >
       <span class="font-semibold">{{ t.softSkills }}</span>
       {{ softList.join(" · ") }}
@@ -159,10 +159,10 @@ const {
             /></svg
         ></a>
       </p>
-      <p v-if="p.objective" class="text-[10pt] text-slate-700">
+      <p v-if="p.objective" class="text-[10pt] text-slate-900">
         {{ p.objective }}
       </p>
-      <p v-if="p.role || p.techStack" class="text-[9pt] text-slate-700">
+      <p v-if="p.role || p.techStack" class="text-[9pt] text-slate-900">
         <template v-if="p.role">
           <span class="font-semibold text-slate-900">{{ t.role }}</span>
           {{ p.role }}
@@ -180,13 +180,13 @@ const {
     <PreviewSection :title="t.certificates" :modern="true" />
     <div v-for="(c, i) in data.certificates" :key="i" class="mt-2">
       <div class="flex items-baseline justify-between gap-4">
-        <p class="text-[10pt] text-slate-700">
+        <p class="text-[10pt] text-slate-900">
           {{ c.name }}
           <span class="font-semibold text-slate-900">by {{ c.issuer }}</span>
         </p>
-        <p class="shrink-0 text-[9pt] text-slate-500">{{ c.year }}</p>
+        <p class="shrink-0 text-[9pt] text-slate-700">{{ c.year }}</p>
       </div>
-      <p v-if="c.credentialId" class="text-[9pt] text-slate-700">
+      <p v-if="c.credentialId" class="text-[9pt] text-slate-900">
         <span class="font-semibold text-slate-900">ID:</span>
         {{ c.credentialId }}
       </p>
@@ -194,7 +194,7 @@ const {
   </section>
   <section v-if="data.languages" class="mb-2">
     <PreviewSection :title="t.other" :modern="true" />
-    <p class="mt-2 text-[10pt] text-slate-700">
+    <p class="mt-2 text-[10pt] text-slate-900">
       <span class="font-semibold">{{ t.languages }}</span> {{ data.languages }}
     </p>
   </section>

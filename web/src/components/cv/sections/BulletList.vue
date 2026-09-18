@@ -1,12 +1,12 @@
 <script setup lang="ts">
-// Bullet list CV: 1 baris = 1 bullet, marker slate-500.
+// Bullet list CV: 1 baris = 1 bullet, teks slate-900, marker slate-700.
 defineProps<{ items: string[] }>();
 </script>
 
 <template>
   <ul
     v-if="items.length"
-    class="mt-1 list-disc space-y-0.5 pl-5 text-[10pt] text-slate-700 marker:text-slate-500"
+    class="mt-1 list-disc space-y-0.5 pl-5 text-[10pt] text-slate-900 marker:text-slate-700"
   >
     <li v-for="(b, j) in items" :key="j" class="leading-normal pl-1">
       {{ b }}
