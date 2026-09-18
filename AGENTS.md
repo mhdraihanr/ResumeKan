@@ -65,12 +65,21 @@ Tujuan: tidak ada perintah yang menggantung, menunggu input, atau memblokir term
 
 ### 6.1 Mode eksekusi
 
-- **Perintah one-shot** (build, lint, test, type-check, verifikasi): jalankan sinkron dan tunggu sampai selesai. Jangan diberi timeout buatan dan jangan dijalankan di background.
+- **Perintah one-shot** (build, lint, test, type-check, verifikasi): jalankan sinkron. Jika perintah berisiko menggantung atau berjalan tanpa kemajuan melebihi batas waktu wajar, pasang batas pengaman (safety timeout).
 - **Proses long-running** (`pnpm dev`, `php artisan serve`, `vite preview`): jalankan sebagai proses background/async, **jangan** pakai `&` di dalam shell.
 - Jangan mem-_pipe_ perintah interaktif ke `head`/`tail`/`grep`.
 - Jangan menyalurkan secret ke terminal.
 
-### 6.2 Jebakan spesifik project ini
+### 6.2 Penanganan Terminal Stuck / Menggantung
+
+- **Hentikan Segera jika Stuck**: Jika terminal macet atau stuck agak lama (tidak ada respons atau kemajuan di luar batas waktu wajar, menunggu prompt tersembunyi, timeout, atau deadlock proses): **segera hentikan (kill/stop/cancel)** perintah tersebut. Jangan biarkan terminal menggantung tanpa akhir.
+- **Beralih ke Cara Lain**: Setelah menghentikan proses yang stuck, **jangan mengulang perintah identik yang sama**. Beralihlah ke pendekatan alternatif:
+  - Utamakan tool diagnostik internal (mis. `get_errors`) atau pembacaan file/inspeksi browser dibanding compiler CLI berat.
+  - Pecah perintah kompleks (mis. jika `pnpm build` macet, jalankan terpisah `pnpm type-check` dan `pnpm build-only`).
+  - Gunakan alternatif yang lebih ringan (mis. Node/Python inline script atau uji per-komponen).
+  - Jika kendala tetap memerlukan tindakan manual, laporkan ringkas ke pengguna dan lanjutkan tugas yang masih bisa dikerjakan.
+
+### 6.3 Jebakan spesifik project ini
 
 - **`pnpm build` bisa memblokir.** Script-nya adalah `run-p type-check "build-only"` yang berjalan paralel. Jika `type-check` gagal, `run-p` hanya mencetak `ERROR: "type-check" exited with 2` dan output vite tenggelam sehingga tampak seperti menggantung. Untuk diagnosis, jalankan terpisah: `pnpm type-check` lalu `pnpm build-only`.
 - **Tailwind v4 memakai `!important` di CSS.** Saat mencari pola itu dengan `grep`, gunakan kutip tunggal (`grep '!important'`). Kutip ganda memicu history expansion bash dan menghasilkan `event not found`.
@@ -79,12 +88,12 @@ Tujuan: tidak ada perintah yang menggantung, menunggu input, atau memblokir term
 - **Verifikasi PDF butuh harness.** Jalur produksi ada di `CvController::resolvePrintHtml` + `PdfService::render` (memerlukan auth). Untuk verifikasi tanpa auth, buat route sementara, lalu **hapus route dan kembalikan `api/bootstrap/app.php`** setelah selesai. Jangan tinggalkan harness di working tree.
 - **Jangan pakai `git stash --include-untracked` tanpa cek `git status` setelahnya** — pernah menghilangkan `AGENTS.md` dari working tree.
 
-### 6.3 Menunggu server siap
+### 6.4 Menunggu server siap
 
 - Setelah menjalankan server, jangan menunggu dengan `sleep` atau loop. Lakukan **satu** probe singkat (mis. satu `curl` ke `/up`).
 - Jika belum siap, laporkan ke pengguna, jangan mencoba berulang kali.
 
-### 6.4 Setelah verifikasi
+### 6.5 Setelah verifikasi
 
 - Laporkan exit code dan ringkasan hasil, bukan hanya klaim "berhasil".
 - Bersihkan file sementara dan harness verifikasi, lalu pastikan `git status` hanya memuat perubahan yang disengaja.

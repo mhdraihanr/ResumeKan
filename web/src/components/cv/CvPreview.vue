@@ -21,9 +21,17 @@ const props = withDefaults(
     language?: string;
     compact?: boolean;
     paged?: boolean;
+    zoom?: number | "fit";
   }>(),
-  { compact: false, language: "id", paged: false },
+  { compact: false, language: "id", paged: false, zoom: "fit" },
 );
+
+const emit = defineEmits<{
+  (
+    e: "scaleChange",
+    val: { scale: number; fitScale: number; isFit: boolean },
+  ): void;
+}>();
 
 const normal = computed(() => normalizeCvData({ ...props.data }));
 const tpl = computed(() => getTemplateConfig(props.template));
@@ -50,8 +58,9 @@ const pagedWrapRef = ref<HTMLElement | null>(null);
 const pageStarts = ref<number[]>([0]);
 const measureTotal = ref(0);
 const scale = ref(1);
+const fitScale = ref(1);
 const wrapperHeight = ref("auto");
-const wrapperWidth = ref("100%");
+const wrapperWidth = ref("auto");
 let ro: ResizeObserver | null = null;
 
 // Section (atau header) adalah blok atomik yang tidak boleh terpotong antar
@@ -106,18 +115,29 @@ const pageHeights = computed(() =>
 
 function updateWrapperSize() {
   // Tinggi layout = N lembar × tinggi A4 + gap 16px antar lembar.
-  // Wrapper melebar penuh kartu, sheet di-center via transform-origin top left
+  // Wrapper diukur presisi mengikuti skala agar container dapat scroll rapi saat zoom.
   const sheets = pageStarts.value.length;
   const layoutHeight = sheets * A4_H + Math.max(0, sheets - 1) * 16;
   wrapperHeight.value = Math.ceil(layoutHeight * scale.value) + "px";
-  // Width = 100% agar memenuhi kartu, content tetap di-scale via paged-stack
+  wrapperWidth.value = Math.ceil(A4_W * scale.value) + "px";
 }
 
 function updateScale() {
   if (!pagedWrapRef.value) return;
-  const available = pagedWrapRef.value.parentElement?.clientWidth ?? A4_W;
-  scale.value = Math.min(1, available / A4_W);
+  const parent = pagedWrapRef.value.parentElement;
+  const available = parent?.clientWidth ?? A4_W;
+  // Margin visual nyaman agar kertas dokumen memiliki ruang napas dan tidak terlalu zoom
+  const margin = available > 500 ? 80 : 24;
+  const targetAvailable = Math.max(160, available - margin);
+  fitScale.value = Math.min(0.85, Math.max(0.2, targetAvailable / A4_W));
+  const isFit = props.zoom === "fit" || props.zoom == null;
+  scale.value = isFit ? fitScale.value : Math.max(0.2, props.zoom / 100);
   updateWrapperSize();
+  emit("scaleChange", {
+    scale: scale.value,
+    fitScale: fitScale.value,
+    isFit,
+  });
 }
 
 watch(
@@ -128,10 +148,23 @@ watch(
   { deep: true },
 );
 
+watch(
+  () => props.zoom,
+  () => {
+    updateScale();
+  },
+);
+
 onMounted(() => {
   if (props.paged) {
-    ro = new ResizeObserver(updateScale);
-    if (pagedWrapRef.value) ro.observe(pagedWrapRef.value);
+    const parent = pagedWrapRef.value?.parentElement;
+    if (parent) {
+      ro = new ResizeObserver(() => updateScale());
+      ro.observe(parent);
+    } else if (pagedWrapRef.value) {
+      ro = new ResizeObserver(() => updateScale());
+      ro.observe(pagedWrapRef.value);
+    }
     nextTick(remeasure);
   }
 });
@@ -159,7 +192,7 @@ onBeforeUnmount(() => ro?.disconnect());
   <div
     v-else
     ref="pagedWrapRef"
-    class="paged-preview-wrapper"
+    class="paged-preview-wrapper mx-auto"
     :style="{ width: wrapperWidth, height: wrapperHeight }"
   >
     <!-- Hidden measure container → lebar konten identik print -->
@@ -187,7 +220,7 @@ onBeforeUnmount(() => ro?.disconnect());
 
     <!-- Lembar kertas A4 (dengan margin putih) tersusun vertikal, di-scale agar muat panel -->
     <div
-      class="paged-stack mx-auto"
+      class="paged-stack"
       :style="{
         transform: `scale(${scale})`,
         transformOrigin: 'top left',
@@ -274,8 +307,9 @@ onBeforeUnmount(() => ro?.disconnect());
   background: #fff;
   border-radius: 4px;
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.12),
-    0 1px 2px rgba(0, 0, 0, 0.06);
+    0 4px 6px -1px rgba(15, 23, 42, 0.08),
+    0 2px 4px -2px rgba(15, 23, 42, 0.06),
+    0 0 0 1px rgba(15, 23, 42, 0.08);
 }
 
 .a4-clip {

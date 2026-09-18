@@ -45,6 +45,40 @@ function onRemovedEntries(count: number) {
   removedTimer = setTimeout(() => (removedNote.value = ""), 4000);
 }
 
+// --- Preview Zoom Controls (10% step, min 50%, max 150%) ---
+const zoom = ref<number | "fit">("fit");
+const currentScale = ref(1);
+const fitScale = ref(1);
+const isFit = ref(true);
+
+const displayZoom = computed(() => Math.round(currentScale.value * 100));
+
+function onScaleChange(e: { scale: number; fitScale: number; isFit: boolean }) {
+  currentScale.value = e.scale;
+  fitScale.value = e.fitScale;
+  isFit.value = e.isFit;
+}
+
+const ZOOM_PRESETS = [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150];
+
+function zoomIn() {
+  const cur = displayZoom.value;
+  // Snap ke preset kelipatan 10% berikutnya (min selisih 4% agar perubahan terlihat)
+  const next = ZOOM_PRESETS.find((p) => p >= cur + 4);
+  zoom.value = next ?? 150;
+}
+
+function zoomOut() {
+  const cur = displayZoom.value;
+  // Snap ke preset kelipatan 10% sebelumnya (min selisih 4% agar perubahan terlihat)
+  const prev = [...ZOOM_PRESETS].reverse().find((p) => p <= cur - 4);
+  zoom.value = prev ?? 50;
+}
+
+function resetFit() {
+  zoom.value = "fit";
+}
+
 onMounted(async () => {
   if (isEdit.value && cvId.value) {
     await cvStore.fetchOne(cvId.value);
@@ -237,19 +271,105 @@ async function downloadPdf() {
           <div
             class="lg:sticky lg:top-6 lg:max-h-[calc(100vh-6rem)] lg:overflow-auto"
           >
-            <div class="mb-2 flex items-center justify-between">
-              <span
-                class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-foreground/70"
-                >Preview · {{ template }}</span
-              >
+            <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span
+                  class="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-foreground/70"
+                >
+                  Preview · {{ template }}
+                </span>
+                <span
+                  class="inline-flex items-center rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 dark:border-border dark:bg-zinc-800 dark:text-zinc-300"
+                >
+                  A4 Canvas
+                </span>
+              </div>
+
+              <!-- Zoom Controls -->
+              <div class="flex items-center gap-1">
+                <button
+                  type="button"
+                  @click="zoomOut"
+                  :disabled="displayZoom <= 50"
+                  class="flex size-6 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300 dark:border-border dark:bg-secondary-background dark:text-foreground dark:hover:bg-zinc-800 dark:disabled:border-zinc-800/50 dark:disabled:text-zinc-600"
+                  title="Perkecil (-10%)"
+                  aria-label="Perkecil zoom preview"
+                >
+                  <svg
+                    class="size-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2.5"
+                      d="M20 12H4"
+                    />
+                  </svg>
+                </button>
+
+                <span
+                  class="inline-flex h-6 min-w-[3.25rem] items-center justify-center rounded-md border border-slate-200/90 bg-white px-1.5 font-mono text-xs font-semibold tabular-nums tracking-tight text-slate-800 shadow-2xs dark:border-border dark:bg-zinc-800/90 dark:text-zinc-100"
+                >
+                  {{ displayZoom }}%
+                </span>
+
+                <button
+                  type="button"
+                  @click="zoomIn"
+                  :disabled="displayZoom >= 150"
+                  class="flex size-6 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300 dark:border-border dark:bg-secondary-background dark:text-foreground dark:hover:bg-zinc-800 dark:disabled:border-zinc-800/50 dark:disabled:text-zinc-600"
+                  title="Perbesar (+10%)"
+                  aria-label="Perbesar zoom preview"
+                >
+                  <svg
+                    class="size-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2.5"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                </button>
+
+                <span
+                  class="mx-0.5 h-3.5 w-px bg-slate-200 dark:bg-zinc-700"
+                  aria-hidden="true"
+                />
+
+                <button
+                  type="button"
+                  @click="resetFit"
+                  :disabled="isFit"
+                  class="flex h-6 items-center rounded-md border border-slate-200 bg-white px-2 text-xs font-medium transition hover:bg-slate-50 disabled:cursor-default disabled:border-slate-100 disabled:text-slate-300 dark:border-border dark:bg-secondary-background dark:text-foreground dark:hover:bg-zinc-800 dark:disabled:border-zinc-800/50 dark:disabled:text-zinc-600"
+                  :class="
+                    isFit
+                      ? 'bg-slate-50 font-normal dark:bg-zinc-800/40'
+                      : 'font-semibold text-slate-700 dark:text-zinc-200'
+                  "
+                  title="Sesuaikan dengan lebar layar (Auto-fit)"
+                >
+                  Fit
+                </button>
+              </div>
             </div>
+
             <div
-              class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-border dark:bg-secondary-background"
+              class="overflow-x-auto rounded-2xl border border-slate-200 bg-slate-100 p-3 shadow-sm sm:p-4 dark:border-border dark:bg-zinc-900/60"
             >
               <CvPreview
                 :data="data"
                 :template="template"
                 :language="language"
+                :zoom="zoom"
+                @scale-change="onScaleChange"
                 paged
               />
             </div>

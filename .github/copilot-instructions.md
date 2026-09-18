@@ -59,7 +59,7 @@ Catatan:
 
 Aturan lengkap ada di `AGENTS.md` section 6 (aturan umum berlaku global via instruksi global). Ringkasan yang wajib dipatuhi:
 
-- **One-shot commands** (build, lint, test, type-check, verifikasi) → sinkron, tunggu sampai selesai, tanpa timeout buatan.
+- **One-shot commands** (build, lint, test, type-check, verifikasi) → sinkron. Jika perintah macet/stuck agak lama tanpa respons melebihi batas wajar, **segera hentikan (kill/stop)** dan beralih ke cara/alternatif lain. Jangan menunggu tanpa akhir dan jangan mengulang perintah yang sama.
 - **Long-running** (`pnpm dev`, `php artisan serve`, `vite preview`) → background/async, **jangan** pakai `&`, jangan `sleep`.
 - Jangan mem-_pipe_ perintah interaktif ke `head`/`tail`/`grep`.
 - **`pnpm build` bisa memblokir.** Script = `run-p type-check "build-only"` paralel. Kalau `type-check` gagal, `run-p` cuma cetak `ERROR: "type-check" exited with 2` dan output vite tenggelam. Untuk diagnosis, jalankan terpisah: `pnpm type-check` dan `pnpm build-only`.
