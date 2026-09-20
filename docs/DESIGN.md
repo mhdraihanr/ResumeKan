@@ -202,7 +202,103 @@ palet Ink & Navy. Komponen yang diperlukan untuk Fase 6: button, card, badge.
 - CV form stepper: 9 langkah (Info, Pribadi, Ringkasan, Pengalaman, Pendidikan, Organisasi, Keahlian, Proyek, Lainnya). Chip bernomur 3 state (active navy, completed ✓ emerald, upcoming muted). Klikable, `v-show` per section (state field persist). Prev/Next + "Langkah N/9" indicator. Simpan CV di step terakhir. Inspirasi: FlowCV wizard, Rezi UX audit (Exa: progress indicator + guided navigation).
 - Kontras teks di kedua mode minimal AA (R-25). Tidak pakai warna yang sama untuk text dan background di dark mode (R-34).
 
-## 11. Accessibility & Delivery Gate
+## 11. Dashboard (halaman daftar CV)
+
+Direvisi 2026-09-20. Referensi arah: Dribbble "CVMaker Dashboard Home"
+(shot 20640700, Balkan Brothers / BB Agency), dipakai sebagai inspirasi, bukan template
+(R-30). Inti yang diambil: dokumen CV ditampilkan sebagai objek utama, aksi buat baru
+selalu tersedia, dan sapaan memakai nama pengguna.
+
+### Struktur
+
+| Baris     | Isi                                                                                                    | Alasan                                                                                                                                                                                  |
+| --------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identitas | Avatar inisial, nama, email, tanggal bergabung, CTA `Buat CV baru`                                     | Referensi menyapa pengguna dengan nama. Semua isinya data pengguna sendiri, bukan aset karangan (R-23).                                                                                 |
+| Kapasitas | Tiga kartu: Total CV, Siap diunduh, Batas akun (`n/10`)                                                | Angka nyata dihitung dari `cvStore.list`; `Siap diunduh` memakai `is_complete` dari server. Tidak ada delta atau tren karangan (R-17, R-38). Baris ini disembunyikan saat belum ada CV. |
+| Daftar CV | Satu kartu per CV: thumbnail A4, judul, tag template, tag `Belum lengkap`, satu baris meta, baris aksi | Tiap kartu fokus ke satu keputusan: lanjutkan mengedit CV yang mana (C-3).                                                                                                              |
+
+### Kartu CV
+
+- Thumbnail `CvThumb` = dokumen A4 asli (794x1123) digambar 230x326 lalu di-`scale-[0.348]`
+  ke dalam bingkai tetap 79x112 px. Kepala dokumen mengikuti warna template (navy Modern,
+  ink Neon, slate-600 Classic) supaya identitas template terbaca tanpa menambah warna ke palet UI.
+  Ini preview nyata, bukan screenshot palsu (C-5).
+- Satu aksi utama per kartu: `Edit` navy (satu primer per kartu menjaga titik fokus, dan navy
+  tidak tersebar, R-29). Sisanya icon-only 36x36 px (`Unduh PDF`, `Hapus`) dengan `aria-label`
+  - `title` (R-32), plus satu tombol **berlabel teks** untuk aksi terjemah.
+- **Satu ikon, satu arti (R-26).** Ikon tidak boleh dipakai ulang untuk dua verb berbeda di satu
+  area produk. Tombol `Duplikat CV` yang dulu memakai ikon `Copy` sudah **dihapus**: isinya hanya
+  `router.push('/cvs/:id/edit')`, jadi tidak menduplikasi apa pun, dan ikon `copy` di `lucide`
+  berarti "salin ke clipboard", bukan duplikasi dokumen.
+- Aksi terjemah memakai **teks terlihat** (`Terjemah EN` + ikon `Languages`), bukan icon-only +
+  tooltip. Alasannya: aplikasi ini bilingual, ada dua verb yang berdekatan di baris aksi yang sama,
+  dan pembaca targetnya non-native English; teks terlihat menghilangkan ambiguitas (R-32).
+- Tombol terjemah **hanya muncul di kartu `language === 'id'`** (terjemah id -> en). Kartu `en`
+  tidak punya tombol ini, sehingga kartunya jujur berisi satu aksi lebih sedikit (bukan bug).
+  Karena tidak ada endpoint duplikat generik di API, tidak ada aksi tiruan untuk kartu `en`.
+- Aksi dinonaktifkan selama ada alasan yang bisa dijelaskan, dengan `title` yang menyebut
+  sebabnya (R-27). Tombol terjemah punya tiga alasan, dan urutan prioritasnya penting:
+  (1) data belum lengkap, (2) `atLimit` (terjemah memakai kuota 10 CV), (3) sedang berjalan.
+  Alasan "belum lengkap" didahulukan karena itu yang paling sering membingungkan pengguna.
+- Kontras teks label tombol terjemah saat nonaktif dinaikkan ke `text-ink/70` (light) dan
+  `text-foreground/75` (dark): terukur 6.67:1 dan 6.44:1. Teks nonaktif memang dikecualikan
+  WCAG 1.4.3, tapi label inilah satu-satunya tempat yang menjelaskan kenapa aksinya mati,
+  jadi harus benar-benar terbaca. Tombol ikon (PDF) tetap `ink/40` karena tidak membawa teks explica.
+- State pending memakai label semantik `Menerjemahkan...` + spinner, dan `<ul>` diberi
+  `aria-busy="true"` selama proses.
+
+### Kontrak pesan error
+
+- Pesan mentah Laravel **tidak pernah** ditampilkan apa adanya. `StoreCvRequest` hanya punya
+  `messages()`/`attributes()` untuk field top-level, sehingga `data.certificates.*.issuer`
+  jatuh ke teks Inggris default ("The data.certificates.0.issuer field is required when
+  data.certificates is present"). Sekarang field entri berulang punya pesan + label sendiri,
+  sehingga hasilnya "Penerbit (Sertifikat #1) wajib diisi."
+- Di sisi klien, dua mapper terpisah mengikuti dua sumber kegagalan yang berbeda:
+  - `translateError()` untuk `POST /cvs/{id}/translate`. Endpoint ini tidak memvalidasi `data.*`,
+    jadi yang mungkin hanya 502 (layanan), 429 (throttle), dan 403 (bukan pemilik).
+  - `createError()` untuk simpan CV terjemahan. **Di sinilah satu-satunya 422 berasal.** Kunci
+    error dibaca untuk menyebut bagian yang kurang, mis. "CV \"X\" belum lengkap, jadi belum bisa
+    disimpan sebagai CV baru. Lengkapi dulu bagian Sertifikat."
+  - Keduanya dipisah karena 422 kuota (`errors.title`) dan 422 validasi (`data.*`) punya bentuk kunci
+    berbeda. Tanpa pemisahan ini, kegagalan simpan mudah salah dilaporkan sebagai kegagalan terjemah.
+- Ada **dua lapis**: tombolnya sudah `disabled` + `title` penjelas, dan handler-nya berpagar
+  sehingga payload tidak pernah dikirim ke server. Terverifikasi: memaksa klik saat nonaktif
+  tidak menghasilkan request `/translate` sama sekali dan hanya memunculkan pesan yang jelas.
+- Aksi destruktif tetap memakai `confirm()`. Disabled state pada PDF memakai `title` yang
+  menjelaskan sebabnya, bukan hanya meredupkan tombol (R-27).
+- Baris aksi memakai `mt-auto` sehingga menempel ke dasar kartu apa pun panjang isinya.
+- Hover: hard shadow naik dari 4px ke 6px (penanda elevasi, bukan default di semua elemen, R-12).
+
+### Tema & gaya
+
+- Kartu memakai `border-2 border-ink` + hard shadow + `rounded-base`, sesuai §2. Tidak ada
+  `shadow-sm`, `border-slate-200`, `rounded-2xl`, atau `bg-slate-50` (pola SaaS generik).
+- Tanpa emoji sebagai ikon (R-04). Ikon memakai set yang sudah ada di navbar (`lucide-vue-next`).
+- Kontras diverifikasi lewat sweep terprogram di kedua mode: light 0 gagal, dark 0 gagal
+  (R-25, R-34).
+
+### State
+
+- **Loading**: skeleton tiga kartu dengan `aria-busy="true"` dan `sr-only` "Memuat daftar CV",
+  bentuknya menyamai kartu asli supaya tata letak tidak lompat saat data masuk.
+- **Kosong**: menyebut apa yang akan muncul di daftar ini, lalu tiga langkah nyata produk
+  (isi form, pilih template, unduh PDF A4) dan CTA `Buat CV pertama`. Tanpa emoji (R-04), tanpa
+  ilustrasi generik (R-22).
+- **Error**: banner `role="alert"` (implisit `aria-live="assertive"`, jadi **tidak** ditambah
+  `aria-live` lagi agar tidak diumumkan dua kali) dengan border merah dan teks red-700 /
+  dark red-300.
+- **Sukses**: paragraf `role="status"` + `aria-live="polite"` berlatar `bg-powder` yang menyebut
+  judul CV yang baru dibuat. Hanya satu live region yang aktif pada satu waktu.
+
+### Yang dihapus
+
+- Tombol `Logout` di header halaman (navbar sudah punya Logout + toggle tema), agar tidak ada
+  dua pintu keluar di satu layar.
+- Emoji 📄 pada empty state.
+- Teks "Memuat..." polos sebagai pengganti state.
+
+## 12. Accessibility & Delivery Gate
 
 - Semua komponen WAI-ARIA (dijamin shadcn-vue/Reka UI). Fokus keyboard terlihat (outline ink 2px).
 - Kontras teks AA di light dan dark mode (R-25). Verifikasi wajib di **kedua mode** dengan sweep terprogram (hitung rasio tiap node teks via kanvas `getImageData` + `getComputedStyle`, ambang 4.5:1 teks normal / 3:1 teks besar) — nilai di atas kertas tidak cukup karena background efektif berbeda per mode (putih vs zinc-700).
