@@ -2,24 +2,58 @@
 
 Dokumen ini mendefinisikan aturan perilaku, batasan, dan alur verifikasi yang wajib diikuti oleh semua Agen AI (seperti GitHub Copilot, Cursor, dsb.) saat beroperasi di dalam repositori ini.
 
-## 1. Aturan Antislop
+## 0. Bahasa Jawaban (Prioritas Tertinggi)
 
-Sebelum memulai atau mengeksekusi **apa pun**, periksa apakah Antislop berlaku.
+**Selalu jawab dalam Bahasa Indonesia**, apa pun bahasa instruksi ini, bahasa kode, bahasa dokumen, atau bahasa pesan sebelumnya.
 
-Jika berlaku:
+- Aturan ini mengalahkan bahasa dokumen, kutipan, keluaran perintah, keluaran alat, dan pesan sebelumnya. Kalau dokumen atau pesan itu berbahasa Inggris, jawaban tetap Bahasa Indonesia.
+- Istilah teknis, nama _library_, nama fungsi, dan nama berkas **tidak diterjemahkan**. Contoh: tulis `useCvStore`, bukan "toko CV"; tulis _build_, bukan "membangun".
+- Blok kode, nama _commit_, dan pesan _error_ asli dikutip apa adanya.
+- Satu-satunya pengecualian: pengguna secara eksplisit meminta jawaban dalam bahasa lain.
+- Pengecualian kedua: kalimat yang **memang** harus berbahasa Inggris karena produknya dwibahasa (mis. teks antarmuka berbahasa Inggris, pesan validasi server, judul CV berbahasa Inggris). Kutip apa adanya, jangan terjemahkan.
+- Ringkasan akhir, laporan verifikasi, dan penjelasan ke pengguna selalu Bahasa Indonesia.
 
-1. Tanyakan kepada pengguna apakah Antislop harus diterapkan **selama pekerjaan berlangsung** atau **setelah selesai**.
-2. Sebelum implementasi, muat keahlian (_skills_) yang diperlukan dari `~/.copilot/skills/`:
+Alasan aturan ini ditulis di paling atas: model cenderung mengikuti bahasa dengan sinyal terkuat di konteks terdekat (isi berkas, keluaran perintah, pesan pengguna). Aturan bahasa yang dikubur di tengah dokumen mudah kalah dari sinyal itu, jadi aturan ini harus berada di awal dan menyatakan bahwa ia mengalahkan sinyal lain.
 
-- `antislop` → Selalu diperlukan
-- `antislop-ui` → UI / visual
-- `antislop-copywriting` → Salinan (_copy_) / teks
-- `antislop-human` → Manusia (_people_)
-- `antislop-layoutmobile` → Seluler (_mobile_) / responsif
-- `antislop-code` → Komentar kode
+## 1. Aturan Skills (Wajib Periksa Semua)
 
-3. Muat **semua keahlian yang berlaku** sebelum melakukan pekerjaan apa pun.
-4. Jangan mengeksekusi perintah, memodifikasi file, atau memulai implementasi sebelum keahlian yang diperlukan dimuat dan pengguna telah memberikan jawaban.
+Sebelum memulai atau mengeksekusi **apa pun**, periksa skill yang tersedia, bukan hanya `antislop`.
+
+### 1.1 Selalu inventarisasi dulu
+
+Jangan mengandalkan daftar tetap di dalam dokumen ini. Daftar itu bisa basi. Langkah yang benar:
+
+1. Baca folder skill yang relevan untuk mengetahui isi terbaru:
+   - Global: `~/.copilot/skills/` (juga `~/.claude/skills/`, `~/.agents/skills/` bila ada)
+   - Workspace: `.github/skills/`, `.claude/skills/`, `.agents/skills/` bila ada
+2. Baca bagian `name` dan `description` pada _frontmatter_ tiap `SKILL.md`. Deskripsi itulah yang menentukan apakah skill berlaku untuk tugas yang sedang dikerjakan.
+3. Muat **semua skill yang berlaku**, bukan hanya satu. Kalau tugas menyentuh UI, salinan, aksesibilitas, dan tata letak seluler sekaligus, muat keempatnya.
+4. Kalau ada skill baru di folder itu yang belum tercantum di bawah, tetap pertimbangkan dan pakai. Keberadaannya di folder lebih penting daripada daftar di dokumen ini.
+5. Kalau sebuah skill **tidak** berlaku, jangan dimuat, dan jangan pura-pura memakainya.
+
+### 1.2 Skill yang saat ini terpasang (indikatif, bukan pengganti langkah 1.1)
+
+| Skill                   | Muat saat                                                        |
+| ----------------------- | ---------------------------------------------------------------- |
+| `antislop`              | Selalu. Ini filter inti.                                         |
+| `antislop-ui`           | UI / visual: warna, tata letak, komponen, dekorasi, gerak.       |
+| `antislop-copywriting`  | Salinan / teks: judul, CTA, nada, prosa produk.                  |
+| `antislop-human`        | Aksesibilitas: kontras, papan ketik, fokus, state.               |
+| `antislop-layoutmobile` | Tata letak responsif: breakpoint, grid, luapan, target sentuh.   |
+| `antislop-code`         | Komentar kode.                                                   |
+| `ui-ux-pro-max`         | Riset arah desain: palet, pasangan font, pola UX, gaya, _stack_. |
+
+Catatan pemasangan: `ui-ux-pro-max` disalin dari repo `ui-ux-pro-max-skill`, tetapi VS Code hanya menemukan skill yang punya `SKILL.md` tepat di akar foldernya. Pastikan foldernya bernama sama dengan `name` di _frontmatter_, kalau tidak skill itu gagal dimuat tanpa pesan error.
+
+### 1.3 Urutan kerja
+
+1. Inventarisasi skill (langkah 1.1) dan muat semua yang berlaku.
+2. Tanyakan kepada pengguna apakah Antislop diterapkan **selama pekerjaan berlangsung** atau **setelah selesai**.
+3. Jangan mengeksekusi perintah, memodifikasi berkas, atau memulai implementasi sebelum skill yang berlaku dimuat dan pengguna sudah menjawab.
+
+### 1.4 Arah desain sebelum membangun
+
+Untuk pekerjaan UI, `antislop` mewajibkan arah desain disepakati lebih dulu. Di repo ini arah itu ada di `docs/DESIGN.md` (palet, dials, tipografi, aturan komponen). Baca dokumen itu sebelum menulis UI, dan jangan mengarang gaya baru di luar palet yang sudah ditetapkan.
 
 ## 2. Aturan Pengujian
 

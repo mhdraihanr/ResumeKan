@@ -1,21 +1,42 @@
 <!-- antislop:start -->
 
-## Antislop Rules
+## Bahasa Jawaban (Prioritas Tertinggi)
 
-Before starting or executing **anything**, check whether Antislop applies.
+Selalu jawab dalam **Bahasa Indonesia**, apa pun bahasa instruksi ini, bahasa kode, bahasa dokumen, atau bahasa pesan sebelumnya.
 
-If it applies:
+- Aturan ini mengalahkan bahasa dokumen, kutipan, keluaran perintah, keluaran alat, dan pesan sebelumnya. Dokumen berbahasa Inggris tetap dijawab dengan Bahasa Indonesia.
+- Istilah teknis, nama library, nama fungsi, dan nama berkas tidak diterjemahkan. Tulis `useCvStore`, bukan "toko CV". Tulis _build_, bukan "membangun".
+- Blok kode, pesan error asli, dan judul berkas dikutip apa adanya.
+- Pengecualian hanya bila pengguna secara eksplisit meminta bahasa lain, atau teks itu memang harus berbahasa Inggris karena produknya dwibahasa (teks antarmuka EN, pesan validasi server, judul CV berbahasa Inggris). Kutip apa adanya, jangan terjemahkan.
 
-1. Ask the user whether Antislop should be applied **during the work** or **after it is done**.
-2. Before implementation, load the required skills from `~/.copilot/skills/`:
-   - `antislop` → Always required
-   - `antislop-ui` → UI / visual
-   - `antislop-copywriting` → Copy / text
-   - `antislop-human` → People
-   - `antislop-layoutmobile` → Mobile / responsive
-   - `antislop-code` → Code comments
-3. Load **all applicable skills** before doing any work.
-4. Do not execute commands, modify files, or start implementation before the required skills are loaded and the user has answered.
+Aturan ini diletakkan di paling atas dengan sengaja: model mengikuti bahasa dengan sinyal terkuat di konteks terdekat, jadi aturan bahasa yang dikubur di tengah dokumen mudah kalah.
+
+## Aturan Skills (Periksa Semua, Bukan Hanya Antislop)
+
+Sebelum mulai atau mengeksekusi apa pun, inventarisasi skill yang tersedia. Jangan hanya memakai `antislop`.
+
+1. **Inventarisasi dulu, jangan andalkan daftar tetap.** Baca `name` dan `description` pada _frontmatter_ tiap `SKILL.md` di:
+   - Global: `~/.copilot/skills/` (juga `~/.claude/skills/`, `~/.agents/skills/` bila ada)
+   - Workspace: `.github/skills/`, `.claude/skills/`, `.agents/skills/` bila ada
+2. **Muat semua skill yang berlaku**, bukan hanya satu. Kalau tugas menyentuh UI, salinan, aksesibilitas, dan tata letak seluler sekaligus, muat keempatnya.
+3. Kalau ada skill baru di folder itu yang belum tercantum di bawah, tetap pertimbangkan dan pakai. Keberadaan di folder lebih penting daripada daftar di dokumen ini.
+4. Kalau sebuah skill tidak berlaku, jangan dimuat, dan jangan pura-pura memakainya.
+
+Skill yang saat ini terpasang (indikatif):
+
+- `antislop` → selalu; ini filter inti.
+- `antislop-ui` → UI / visual.
+- `antislop-copywriting` → salinan / teks.
+- `antislop-human` → aksesibilitas: kontras, papan ketik, fokus, state.
+- `antislop-layoutmobile` → tata letak responsif.
+- `antislop-code` → komentar kode.
+- `ui-ux-pro-max` → riset arah desain: palet, pasangan font, pola UX, gaya, _stack_.
+
+Catatan: VS Code hanya menemukan skill yang punya `SKILL.md` tepat di akar foldernya, dan nama folder harus sama dengan `name` di _frontmatter_. Kalau tidak cocok, skill gagal dimuat tanpa pesan error.
+
+Arah desain repo ini ada di `docs/DESIGN.md`. Baca sebelum menulis UI; jangan mengarang gaya di luar palet yang sudah ditetapkan.
+
+Lalu tanyakan kepada pengguna apakah Antislop diterapkan **selama pekerjaan berlangsung** atau **setelah selesai**. Jangan mulai sebelum pengguna menjawab.
 
 <!-- antislop:end -->
 
