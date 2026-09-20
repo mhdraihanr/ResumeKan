@@ -5,6 +5,8 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  /** Timestamp ISO dari kolom `users.created_at` (dipakai di dashboard). */
+  created_at?: string;
 }
 
 export const useAuthStore = defineStore("auth", () => {
