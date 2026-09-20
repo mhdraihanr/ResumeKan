@@ -63,22 +63,113 @@ class StoreCvRequest extends FormRequest
             'data.personal.phone.regex' => 'Telepon hanya boleh angka dan simbol + - ( ) . serta minimal 7 digit.',
             'data.personal.phone.max' => 'Telepon maksimal 30 karakter.',
             'data.personal.address.required' => 'Alamat wajib diisi.',
+
+            // Entri berulang: tanpa pesan khusus, Laravel memakai teks Inggris
+            // default ("The data.certificates.0.issuer field is required when
+            // data.certificates is present"). Pesan ini menggantinya dengan
+            // kalimat Indonesia yang menyebut field-nya, dan `attributes()`
+            // mengisi `:attribute` dengan label ramah.
+            'data.experiences.*.company.required_with' => ':attribute wajib diisi.',
+            'data.experiences.*.position.required_with' => ':attribute wajib diisi.',
+            'data.experiences.*.startDate.required_with' => ':attribute wajib diisi.',
+            'data.experiences.*.endDate.required_with' => ':attribute wajib diisi.',
+            'data.education.*.institution.required_with' => ':attribute wajib diisi.',
+            'data.education.*.degree.required_with' => ':attribute wajib diisi.',
+            'data.education.*.year.required_with' => ':attribute wajib diisi.',
+            'data.organizations.*.organization.required_with' => ':attribute wajib diisi.',
+            'data.organizations.*.role.required_with' => ':attribute wajib diisi.',
+            'data.organizations.*.period.required_with' => ':attribute wajib diisi.',
+            'data.skills.*.label.required_with' => ':attribute wajib diisi.',
+            'data.certificates.*.name.required_with' => ':attribute wajib diisi.',
+            'data.certificates.*.issuer.required_with' => ':attribute wajib diisi.',
+            'data.certificates.*.year.required_with' => ':attribute wajib diisi.',
+            'data.projects.*.title.required_with' => ':attribute wajib diisi.',
+            'data.projects.*.role.required_with' => ':attribute wajib diisi.',
+
+            // Batas jumlah per section (pesan bawaan juga berbahasa Inggris).
+            'data.experiences.max' => 'Maksimal :max pengalaman.',
+            'data.education.max' => 'Maksimal :max pendidikan.',
+            'data.organizations.max' => 'Maksimal :max organisasi.',
+            'data.skills.max' => 'Maksimal :max grup keahlian.',
+            'data.certificates.max' => 'Maksimal :max sertifikat.',
+            'data.projects.max' => 'Maksimal :max proyek.',
         ];
     }
 
     /**
      * Label ramah untuk field wajib. Tanpa ini, pesan default Laravel memakai
-     * path mentah (mis. "data.personal.phone").
+     * path mentah (mis. "data.personal.phone" atau "data.certificates.0.issuer").
      */
     public function attributes(): array
     {
-        return [
+        $attributes = [
             'title' => 'Judul CV',
             'data.personal.name' => 'Nama',
             'data.personal.email' => 'Email',
             'data.personal.phone' => 'Telepon',
             'data.personal.address' => 'Alamat',
         ];
+
+        // Label per field entri, plus nomor entri supaya pengguna tahu baris
+        // mana yang perlu diperbaiki ("Penerbit (Sertifikat #2) wajib diisi.").
+        $entryLabels = [
+            'experiences' => [
+                'section' => 'Pengalaman',
+                'fields' => [
+                    'company' => 'Perusahaan',
+                    'position' => 'Posisi',
+                    'startDate' => 'Tanggal mulai',
+                    'endDate' => 'Tanggal selesai',
+                ],
+            ],
+            'education' => [
+                'section' => 'Pendidikan',
+                'fields' => [
+                    'institution' => 'Institusi',
+                    'degree' => 'Gelar & jurusan',
+                    'year' => 'Tahun',
+                ],
+            ],
+            'organizations' => [
+                'section' => 'Organisasi',
+                'fields' => [
+                    'organization' => 'Organisasi',
+                    'role' => 'Peran',
+                    'period' => 'Periode',
+                ],
+            ],
+            'skills' => [
+                'section' => 'Keahlian',
+                'fields' => ['label' => 'Nama grup keahlian'],
+            ],
+            'certificates' => [
+                'section' => 'Sertifikat',
+                'fields' => [
+                    'name' => 'Nama sertifikat',
+                    'issuer' => 'Penerbit',
+                    'year' => 'Tahun terbit',
+                ],
+            ],
+            'projects' => [
+                'section' => 'Proyek',
+                'fields' => [
+                    'title' => 'Nama proyek',
+                    'role' => 'Peran',
+                ],
+            ],
+        ];
+
+        foreach ($entryLabels as $key => $meta) {
+            $count = is_array($this->input("data.$key")) ? count($this->input("data.$key")) : 0;
+
+            for ($i = 0; $i < $count; $i++) {
+                foreach ($meta['fields'] as $field => $label) {
+                    $attributes["data.$key.$i.$field"] = "$label ({$meta['section']} #".($i + 1).')';
+                }
+            }
+        }
+
+        return $attributes;
     }
 
     protected function strictRules(): array
