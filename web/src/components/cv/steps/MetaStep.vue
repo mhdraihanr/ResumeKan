@@ -90,14 +90,14 @@ const selectedTpl = computed(
           v-if="selectedTpl.atsFriendly"
           class="text-[11px] text-emerald-700 dark:text-emerald-400"
         >
-          Format satu kolom standar, direkomendasikan untuk ATS.
+          Satu kolom, ramah ATS.
         </p>
         <p v-else class="text-[11px] text-slate-500 dark:text-slate-300">
-          Format modern dengan aksen visual dan foto profil.
+          Dua kolom dengan aksen visual.
         </p>
       </label>
       <label class="space-y-1">
-        <FormLabel label="Bahasa" />
+        <FormLabel label="Bahasa judul bagian" />
         <select
           :value="language"
           class="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus:border-ring"
@@ -108,6 +108,16 @@ const selectedTpl = computed(
           <option value="id">Indonesia</option>
           <option value="en">English</option>
         </select>
+        <p class="text-[11px] text-slate-500 dark:text-slate-300">
+          Isi CV tidak ikut diterjemahkan.
+        </p>
+        <RouterLink
+          v-if="language === 'id'"
+          to="/dashboard"
+          class="inline-block text-[11px] font-semibold text-slate-700 underline underline-offset-2 hover:text-slate-900 dark:text-slate-200 dark:hover:text-foreground"
+        >
+          Butuh versi Inggris? Terjemahkan dari Dashboard.
+        </RouterLink>
       </label>
     </div>
 
