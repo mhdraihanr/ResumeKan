@@ -1,0 +1,24 @@
+# Konfigurasi pnpm untuk proyek web.
+#
+# Kenapa file ini ada:
+# pnpm 10.26+ memblokir build script dependency demi keamanan supply-chain.
+# Selama keputusan belum dicatat, `pnpm install --frozen-lockfile` keluar dengan
+# ERR_PNPM_IGNORED_BUILDS dan deploy berhenti di langkah 3/5 (update.sh).
+#
+# PENTING - pakai `allowBuilds`, BUKAN `onlyBuiltDependencies`:
+# `onlyBuiltDependencies`, `onlyBuiltDependenciesFile`, `neverBuiltDependencies`,
+# dan `ignoredBuiltDependencies` sudah DIHAPUS di pnpm 11 dan DIABAIKAN sejak itu.
+# Workspace yang naik dari pnpm 10 sering masih menyimpan setting lama itu dan
+# tampak aktif padahal tidak dibaca - itu yang bikin ERR_PNPM_IGNORED_BUILDS
+# tetap muncul walau izinnya "sudah ditulis".
+# Sumber: https://pnpm.io/blog/releases/10.26 dan /blog/releases/11.0
+#
+# Daftar ini juga hanya dibaca dari pnpm-workspace.yaml - pnpm mengabaikannya
+# tanpa peringatan kalau ditaruh di package.json.
+#
+# vue-demi ditarik transitif oleh @floating-ui/vue (lewat reka-ui/shadcn-vue).
+# postinstall-nya memilih bind Vue 2 atau Vue 3; kita pakai vue@3.5.x.
+# Script-nya opsional (isinya try{...}catch(e){}), tapi tanpa izin ini pnpm
+# tetap menganggapnya masalah dan menghentikan install.
+allowBuilds:
+  vue-demi: true
