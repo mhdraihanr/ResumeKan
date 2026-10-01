@@ -129,9 +129,16 @@ const openFaq = ref<number | null>(0);
         class="mx-auto grid max-w-6xl items-center gap-8 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:py-14"
       >
         <div class="lg:-translate-y-12">
-          <p
-            class="mb-3 text-sm font-medium text-ink/60 dark:text-foreground/60"
-          >
+          <!-- Hierarki dark sengaja halus (Opsi A, revisi Opsi C): eyebrow 10.02:1
+               (slate-300) -> sub 12.08:1 (slate-200) -> h1 14.24:1 (foreground).
+               JANGAN pakai dark:text-slate-400 di eyebrow: rasionya 5.66:1, jarak 6.4 poin
+               ke sub terlalu jauh padahal ukurannya cuma beda 2px (14px vs 16px), sehingga
+               terbaca sebagai dua blok yang tidak konsisten (eyebrow tampak disabled),
+               bukan hierarki. slate-400 juga GAGAL 3.97:1 di surface #3f3f46.
+               JANGAN perkecil max-w sub ke max-w-sm (384px): teksnya hanya 404px, sehingga
+               max-w-sm memecahnya jadi 2 baris timpang (357px + 43px "lamar.") - widow parah.
+               Ambang aman satu baris ada di 416px. -->
+          <p class="mb-3 text-sm font-medium text-ink/75 dark:text-slate-300">
             Aplikasi pembuat CV ATS untuk pencari kerja di Indonesia
           </p>
           <h1
@@ -143,7 +150,7 @@ const openFaq = ref<number | null>(0);
             CV yang lolos ATS dalam hitungan menit.
           </h1>
           <p
-            class="mt-4 max-w-md text-base leading-relaxed text-ink/70 dark:text-foreground/70"
+            class="mt-4 max-w-md text-base leading-relaxed text-ink/80 dark:text-slate-200"
           >
             Isi form, pilih 1 dari 3 template, unduh PDF A4 siap lamar.
           </p>
@@ -270,7 +277,7 @@ const openFaq = ref<number | null>(0);
         >
           Pertanyaan yang sering ditanya.
         </h2>
-        <p class="mt-2 text-base text-ink/70 dark:text-foreground/70">
+        <p class="mt-2 text-base text-ink/80 dark:text-slate-300">
           Jawaban singkat sebelum kamu mulai.
         </p>
         <div
@@ -291,20 +298,20 @@ const openFaq = ref<number | null>(0);
                 f.q
               }}</span>
               <ChevronDown
-                class="size-4 shrink-0 text-ink/60 transition dark:text-foreground/60"
+                class="size-4 shrink-0 text-ink/70 transition dark:text-slate-300"
                 :class="openFaq === i ? 'rotate-180' : ''"
               />
             </button>
             <div v-show="openFaq === i" class="px-5 pb-4">
               <p
-                class="text-sm leading-relaxed text-ink/70 dark:text-foreground/70"
+                class="text-sm leading-relaxed text-ink/80 dark:text-slate-300"
               >
                 {{ f.a }}
               </p>
               <RouterLink
                 v-if="i === 2"
                 to="/register"
-                class="mt-2 inline-block text-sm font-bold text-navy underline decoration-2 underline-offset-2 dark:text-main"
+                class="mt-2 inline-block text-sm font-bold text-navy underline decoration-2 underline-offset-2 dark:text-slate-300"
                 >Buat CV pertama →</RouterLink
               >
             </div>
@@ -313,8 +320,10 @@ const openFaq = ref<number | null>(0);
       </div>
     </section>
 
-    <!-- CTA AKHIR: bg navy identitas, teks putih di kedua mode (navy 3b82f6 di dark tetap cukup) -->
-    <section class="bg-navy dark:bg-main">
+    <!-- CTA AKHIR: bg navy identitas, teks putih di kedua mode.
+         Sengaja TIDAK pakai dark:bg-main (#2563eb) — di latar itu text-white/80 hanya 3.89:1
+         (gagal 4.5:1 untuk teks 16px normal). Navy #1e40af memberi 6.19:1 di kedua mode. -->
+    <section class="bg-navy">
       <div class="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
         <h2 class="text-3xl font-black tracking-tight text-white">
           Lamar hari ini dengan CV yang siap.

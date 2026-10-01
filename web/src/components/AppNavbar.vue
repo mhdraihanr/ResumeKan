@@ -32,14 +32,14 @@ const label = () => (isDark() ? "Ganti ke mode terang" : "Ganti ke mode gelap");
       <div class="hidden items-center gap-4 sm:flex">
         <RouterLink
           to="/"
-          class="text-sm font-medium text-ink/70 hover:text-ink dark:text-foreground/70 dark:hover:text-foreground"
+          class="text-sm font-medium text-ink/80 hover:text-ink dark:text-slate-300 dark:hover:text-foreground"
         >
           Beranda
         </RouterLink>
         <RouterLink
           v-if="auth.isAuthenticated"
           to="/dashboard"
-          class="text-sm font-medium text-ink/70 hover:text-ink dark:text-foreground/70 dark:hover:text-foreground"
+          class="text-sm font-medium text-ink/80 hover:text-ink dark:text-slate-300 dark:hover:text-foreground"
         >
           Dashboard
         </RouterLink>

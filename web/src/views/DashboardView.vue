@@ -288,7 +288,7 @@ function fmtDate(s?: string) {
             >
               {{ auth.user?.name }}
             </h1>
-            <p class="truncate text-sm text-ink/60 dark:text-foreground/70">
+            <p class="truncate text-sm text-ink/75 dark:text-foreground/70">
               {{ auth.user?.email }}
               <template v-if="memberSince">
                 · Bergabung {{ memberSince }}
@@ -311,7 +311,7 @@ function fmtDate(s?: string) {
           class="rounded-base border-2 border-ink bg-white px-4 py-3 shadow-shadow dark:border-border dark:bg-secondary-background"
         >
           <dt
-            class="text-xs font-bold uppercase tracking-wide text-ink/60 dark:text-foreground/70"
+            class="text-xs font-bold uppercase tracking-wide text-ink/75 dark:text-foreground/70"
           >
             Total CV
           </dt>
@@ -325,7 +325,7 @@ function fmtDate(s?: string) {
           class="rounded-base border-2 border-ink bg-white px-4 py-3 shadow-shadow dark:border-border dark:bg-secondary-background"
         >
           <dt
-            class="text-xs font-bold uppercase tracking-wide text-ink/60 dark:text-foreground/70"
+            class="text-xs font-bold uppercase tracking-wide text-ink/75 dark:text-foreground/70"
           >
             Siap diunduh
           </dt>
@@ -339,7 +339,7 @@ function fmtDate(s?: string) {
           class="rounded-base border-2 border-ink bg-white px-4 py-3 shadow-shadow dark:border-border dark:bg-secondary-background"
         >
           <dt
-            class="text-xs font-bold uppercase tracking-wide text-ink/60 dark:text-foreground/70"
+            class="text-xs font-bold uppercase tracking-wide text-ink/75 dark:text-foreground/70"
           >
             Batas akun
           </dt>
@@ -347,7 +347,7 @@ function fmtDate(s?: string) {
             class="mt-1 text-2xl font-black tabular-nums text-ink dark:text-foreground"
           >
             {{ total
-            }}<span class="text-ink/50 dark:text-foreground/50"
+            }}<span class="text-ink/70 dark:text-foreground/50"
               >/{{ MAX_CV }}</span
             >
           </dd>
@@ -434,7 +434,7 @@ function fmtDate(s?: string) {
             Belum ada CV di akun ini
           </h3>
           <p
-            class="mt-1 text-sm leading-relaxed text-ink/70 dark:text-foreground/70"
+            class="mt-1 text-sm leading-relaxed text-ink/80 dark:text-foreground/70"
           >
             Semua CV yang Anda buat tersimpan di daftar ini, lengkap dengan
             template dan tanggal perubahan terakhir.
@@ -520,7 +520,7 @@ function fmtDate(s?: string) {
               </div>
 
               <p
-                class="mt-1.5 truncate text-xs font-medium text-ink/60 dark:text-foreground/70"
+                class="mt-1.5 truncate text-xs font-medium text-ink/75 dark:text-foreground/70"
               >
                 {{ cv.language === "id" ? "Bahasa Indonesia" : "English" }} ·
                 Diubah {{ fmtDate(cv.updated_at) }}
@@ -567,7 +567,7 @@ function fmtDate(s?: string) {
                   "
                   :title="translateHint(cv)"
                   @click="duplicateTranslate(cv)"
-                  class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-base border-2 border-ink bg-white px-3 text-xs font-bold text-ink transition-colors hover:bg-powder focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:cursor-not-allowed disabled:border-ink/45 disabled:bg-transparent disabled:text-ink/70 disabled:hover:bg-transparent dark:border-border dark:bg-background dark:text-foreground dark:hover:bg-white/15 dark:disabled:border-border/60 dark:disabled:text-foreground/75"
+                  class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-base border-2 border-ink bg-white px-3 text-xs font-bold text-ink transition-colors hover:bg-powder focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:cursor-not-allowed disabled:border-ink/45 disabled:bg-transparent disabled:text-ink/80 disabled:hover:bg-transparent dark:border-border dark:bg-background dark:text-foreground dark:hover:bg-white/15 dark:disabled:border-border/60 dark:disabled:text-foreground/75"
                 >
                   <Loader2
                     v-if="translatingId === cv.id"

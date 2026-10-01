@@ -180,6 +180,13 @@ Baris kontak di header tidak lagi dua tonjolan. Data pribadi non-link (email, te
 
 Variasi background mencegah modul identik beruntun (R-08, RHYTHM 2).
 
+Section CTA akhir memakai `bg-navy` **tanpa** `dark:` variant (audit kontras 2026-10-01). Sebelumnya
+ada `dark:bg-main` yang mengubah latar ke `#2563eb`; di latar itu `text-white/80` hanya 3.89:1 dan
+gagal ambang 4.5:1 untuk teks 16px normal. Navy `#1e40af` dipakai di kedua mode sehingga hasilnya
+konsisten: judul putih 8.72:1, subteks `text-white/80` 6.19:1, tombol 17.06:1 (light) / 9.98:1 (dark).
+Pelajaran: `dark:` variant pada **background section** harus diikuti pengukuran ulang kontras seluruh
+isinya, karena menggelapkan/mencerahkan latar menggeser rasio semua teks di atasnya.
+
 ## 9. Component Library
 
 Paket `neobrutalism-vue` (registry neobrutalism-vue.com, berbasis shadcn-vue dan Reka UI, Tailwind v4,
@@ -193,6 +200,86 @@ palet Ink & Navy. Komponen yang diperlukan untuk Fase 6: button, card, badge.
 - Toggle 2-way di navbar: `light ↔ dark` (`useDarkMode.ts` — `choice` ref `light|dark`, `isDark()` function, `cycle()`, `colorScheme` sync). Default `light` untuk semua user (tanpa auto/device). Pilihan disimpan `localStorage`. Ikon `Moon` (ke dark) / `Sun` (ke light).
 - Token dark di `main.css`: `--background #27272a` (zinc-800), `--secondary-background #3f3f46` (zinc-700), `--foreground #f8fafc`, `--main #3b82f6`, `--border #f4f4f5`, `--shadow #18181b` (zinc-900), `color-scheme: dark`.
 - Cakupan: semua halaman dark-mode (landing, navbar, footer, login, register, dashboard, CV form). `CvPreview` dan template PDF tetap putih (dokumen kertas). `CvForm.vue` pakai CSS dark non-scoped bernamespace `.cv-form` untuk 40+ field (input/select/textarea/label/h2/p) agar tidak duplikasi `dark:` per-field. Elemen non-field (tombol `+ Tambah`, label `#N`, `Hapus`, card section, stepper nav) pakai `dark:` variant dengan token (`foreground/70`, `foreground/60`, `red-300`, `border`) — kontras di atas surface zinc-700 minimal AA (audit 2026-08-30: sebelumnya slate-700/slate-500/red-600 kontras 1.01-2.19:1, gagal). Hover states disinkronkan kedua mode: light `hover:bg-slate-200 hover:text-slate-700`, dark `dark:hover:bg-white/15 dark:hover:text-foreground`.
+- Teks sekunder di landing dan Dashboard (audit kontras 2026-10-01): opacity `text-ink/50`
+  (3.39:1) dan `text-ink/55` (3.95:1) gagal AA di atas paper `#f8fafc`, dinaikkan ke tier yang
+  aman: `text-ink/75` (7.74:1) untuk eyebrow/label, `text-ink/80` (9.29:1) untuk paragraf
+  sekunder dan jawaban FAQ, `text-ink/70` (6.50:1) untuk ikon ChevronDown. `disabled:text-ink/70`
+  → `disabled:text-ink/80`. Nilai terukur di atas kertas: `/60` = 4.62:1 (lolos tipis),
+  `/65` = 5.49:1, `/70` = 6.50:1, `/75` = 7.74:1, `/80` = 9.29:1. Aturan praktis: untuk teks
+  sekunder di light mode jangan turun di bawah `/75` agar ada margin di atas 4.5:1.
+  Cakupan edit: `HomeView`, `DashboardView`, `AppNavbar`, `AppFooter`, `LoginView`, `RegisterView`
+  (15 nilai). Varian `dark:` tidak diubah karena sudah lolos: `foreground/60` = 6.10:1 di
+  `#27272a`, dan `foreground/75` = 6.44:1 di surface `#3f3f46`.
+- Teks sekunder dark mode di landing pakai `dark:text-slate-300` (audit 2026-10-01, Opsi D),
+  menggantikan `dark:text-foreground/60` dan `/70` di `HomeView`, `AppNavbar`, `AppFooter`
+  (7 nilai). Alasan bukan kegagalan WCAG — `foreground/60` sudah 6.08:1 dan `/70` sudah 7.71:1,
+  keduanya lolos AA. Alasan sebenarnya adalah **rendering**: `foreground/60` adalah
+  `color-mix(in oklab, ...)` yang menghasilkan teks terang ber-alpha 0.6 di atas latar gelap,
+  dan anti-aliasing membuat huruf tampak lebih tipis dan berkabut dibanding teks solid pada
+  rasio yang sama. `slate-300` = `#cad5e2` (alpha 1.00, abu solid) menghapus `color-mix()` dari
+  jalur teks: hero eyebrow/sub/FAQ sub/footer/navbar = 10.02:1 di `#27272a`, FAQ jawaban dan
+  ikon chevron = 7.03:1 di surface `#3f3f46`. Ini menerapkan aturan yang sudah ada di baris
+  199 (dark mode memakai token abu solid, bukan opacity rendah) ke landing, yang sebelumnya
+  hanya dipatuhi di CV form.
+  Catatan penting: `slate-300` **tidak** di-override oleh token dark proyek ini; nilai aslinya
+  `#cad5e2` dipertahankan. Aturan 1.4.3 WCAG hanya mengatur rasio, tidak mengatur ketajaman
+  rendering, jadi perubahan ini murni kualitas desain dan standar internal DESIGN.md di titik
+  ini lebih tinggi dari WCAG.
+- Link aksi di halaman auth pakai `dark:text-slate-300`, **bukan** `dark:text-main`
+  (audit 2026-10-01). `dark:text-main` sebelumnya dipakai di `LoginView.vue` ("Daftar"),
+  `RegisterView.vue` ("Masuk"), dan `HomeView.vue` (link "Buat CV pertama →" di jawaban FAQ).
+  Rasio terukur hanya **2.02:1** di atas surface `#3f3f46` — gagal 1.4.3 (butuh 4.5:1).
+  Akar masalahnya adalah **salah pakai token**: `--main` dark mode (`#2563eb`) didefinisikan
+  sebagai warna **background** tombol (tempat `text-white` di atasnya dapat 5.17:1), bukan
+  sebagai warna **teks di atas surface**. Tabel kandidat terukur di `#3f3f46`:
+  `#2563eb` 2.02 · blue-500 2.84 · blue-400 4.11 · blue-300 5.79 · **`slate-300` 7.03** ·
+  slate-200 8.47 · `foreground` 9.98. Dipilih `slate-300` karena konsisten dengan Opsi D di
+  atas dan memberi ruang aman (bukan pas-pasan seperti blue-300 5.79). Di dark mode, identitas
+  link **tidak** lagi dibawa oleh hue biru — semua biru yang cukup terang untuk lolos di
+  surface gelap sudah kehilangan identitas brand; yang membedakan link adalah `font-bold` +
+  `underline decoration-2` yang sudah ada. Light mode tidak berubah (`text-navy` `#1e40af`,
+  diverifikasi lewat tombol toggle asli, bukan manipulasi class DOM).
+- Hierarki teks hero landing (audit 2026-10-01, **Opsi A** setelah Opsi C dibatalkan):
+  eyebrow, `h1`, dan sub awalnya memakai `slate-300` yang sama sehingga terbaca satu blok rata
+  tanpa tangga visual, padahal rasio terukurnya sudah 10.02:1 dan lolos AA dengan lega.
+  Pelajaran: **rasio kontras yang lolos tidak menjamin keterbacaan; hierarki adalah masalah
+  terpisah.**
+  Percobaan pertama (Opsi C) membuat tangga tajam 5.66 → 12.08 → 14.24 dengan eyebrow
+  `slate-400`. **Ini dibatalkan** karena justru menciptakan inkonsistensi: eyebrow dan sub
+  hanya beda 2px ukurannya (14px vs 16px) dan dibaca berurutan dengan jarak 12px, sehingga
+  selisih kontras 6.4 poin terbaca sebagai dua blok dari dunia berbeda (eyebrow tampak
+  "disabled"), bukan sebagai hierarki. Pelajaran tambahan: **hierarki rasio ala heading
+  (redup → terang → tengah) hanya bekerja kalau ada perbedaan UKURAN yang besar; kalau ukuran
+  elemen hampir sama, tangga rasio harus halus.**
+  Hierarki final (dark, latar `#27272a`):
+  | elemen | kelas dark | rasio | alpha |
+  |---|---|---|---|
+  | eyebrow (`text-sm`) | `dark:text-slate-300` | 10.02:1 | 1.00 |
+  | sub (`mt-4 max-w-md text-base`) | `dark:text-slate-200` | 12.08:1 | 1.00 |
+  | `h1` (`text-4xl/5xl font-black`) | `dark:text-foreground` | 14.24:1 | 1.00 |
+  Tangga 10.02 → 12.08 → 14.24 (jarak antar tingkat ~2 poin) tetap membentuk hierarki tetapi
+  halus, dan ketiganya nyaman dibaca. Ini meniru kualitas light mode yang selisihnya hanya
+  1.6 poin (`ink/75` 7.73:1 → `ink/80` 9.35:1 → `h1` 17.06:1) dan sudah dinyatakan aman.
+  **`dark:text-slate-400` (`#90a1b9`) dilarang di hero:** 5.66:1 di `#27272a`, dan di surface
+  `#3f3f46` jatuh ke **3.97:1 (gagal AA)** — jangan pakai token ini untuk teks di kartu/panel.
+  Catatan lebar baris: sub hanya selebar **404px** sehingga selalu muat 1 baris di `max-w-md`
+  (448px). Ambang satu barisnya ada di **416px**; `max-w-sm` (384px) memecahnya jadi 2 baris
+  timpang 357px + 43px ("lamar.") — widow parah. **Jangan perkecil ke `max-w-sm`.** Kesalahan
+  awal sesi ini adalah mengira memperpendek baris akan memperbaiki keterbacaan; pengukuran
+  `Range.getClientRects()` membuktikan sebaliknya, dan usulan itu dibatalkan.
+- Metode pengukuran wajib (audit 2026-10-01): Tailwind v4 mengeluarkan `color-mix(in oklab, ...)`
+  dan browser melaporkannya sebagai `oklab(L a b / alpha)`. Nilai `oklab()` **tidak boleh**
+  di-parse dengan regex — komponen `L a b` di luar rentang 0-255 dan menghasilkan rasio palsu
+  (pernah melaporkan 20 "kegagalan" dark mode yang seluruhnya artefak). Konversi harus lewat
+  rasterisasi kanvas 1×1: `ctx.fillStyle = css; ctx.fillRect(...); ctx.getImageData(...)`.
+  Dua jebakan lain: (1) matikan `transition`/`animation` sebelum membaca `getComputedStyle`
+  setelah toggle tema, kalau tidak nilainya tertangkap di tengah transisi; (2) ukur elemen
+  terhadap latar **miliknya sendiri** (tombol `bg-paper text-ink` di dalam section navy harus
+  diukur ke latar tombol, bukan latar section).
+- Sisa temuan belum diperbaiki (audit 2026-10-01, sengaja dibiarkan): border tombol CTA akhir
+  `border-ink` `#0f172a` di atas navy = 2.05:1, di bawah ambang 3:1 grafis WCAG 1.4.11. Untuk
+  section ber-latar navy, border tombol sebaiknya memakai warna terang agar batas komponen
+  terbaca.
 - Field dark-mode (audit 2026-09-01): field memakai `dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus:border-ring`; placeholder dikontrol di satu tempat `.dark .cv-form input::placeholder` → `color-mix(in srgb, var(--foreground) 80%, transparent)` (5.21:1 di atas `#55555c`, sebelumnya 65% = 4.04:1). `FormLabel` span → `text-slate-700 dark:text-foreground/75` (6.44:1, sebelumnya slate-700 1.23:1 saat dipakai di luar `<label>`). Field text = `#f8fafc` 7.03:1, input bg efektif `#55555c` (color-mix 12% foreground).
 - Foto profil (opsional, template Neon): thumbnail klikabel buka modal lightbox aksesibel (`role="dialog"`, `aria-modal`, `aria-label`, tutup via ✕/Esc/klik-luar). Tombol `Hapus foto` → `text-red-600 dark:text-red-300` (5.44:1, sebelumnya red-600 1.98:1); error upload → `text-red-600 dark:text-red-300`; teks petunjuk → `text-slate-500 dark:text-slate-400` (4.77:1). `label → div` agar klik area kosong tidak memicu delete (label meneruskan klik ke kontrol pertama).
 - Warna error dark = `red-300` (`#ffa2a2`, 5.44:1 di atas kartu `#3f3f46`), bukan `red-400` (3.78:1, gagal AA untuk teks 11px). Berlaku untuk semua pesan error (inline, banner, toast) — audit 2026-09-15.

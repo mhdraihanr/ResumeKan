@@ -80,11 +80,11 @@ async function submit() {
         <h1 class="text-2xl font-black text-ink dark:text-foreground">
           Daftar
         </h1>
-        <p class="mb-6 mt-1 text-sm text-ink/70 dark:text-foreground/70">
+        <p class="mb-6 mt-1 text-sm text-ink/80 dark:text-foreground/70">
           Sudah punya akun?
           <RouterLink
             to="/login"
-            class="font-bold text-navy underline decoration-2 underline-offset-2 dark:text-main"
+            class="font-bold text-navy underline decoration-2 underline-offset-2 dark:text-slate-300"
             >Masuk</RouterLink
           >
         </p>
@@ -139,7 +139,7 @@ async function submit() {
               />
               <button
                 type="button"
-                class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-ink/60 hover:text-ink dark:text-foreground/60 dark:hover:text-foreground"
+                class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-ink/70 hover:text-ink dark:text-foreground/60 dark:hover:text-foreground"
                 :aria-label="
                   showPassword ? 'Sembunyikan password' : 'Tampilkan password'
                 "
