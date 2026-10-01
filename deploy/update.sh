@@ -56,13 +56,6 @@ chmod -R 775 storage bootstrap/cache
 
 log "3/5 Frontend: pnpm build"
 cd ../web
-# Jangan tambahkan --ignore-scripts di sini. Flag itu mematikan SEMUA build
-# script, jadi dependency yang benar-benar butuh (esbuild dsb) rusak diam-diam,
-# sementara masalah aslinya (vue-demi) tetap belum terselesaikan.
-#
-# Izin build script ada di web/pnpm-workspace.yaml lewat `allowBuilds`. Setting
-# lama `onlyBuiltDependencies` sudah dihapus di pnpm 11 dan diabaikan sejak itu,
-# jadi menulisnya di sini atau di package.json tidak akan berpengaruh.
 pnpm install --frozen-lockfile
 pnpm build
 install -d -m 755 ../api/public/print
