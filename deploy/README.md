@@ -24,7 +24,7 @@ bash deploy/deploy.sh --template
 Kirim ke container (kecuali kode sudah ada di sana):
 
 ```bash
-scp -P 53337 deploy/.env.production root@zephyr.proxy.rlwy.net:/srv/ResumeKan/deploy/.env.production
+scp -P 53327 deploy/.env.production root@zephyr.proxy.rlwy.net:/srv/ResumeKan/deploy/.env.production
 ```
 
 Di container:

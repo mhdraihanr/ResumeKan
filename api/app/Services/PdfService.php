@@ -14,9 +14,24 @@ class PdfService
             ->showBackground()
             ->waitUntilNetworkIdle();
 
+        // Windows: Edge yang terpasang lewat installer. Di Linux (container
+        // produksi) Edge tidak ada, jadi cari Chromium/Chrome di path biasa.
         $edge = 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe';
         if (is_file($edge)) {
             $shot->useChrome()->setChromePath($edge);
+        } else {
+            $linuxCandidates = [
+                '/usr/bin/chromium',
+                '/usr/bin/chromium-browser',
+                '/usr/bin/google-chrome',
+                '/usr/bin/google-chrome-stable',
+            ];
+            foreach ($linuxCandidates as $linux) {
+                if (is_file($linux)) {
+                    $shot->useChrome()->setChromePath($linux);
+                    break;
+                }
+            }
         }
 
         // Browsershot loads the SPA shell from a file:// temp page; ES module

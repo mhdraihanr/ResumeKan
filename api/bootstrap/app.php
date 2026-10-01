@@ -13,6 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Caddy menangani HTTPS di depan dan meneruskan permintaan sebagai HTTP
+        // biasa. Tanpa baris ini Laravel mengira situsnya HTTP, sehingga tautan
+        // dan cookie jadi http:// dan login ditolak di produksi.
+        // Aman di lokal: tidak berpengaruh kalau tidak ada proxy.
+        $middleware->trustProxies(at: '*');
         $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {

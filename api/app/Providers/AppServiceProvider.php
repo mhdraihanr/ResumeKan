@@ -19,6 +19,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Di produksi Caddy yang mengakhiri HTTPS. Tanpa ini URL yang
+        // di-generate Laravel memakai http:// sehingga cookie sesi ditolak.
+        // Hanya aktif saat production, jadi tidak mengubah perilaku lokal.
+        if ($this->app->environment('production')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
     }
 }
