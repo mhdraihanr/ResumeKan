@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Entry point runit untuk penjaga backend. Container image ini tidak punya
+# systemd, tetapi runit membaca /etc/service/<nama>/run.
+exec /opt/resumekan/watchdog.sh

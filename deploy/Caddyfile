@@ -1,0 +1,30 @@
+# Satu host: tampilan dan API di origin yang sama.
+# Railway mengurus TLS di depan, jadi Caddy cukup HTTP di :8080.
+{
+	auto_https off
+	admin 127.0.0.1:2019
+}
+
+:8080 {
+	root * /srv/ResumeKan/web/dist
+	encode gzip zstd
+
+	handle /api/* {
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	handle /sanctum/* {
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	handle /up {
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	# Penyangga SPA. Harus di handle{} terakhir: handle bersifat saling eksklusif,
+	# jadi letaknya menentukan apakah POST /api/* ikut jatuh ke file statis.
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
+}

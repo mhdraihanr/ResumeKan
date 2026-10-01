@@ -3,6 +3,12 @@ vendor/
 .env
 .env.*
 !.env.example
+!deploy/.env.production.example
+deploy/.env.production
+# Dokumen deploy yang belum siap dipublikasikan.
+docs/DEPLOY_VPS_PEMULA.md
+docs/DEPLOY_VPS_TEKNIS.md
+docs/VPS.md
 *.log
 .DS_Store
 Thumbs.db

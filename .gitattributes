@@ -1,0 +1,5 @@
+# Skrip shell wajib LF; CRLF membuat shebang gagal di container Linux.
+deploy/*.sh   text eol=lf
+deploy/*.run  text eol=lf
+*.sh          text eol=lf
+*.bash        text eol=lf
