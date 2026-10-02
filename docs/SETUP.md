@@ -13,7 +13,7 @@
 
 Windows: cara termudah install PHP+Composer via [Laravel Herd](https://herd.laravel.com) (free) atau Laragon.
 
-> **PDF (Fase 5):** Browsershot butuh browser Chromium. `PdfService` otomatis memakai **Microsoft Edge** (Chromium, sudah ada di Windows) via `useChrome()->setChromePath()`. Fallback: `cd api && npm i puppeteer` (mengunduh Chrome sendiri).
+> **PDF (Fase 5):** Browsershot butuh browser Chromium. `PdfService` otomatis memakai **Microsoft Edge** (Chromium, sudah ada di Windows) via `setChromePath()`. Fallback: `cd api && npm i puppeteer` (mengunduh Chrome sendiri). Catatan: `useChrome()` Browsershot v5 adalah no-op (tidak mendaftarkan argumen Chrome apa pun), jadi tidak dipakai.
 
 ## Environment Variables (api/.env)
 

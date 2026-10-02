@@ -40,7 +40,7 @@
 - [x] `PdfService` (Browsershot) render HTML `print.html` dengan template Vue yang sama seperti preview melalui `Browsershot::html()`
 - [x] Endpoint `/cvs/{id}/pdf` + tombol download, tanpa request balik ke API selama render
 - [x] `break-inside: avoid` pada `header`/`section` (2026-09-08) — PDF tidak memotong section antar halaman
-- [x] Install Chromium lokal untuk testing (Edge via `useChrome()->setChromePath()`, fallback Puppeteer)
+- [x] Install Chromium lokal untuk testing (Edge via `setChromePath()`, fallback Puppeteer)
 
 ## Fase 6 — Landing & Polish (1 hari) ✅ [detail](phases/phase-6-landing-polish.md)
 

@@ -18,7 +18,7 @@ class PdfService
         // produksi) Edge tidak ada, jadi cari Chromium/Chrome di path biasa.
         $edge = 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe';
         if (is_file($edge)) {
-            $shot->useChrome()->setChromePath($edge);
+            $shot->setChromePath($edge);
         } else {
             $linuxCandidates = [
                 '/usr/bin/chromium',
@@ -28,15 +28,19 @@ class PdfService
             ];
             foreach ($linuxCandidates as $linux) {
                 if (is_file($linux)) {
-                    $shot->useChrome()->setChromePath($linux);
+                    $shot->setChromePath($linux);
                     break;
                 }
             }
         }
 
-        // Browsershot loads the SPA shell from a file:// temp page; ES module
-        // scripts are CORS-gated, so allow module loads from the local origin
-        // (localhost Vite dev / served assets) without a cross-origin block.
+        // Container produksi berjalan sebagai root; Chrome menolak sandbox-nya
+        // sendiri dan gagal launch tanpa --no-sandbox.
+        $shot->noSandbox();
+
+        // Browsershot memuat shell SPA dari halaman temp file://, sedangkan
+        // script ES module dibatasi CORS. Argumen ini mengizinkan module load
+        // dari origin lokal tanpa diblokir lintas-origin.
         $shot->addChromiumArguments([
             'disable-web-security',
             'allow-file-access-from-files',

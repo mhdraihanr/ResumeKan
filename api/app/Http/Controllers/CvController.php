@@ -172,8 +172,11 @@ class CvController extends Controller
         foreach ($candidates as $path) {
             if (is_file($path)) {
                 $html = file_get_contents($path);
-                // In dev, Vite dev server doesn't serve /assets/* from dist — use minimal shell instead
-                if ($this->isViteDev()) {
+                // Shell dev hanya untuk mesin lokal yang menjalankan Vite dev server;
+                // di produksi selalu pakai dist hasil build. Menebak lewat HTTP probe
+                // tidak aman: SPA catch-all (try_files → index.html) membalas 200 untuk
+                // path apa pun, sehingga produksi keliru dianggap sebagai dev server.
+                if (app()->environment('local') && $this->isViteDev()) {
                     return $this->minimalPrintShell($data, $template, $language);
                 }
                 return $this->injectData($html, $data, $template, $language);
@@ -192,9 +195,13 @@ class CvController extends Controller
 
     private function isViteDev(): bool
     {
+        // Status 200 saja tidak cukup: SPA catch-all juga membalas 200 dengan
+        // index.html. Vite dev server yang asli mengirim modul HMR-nya sendiri,
+        // jadi kita pastikan body-nya memang milik Vite.
         $viteUrl = rtrim(config('app.frontend_url', 'http://localhost:5173'), '/') . '/@vite/client';
-        $headers = @get_headers($viteUrl);
-        return $headers !== false && str_contains($headers[0] ?? '', '200');
+        $body = @file_get_contents($viteUrl);
+
+        return $body !== false && str_contains($body, 'import.meta.hot');
     }
 
     private function injectData(string $html, array $data, string $template, string $language = 'id'): string
