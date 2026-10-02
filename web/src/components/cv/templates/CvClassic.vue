@@ -94,7 +94,7 @@ const {
         {{ ed.institution }}<span v-if="ed.location"> · {{ ed.location }}</span>
       </p>
       <p v-if="ed.gpa" class="text-[9pt] text-slate-900">
-        {{ t.gpa }} <span class="font-semibold">{{ ed.gpa }}</span>
+        {{ t.gpa }} <span class="font-bold">{{ ed.gpa }}</span>
       </p>
       <BulletList :items="bullets(ed.achievements)" />
     </div>
@@ -105,7 +105,7 @@ const {
     <div v-for="(o, i) in data.organizations" :key="i" class="mt-2 cv-entry">
       <EntryRow :title="o.organization || t.organization" :period="o.period" />
       <p v-if="o.role" class="text-[9pt] text-slate-900">
-        <span class="font-semibold text-slate-900">{{ t.role }}</span>
+        <span class="font-bold text-slate-900">{{ t.role }}</span>
         {{ o.role }}
       </p>
       <BulletList :items="bullets(o.description)" />
@@ -120,7 +120,7 @@ const {
       class="text-[10pt] leading-relaxed text-slate-900"
       :class="i === 0 ? 'mt-2' : 'mt-1'"
     >
-      <span class="font-semibold">{{ g.label }}:</span>
+      <span class="font-bold">{{ g.label }}:</span>
       {{ g.items.join(" · ") }}
     </p>
   </section>
@@ -128,7 +128,7 @@ const {
   <section v-if="data.projects?.length" class="mb-5">
     <PreviewSection :title="t.projects" />
     <div v-for="(p, i) in data.projects" :key="i" class="mt-2 cv-entry">
-      <p class="text-[10pt] font-semibold text-slate-900">
+      <p class="text-[10pt] font-bold text-slate-900">
         {{ p.title }}
         <a
           v-if="p.link"
@@ -154,12 +154,12 @@ const {
       </p>
       <p v-if="p.role || p.techStack" class="text-[9pt] text-slate-900">
         <template v-if="p.role">
-          <span class="font-semibold text-slate-900">{{ t.role }}</span>
+          <span class="font-bold text-slate-900">{{ t.role }}</span>
           {{ p.role }}
         </template>
         <span v-if="p.role && p.techStack"> · </span>
         <template v-if="p.techStack">
-          <span class="font-semibold text-slate-900">{{ t.techStack }}</span>
+          <span class="font-bold text-slate-900">{{ t.techStack }}</span>
           {{ p.techStack }}
         </template>
       </p>
@@ -172,14 +172,14 @@ const {
       <div class="flex items-baseline justify-between gap-4">
         <p class="text-[10pt] text-slate-900">
           {{ c.name }}
-          <span class="font-semibold text-slate-900">by {{ c.issuer }}</span>
+          <span class="font-bold text-slate-900">by {{ c.issuer }}</span>
         </p>
         <p class="shrink-0 text-[9pt] tabular-nums text-slate-700">
           {{ c.year }}
         </p>
       </div>
       <p v-if="c.credentialId" class="text-[9pt] text-slate-900">
-        <span class="font-semibold text-slate-900">ID:</span>
+        <span class="font-bold text-slate-900">ID:</span>
         {{ c.credentialId }}
       </p>
     </div>
