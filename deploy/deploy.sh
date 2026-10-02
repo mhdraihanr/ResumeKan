@@ -19,6 +19,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_TARGET="$SCRIPT_DIR/.env.production"
 ENV_EXAMPLE="$SCRIPT_DIR/.env.production.example"
 
+# Helper unduh dist dari CI (dipakai di langkah 6).
+# shellcheck source=lib-dist.sh
+. "$SCRIPT_DIR/lib-dist.sh"
+
 log() { printf '\n==> %s\n' "$*"; }
 fail() { printf '\nGAGAL: %s\n' "$*" >&2; exit 1; }
 
@@ -32,7 +36,9 @@ fi
 [ "$(id -u)" = "0" ] || fail "Jalankan sebagai root (di container)."
 
 log "1/8 Periksa perangkat yang dibutuhkan"
-for bin in git php composer pnpm caddy; do
+# pnpm TIDAK diwajibkan: dist normalnya diunduh dari CI (butuh curl + tar).
+# pnpm hanya dipakai kalau unduhan gagal, dan itu diperiksa di langkah 6.
+for bin in git php composer caddy curl tar; do
 	command -v "$bin" >/dev/null || fail "$bin tidak ditemukan. Selesaikan Langkah 4 dan 5 panduan dulu."
 done
 php -r 'exit(version_compare(PHP_VERSION, "8.4.0", ">=") ? 0 : 1);' \
@@ -84,10 +90,25 @@ php artisan migrate --force
 chown -R root:root storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
-log "6/8 Frontend: pnpm build"
+log "6/8 Frontend: pakai hasil build dari CI (fallback: build lokal)"
 cd "$WEB"
-pnpm install --frozen-lockfile
-pnpm build
+# Hasil build idealnya datang dari GitHub Actions (workflow "Build Web"), yang
+# berjalan di runner 2 core / 7 GB. Container ini hanya 0.5 CPU, dan `vite build`
+# di sini terlihat hang di "transforming (xxxx)" selama puluhan menit.
+# Unduhan gagal (repo private, CI belum jalan, jaringan) -> jatuh ke build lokal.
+if fetch_dist "$WEB"; then
+	echo "dist dipasang dari CI."
+else
+	echo "PERINGATAN: unduhan dist gagal; membangun lokal (mungkin lambat)."
+	command -v pnpm >/dev/null \
+		|| fail "pnpm tidak ada, dan unduhan dist dari CI gagal. Pasang Node 22 + pnpm, atau pastikan URL release bisa diakses."
+	pnpm install --frozen-lockfile
+	# `pnpm build` biasa menjalankan vue-tsc dan vite BERBARENGAN (run-p). Di 0.5 CPU
+	# keduanya saling berebut CPU sampai Vite tampak berhenti. Build:ci hanya vite.
+	pnpm type-check
+	pnpm build:ci
+fi
+[ -f "$WEB/dist/index.html" ] || fail "dist tidak berisi index.html; build gagal."
 install -d -m 755 "$API/public/print"
 cp "$WEB/dist/print.html" "$API/public/print/index.html"
 chmod -R a+rX "$WEB/dist"

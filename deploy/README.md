@@ -7,6 +7,7 @@ Perkakas deploy untuk container Railway (tanpa systemd). Penjelasan langkah demi
 | ------------------------- | -------------------------------------------------------------------------- |
 | `deploy.sh`               | Bangun container dari nol: kode, `.env`, Caddyfile, build, jalankan proses |
 | `update.sh`               | Pasang kode terbaru ke container yang sedang hidup                         |
+| `lib-dist.sh`             | Helper unduh hasil build frontend dari GitHub Actions (dipakai dua skrip)  |
 | `Caddyfile`               | Konfigurasi Caddy satu host (:8080, SPA + reverse proxy `/api/*`)          |
 | `watchdog.sh`             | Penjaga `php -S`, pengganti systemd                                        |
 | `service-run.sh`          | Entry point runit, disalin ke `/etc/service/resumekan-api/run`             |
@@ -32,6 +33,23 @@ Di container:
 ```bash
 bash /srv/ResumeKan/deploy/deploy.sh     # container baru / setelah redeploy
 bash /srv/ResumeKan/deploy/update.sh     # update kode rutin
+```
+
+## Build frontend: dari CI, bukan dari container
+
+Container Railway free hanya punya 0.5 CPU / 512 MB. `vite build` di sana tampak hang di `transforming (xxxx)`
+selama puluhan menit. Karena itu `.github/workflows/build-web.yml` membangun `web/` di runner GitHub (2 core / 7 GB),
+lalu menerbitkan `web-dist.tar.gz` sebagai release asset di tag tetap `dist-latest`. Langkah "Frontend" di kedua skrip
+hanya mengunduh URL itu lewat `lib-dist.sh` dan mengekstraknya ke `web/dist`.
+
+Alur kerja jadi: **push ke `main` -> tunggu workflow "Build Web" hijau -> jalankan `update.sh` di container.** Kalau
+workflow belum selesai atau URL tidak bisa diunduh, skrip otomatis jatuh ke `pnpm install && pnpm type-check &&
+pnpm build:ci` (lambat, tapi tetap jalan).
+
+URL yang dipakai (bisa ditimpa lewat `DIST_URL`):
+
+```
+https://github.com/mhdraihanr/ResumeKan/releases/download/dist-latest/web-dist.tar.gz
 ```
 
 `deploy/.env.production` tidak masuk git, jadi salinan lokalnya adalah satu-satunya contoh yang bisa dibaca ulang.

@@ -14,6 +14,11 @@ WORKERS="${WORKERS:-4}"
 PHP_URL_PORT="${PHP_URL_PORT:-8000}"
 DEPS_ONLY=0
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Helper unduh dist dari CI (dipakai di langkah 3).
+# shellcheck source=lib-dist.sh
+. "$SCRIPT_DIR/lib-dist.sh"
+
 [ "${1:-}" = "--deps-only" ] && DEPS_ONLY=1
 
 log() { printf '\n==> %s\n' "$*"; }
@@ -63,10 +68,25 @@ php artisan view:cache
 chown -R root:root storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
-log "3/5 Frontend: pnpm build"
+log "3/5 Frontend: pakai hasil build dari CI (fallback: build lokal)"
 cd ../web
-pnpm install --frozen-lockfile
-pnpm build
+# Hasil build idealnya datang dari GitHub Actions (workflow "Build Web"), yang
+# berjalan di runner 2 core / 7 GB. Container ini hanya 0.5 CPU, dan `vite build`
+# di sini terlihat hang di "transforming (xxxx)" selama puluhan menit.
+# Unduhan gagal (repo private, CI belum jalan, jaringan) -> jatuh ke build lokal.
+if fetch_dist "$(pwd)"; then
+	echo "dist dipasang dari CI."
+else
+	echo "PERINGATAN: unduhan dist gagal; membangun lokal (mungkin lambat)."
+	command -v pnpm >/dev/null \
+		|| fail "pnpm tidak ada, dan unduhan dist dari CI gagal. Pasang Node 22 + pnpm, atau pastikan URL release bisa diakses."
+	pnpm install --frozen-lockfile
+	# `pnpm build` biasa menjalankan vue-tsc dan vite BERBARENGAN (run-p). Di 0.5 CPU
+	# keduanya saling berebut CPU sampai Vite tampak berhenti. Build:ci hanya vite.
+	pnpm type-check
+	pnpm build:ci
+fi
+[ -f dist/index.html ] || fail "dist tidak berisi index.html; build gagal."
 install -d -m 755 ../api/public/print
 cp dist/print.html ../api/public/print/index.html
 chmod -R a+rX dist

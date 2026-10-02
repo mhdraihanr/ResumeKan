@@ -1,0 +1,69 @@
+name: Build Web
+
+# Tujuan: hasil build frontend dibuat di runner GitHub (2 core, 7 GB RAM),
+# BUKAN di container produksi. Container Railway free hanya punya 0.5 CPU dan
+# 512 MB; `vite build` di sana terlihat hang di `transforming (xxxx)` selama
+# puluhan menit. Container sekarang cukup mengunduh `web-dist.tar.gz` dari sini.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/build-web.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-web-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: web
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check
+        working-directory: web
+        run: pnpm type-check
+
+      - name: Build
+        working-directory: web
+        run: pnpm build:ci
+
+      - name: Bungkus dist
+        working-directory: web
+        run: tar -czf ../web-dist.tar.gz -C dist .
+
+      - name: Terbitkan sebagai release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Tag tetap `dist-latest`, release dibuat ulang tiap run supaya
+          # container selalu bisa mengunduh URL yang sama:
+          #   https://github.com/<owner>/<repo>/releases/download/dist-latest/web-dist.tar.gz
+          gh release delete dist-latest --yes --cleanup-tag || true
+          gh release create dist-latest web-dist.tar.gz \
+            --title "Frontend build (latest)" \
+            --notes "Dibuat otomatis oleh workflow Build Web pada commit ${GITHUB_SHA}." \
+            --latest=false
