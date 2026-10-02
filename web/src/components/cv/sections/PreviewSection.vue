@@ -19,7 +19,7 @@ const isModern = computed(() => props.modern || cfg.value?.id === "modern");
 <template>
   <h2
     :class="[
-      'pb-1 font-bold uppercase tracking-widest text-slate-900',
+      'pb-1 font-extrabold uppercase tracking-widest text-slate-900',
       isNeon
         ? 'border-b-2 border-[#14b8a6] text-[10pt] text-[#0f766e]'
         : isModern

@@ -6,7 +6,7 @@ defineProps<{ title: string; period: string; modern?: boolean }>();
 
 <template>
   <div class="flex items-baseline justify-between gap-4">
-    <p class="text-[10pt] font-semibold text-slate-900">{{ title }}</p>
+    <p class="text-[10pt] font-bold text-slate-900">{{ title }}</p>
     <p
       :class="[
         'shrink-0 text-[9pt] text-slate-700',

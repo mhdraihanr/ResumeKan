@@ -69,7 +69,7 @@ const {
 
   <section v-if="sortedExperiences.length" class="mb-5">
     <PreviewSection :title="t.experience" />
-    <div v-for="(e, i) in sortedExperiences" :key="i" class="mt-2">
+    <div v-for="(e, i) in sortedExperiences" :key="i" class="mt-2 cv-entry">
       <EntryRow
         :title="`${e.position || t.position} · ${e.company || t.company}`"
         :period="`${e.startDate} - ${e.endDate}`"
@@ -88,7 +88,7 @@ const {
 
   <section v-if="data.education?.length" class="mb-5">
     <PreviewSection :title="t.education" />
-    <div v-for="(ed, i) in data.education" :key="i" class="mt-2">
+    <div v-for="(ed, i) in data.education" :key="i" class="mt-2 cv-entry">
       <EntryRow :title="ed.degree" :period="ed.year" />
       <p class="text-[10pt] text-slate-900">
         {{ ed.institution }}<span v-if="ed.location"> · {{ ed.location }}</span>
@@ -102,7 +102,7 @@ const {
 
   <section v-if="data.organizations?.length" class="mb-5">
     <PreviewSection :title="t.organizations" />
-    <div v-for="(o, i) in data.organizations" :key="i" class="mt-2">
+    <div v-for="(o, i) in data.organizations" :key="i" class="mt-2 cv-entry">
       <EntryRow :title="o.organization || t.organization" :period="o.period" />
       <p v-if="o.role" class="text-[9pt] text-slate-900">
         <span class="font-semibold text-slate-900">{{ t.role }}</span>
@@ -127,7 +127,7 @@ const {
 
   <section v-if="data.projects?.length" class="mb-5">
     <PreviewSection :title="t.projects" />
-    <div v-for="(p, i) in data.projects" :key="i" class="mt-2">
+    <div v-for="(p, i) in data.projects" :key="i" class="mt-2 cv-entry">
       <p class="text-[10pt] font-semibold text-slate-900">
         {{ p.title }}
         <a
@@ -168,7 +168,7 @@ const {
 
   <section v-if="data.certificates?.length" class="mb-5">
     <PreviewSection :title="t.certificates" />
-    <div v-for="(c, i) in data.certificates" :key="i" class="mt-2">
+    <div v-for="(c, i) in data.certificates" :key="i" class="mt-2 cv-entry">
       <div class="flex items-baseline justify-between gap-4">
         <p class="text-[10pt] text-slate-900">
           {{ c.name }}

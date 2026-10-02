@@ -198,10 +198,23 @@ class CvController extends Controller
         // Status 200 saja tidak cukup: SPA catch-all juga membalas 200 dengan
         // index.html. Vite dev server yang asli mengirim modul HMR-nya sendiri,
         // jadi kita pastikan body-nya memang milik Vite.
+        //
+        // Vite 8 (Rolldown) tak lagi menulis literal `import.meta.hot` di
+        // /@vite/client — yang muncul adalah `createHotContext` dan import
+        // `vite/dist/client/env.mjs`. Memeriksa `import.meta.hot` membuat dev
+        // server tak terdeteksi, sehingga render memakai dist lama yang asetnya
+        // tidak dilayani Vite (catch-all balas text/html) -> modul gagal dieksekusi
+        // -> PDF blank. Cocokkan penanda HMR yang stabil di kedua versi.
         $viteUrl = rtrim(config('app.frontend_url', 'http://localhost:5173'), '/') . '/@vite/client';
         $body = @file_get_contents($viteUrl);
 
-        return $body !== false && str_contains($body, 'import.meta.hot');
+        if ($body === false) {
+            return false;
+        }
+
+        return str_contains($body, 'import.meta.hot')
+            || str_contains($body, 'createHotContext')
+            || str_contains($body, 'vite/dist/client/env.mjs');
     }
 
     private function injectData(string $html, array $data, string $template, string $language = 'id'): string

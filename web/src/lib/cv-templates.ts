@@ -5,7 +5,15 @@ export interface CvTemplateConfig {
   label: string;
   badge?: string;
   atsFriendly: boolean;
+  /**
+   * Inline font-family untuk teks CV. Selalu font Google (bukan font sistem)
+   * agar PDF di Windows dan container Linux merender glyph yang sama — font
+   * sistem berbeda antar-OS (Georgia vs LiberationSerif) sehingga PDF server
+   * tidak konsisten dengan hasil lokal.
+   */
   font: string;
+  /** Nama family Google Fonts yang dimuat untuk `font` bawaan template. */
+  googleFamily: string;
   headerAlign: "left" | "center";
   nameUppercase: boolean;
   headerMargin: string;
@@ -24,7 +32,8 @@ export const CV_TEMPLATES: Record<CvTemplateId, CvTemplateConfig> = {
     label: "Modern",
     badge: "ATS Friendly",
     atsFriendly: true,
-    font: "font-sans",
+    font: "'Inter', sans-serif",
+    googleFamily: "Inter",
     headerAlign: "left",
     nameUppercase: false,
     headerMargin: "mb-6",
@@ -42,7 +51,8 @@ export const CV_TEMPLATES: Record<CvTemplateId, CvTemplateConfig> = {
     label: "Classic",
     badge: "ATS Friendly",
     atsFriendly: true,
-    font: "font-serif",
+    font: "'Source Serif 4', serif",
+    googleFamily: "Source+Serif+4",
     headerAlign: "center",
     nameUppercase: true,
     headerMargin: "mb-3",
@@ -59,8 +69,9 @@ export const CV_TEMPLATES: Record<CvTemplateId, CvTemplateConfig> = {
   neon: {
     id: "neon",
     label: "Neon",
-    atsFriendly: false,
-    font: "font-sans",
+    atsFriendly: true,
+    font: "'Inter', sans-serif",
+    googleFamily: "Inter",
     headerAlign: "left",
     nameUppercase: false,
     headerMargin: "mb-7",
@@ -110,8 +121,14 @@ export const CV_FONTS: CvFontOption[] = [
     googleFamily: "Source+Sans+3",
   },
   {
+    id: "source-serif",
+    label: "Source Serif 4 (Formal Serif)",
+    family: "'Source Serif 4', serif",
+    googleFamily: "Source+Serif+4",
+  },
+  {
     id: "lora",
-    label: "Lora (Formal Serif)",
+    label: "Lora (Artistic Serif)",
     family: "'Lora', serif",
     googleFamily: "Lora",
   },

@@ -124,7 +124,7 @@ const contactItems = computed(() => {
     <div
       v-for="(experience, index) in sortedExperiences"
       :key="index"
-      class="mt-3"
+      class="mt-3 cv-entry"
     >
       <div
         class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-5"
@@ -162,7 +162,11 @@ const contactItems = computed(() => {
     >
       {{ t.education }}
     </h2>
-    <div v-for="(education, index) in data.education" :key="index" class="mt-3">
+    <div
+      v-for="(education, index) in data.education"
+      :key="index"
+      class="mt-3 cv-entry"
+    >
       <div
         class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-5"
       >
@@ -211,7 +215,7 @@ const contactItems = computed(() => {
     <div
       v-for="(organization, index) in data.organizations"
       :key="index"
-      class="mt-3"
+      class="mt-3 cv-entry"
     >
       <div
         class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-5"
@@ -238,7 +242,11 @@ const contactItems = computed(() => {
     >
       {{ t.projects }}
     </h2>
-    <div v-for="(project, index) in data.projects" :key="index" class="mt-3">
+    <div
+      v-for="(project, index) in data.projects"
+      :key="index"
+      class="mt-3 cv-entry"
+    >
       <p class="text-[10.5pt] font-bold text-[#111]">
         {{ project.title }}
         <a
@@ -289,7 +297,11 @@ const contactItems = computed(() => {
     >
       {{ t.certificates }}
     </h2>
-    <div v-for="(cert, index) in data.certificates" :key="index" class="mt-3">
+    <div
+      v-for="(cert, index) in data.certificates"
+      :key="index"
+      class="mt-3 cv-entry"
+    >
       <div class="flex items-baseline justify-between gap-4">
         <p class="text-[10.5pt] text-[#111]">
           {{ cert.name }}

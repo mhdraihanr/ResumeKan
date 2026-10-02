@@ -57,17 +57,18 @@ const resolvedFont = computed(
   () => CV_FONTS.find((f) => f.id === props.fontFamily) ?? CV_FONTS[0]!,
 );
 const isCustomFont = computed(() => resolvedFont.value.googleFamily !== null);
+// Font bawaan template tetap memakai font Google (sesuai tpl.googleFamily),
+// bukan font sistem, supaya PDF di container Linux identik dengan lokal.
 const fontFamilyStyle = computed(() =>
-  isCustomFont.value ? resolvedFont.value.family : undefined,
-);
-const fontClass = computed(() =>
-  isCustomFont.value ? undefined : tpl.value.font,
+  isCustomFont.value ? resolvedFont.value.family : tpl.value.font,
 );
 const sizeClass = computed(() => `cv-size-${props.fontSize || "default"}`);
 const googleFontUrl = computed(() => {
-  const gf = resolvedFont.value.googleFamily;
+  const gf = isCustomFont.value
+    ? resolvedFont.value.googleFamily
+    : tpl.value.googleFamily;
   if (!gf) return null;
-  return `https://fonts.googleapis.com/css2?family=${gf}:wght@400;600;700&display=swap`;
+  return `https://fonts.googleapis.com/css2?family=${gf}:wght@400;600;700;800&display=swap`;
 });
 const resolvedFontSize = computed(() => {
   return (
@@ -96,35 +97,66 @@ const wrapperHeight = ref("auto");
 const wrapperWidth = ref("auto");
 let ro: ResizeObserver | null = null;
 
-// Section (atau header) adalah blok atomik yang tidak boleh terpotong antar
-// halaman, sama seperti `break-inside: avoid` pada print CSS. Preview memecah
-// hanya di batas antar blok ini supaya identik dengan hasil PDF.
+// Paged mode memecah halaman pada batas UNIT, bukan batas section, supaya
+// section panjang boleh mengalir antar halaman (mirip `break-inside: auto`
+// pada print CSS). Aturannya sama dengan PDF:
+//   - header = satu unit utuh (tidak boleh terpotong)
+//   - section tanpa entri (Summary/Skills/Languages) = satu unit utuh
+//   - section ber-entri: heading digabung ke entri pertama, lalu tiap entri
+//     (`:scope > .cv-entry`) jadi unit terpisah yang tidak boleh terpotong
+//     di tengah. Heading section juga selalu menempel entri pertamanya karena
+//     digabung ke unit yang sama.
+function buildUnits(page: HTMLElement): { top: number; bottom: number }[] {
+  const units: { top: number; bottom: number }[] = [];
+  page
+    .querySelectorAll<HTMLElement>(":scope > header, :scope > section")
+    .forEach((el) => {
+      const entries = el.querySelectorAll<HTMLElement>(":scope > .cv-entry");
+      if (el.tagName === "SECTION" && entries.length > 0) {
+        const first = entries[0]!;
+        // Unit pertama = heading section + entri pertama (menempel).
+        units.push({
+          top: el.offsetTop,
+          bottom: first.offsetTop + first.offsetHeight,
+        });
+        // Sisa entri = unit mandiri.
+        for (let i = 1; i < entries.length; i++) {
+          const e = entries[i]!;
+          units.push({
+            top: e.offsetTop,
+            bottom: e.offsetTop + e.offsetHeight,
+          });
+        }
+      } else {
+        units.push({
+          top: el.offsetTop,
+          bottom: el.offsetTop + el.offsetHeight,
+        });
+      }
+    });
+  return units;
+}
+
 function remeasure() {
   if (!props.paged || !measureRef.value) return;
   const page = measureRef.value.querySelector(".cv-page") as HTMLElement | null;
   if (!page) return;
 
-  const blocks: { top: number; bottom: number }[] = [];
-  page
-    .querySelectorAll<HTMLElement>(":scope > header, :scope > section")
-    .forEach((el) => {
-      const top = el.offsetTop;
-      blocks.push({ top, bottom: top + el.offsetHeight });
-    });
   const total = page.scrollHeight;
   measureTotal.value = total;
 
-  // Greedy: isi halaman dengan blok selama muat penuh, dorong blok yang tidak
-  // muat ke halaman berikutnya. Hasilnya tidak ada blok terpotong di tengah.
+  // Greedy: isi halaman dengan unit selama muat penuh, dorong unit yang tidak
+  // muat ke halaman berikutnya. Hasilnya tidak ada entri terpotong di tengah.
+  const units = buildUnits(page);
   const starts: number[] = [0];
   let pageTop = 0;
-  for (const b of blocks) {
-    if (b.bottom - pageTop > PAGE_HEIGHT + 1 && b.top - pageTop > 1) {
-      starts.push(b.top);
-      pageTop = b.top;
+  for (const u of units) {
+    if (u.bottom - pageTop > PAGE_HEIGHT + 1 && u.top - pageTop > 1) {
+      starts.push(u.top);
+      pageTop = u.top;
     }
   }
-  // Kalau masih ada sisa konten melebihi kapasitas halaman terakhir (blok lebih
+  // Kalau masih ada sisa konten melebihi kapasitas halaman terakhir (unit lebih
   // tinggi dari satu halaman), potong keras di batas halaman agar tidak hilang.
   const last = starts[starts.length - 1] ?? 0;
   if (total - last > PAGE_HEIGHT) {
@@ -225,7 +257,6 @@ onBeforeUnmount(() => ro?.disconnect());
     :id="`cv-preview-${tpl.id}`"
     :class="[
       'cv-paper mx-auto w-full max-w-[800px] bg-white text-slate-900 antialiased',
-      fontClass,
       sizeClass,
     ]"
     :style="{
@@ -248,7 +279,7 @@ onBeforeUnmount(() => ro?.disconnect());
     <!-- Hidden measure container → lebar konten identik print -->
     <div
       ref="measureRef"
-      :class="[fontClass, sizeClass]"
+      :class="[sizeClass]"
       :style="{
         position: 'fixed',
         left: '-99999px',
@@ -297,7 +328,7 @@ onBeforeUnmount(() => ro?.disconnect());
         >
           <div :style="{ transform: `translateY(-${start}px)` }">
             <div
-              :class="['a4-page-inner', fontClass, sizeClass]"
+              :class="['a4-page-inner', sizeClass]"
               :style="{
                 width: '673px',
                 lineHeight: '1.5',
@@ -342,11 +373,35 @@ onBeforeUnmount(() => ro?.disconnect());
     color: inherit;
     text-decoration: none;
   }
-  /* PDF tidak memotong elemen: tiap section/header pindah utuh ke halaman baru */
+  /*
+    Pagination PDF (2026-10-02). Aturan lama `section { break-inside: avoid }`
+    memindahkan SELURUH section ke halaman baru walau hanya sedikit baris yang
+    tak muat, sehingga menyisakan ruang kosong besar (mis. "Proyek" loncat ke
+    halaman berikutnya padahal masih ada sisa ruang). Sekarang:
+    - Section pendek (Summary/Skills/Languages) tetap utuh (break-inside: avoid).
+    - Section multi-entri boleh terpotong, TAPI hanya di antara entri.
+    - Tiap entri (`.cv-entry`) tidak boleh terpotong di tengah.
+    - Heading section selalu menempel dengan entri pertamanya (break-after: avoid).
+  */
   header,
   section {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+  /* Section yang berisi entri >1 boleh pecah (antar-entri), bukan di tengahnya. */
+  section:has(> .cv-entry) {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+  /* Satu entri (pengalaman/proyek/pendidikan/organisasi/sertifikat) tetap utuh. */
+  .cv-entry {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  /* Heading section tidak boleh tertinggal sendirian di dasar halaman. */
+  h2 {
+    break-after: avoid;
+    page-break-after: avoid;
   }
   /*
     Ketajaman teks PDF (2026-09-18). Hint `antialiased` (grayscale AA) yang di-set

@@ -8,6 +8,12 @@ class PdfService
 {
     public function render(string $html): string
     {
+        // CATATAN: jangan set windowSize() di sini. page.pdf() mengabaikan
+        // viewport sepenuhnya — Chrome hanya memakai format/margins (paper) dan
+        // opsi scale/preferCSSPageSize. windowSize() hanya berpengaruh untuk
+        // screenshot, bukan PDF. Ukuran huruf PDF ditentukan murni oleh CSS
+        // (@page + @media print) di dalam HTML: konten 673px (@96dpi) dipetakan
+        // ke area cetak A4 178mm sehingga 10pt tetap 10pt tanpa penskalaan.
         $shot = Browsershot::html($html)
             ->format('A4')
             ->margins(14, 16, 14, 16)
