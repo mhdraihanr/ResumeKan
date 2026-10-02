@@ -256,7 +256,7 @@ onBeforeUnmount(() => ro?.disconnect());
     v-if="!paged"
     :id="`cv-preview-${tpl.id}`"
     :class="[
-      'cv-paper mx-auto w-full max-w-[800px] bg-white text-slate-900 antialiased',
+      'cv-paper mx-auto w-full max-w-[800px] bg-white text-neutral-950 antialiased',
       sizeClass,
     ]"
     :style="{
@@ -292,7 +292,7 @@ onBeforeUnmount(() => ro?.disconnect());
       }"
     >
       <div
-        class="cv-page bg-white text-slate-900 antialiased"
+        class="cv-page bg-white text-neutral-950 antialiased"
         style="padding: 0"
       >
         <component :is="comp" :data="normal" :language="language" />
@@ -336,7 +336,7 @@ onBeforeUnmount(() => ro?.disconnect());
               }"
             >
               <div
-                class="cv-page bg-white text-slate-900 antialiased"
+                class="cv-page bg-white text-neutral-950 antialiased"
                 style="padding: 0"
               >
                 <component :is="comp" :data="normal" :language="language" />
@@ -366,7 +366,7 @@ onBeforeUnmount(() => ro?.disconnect());
     default browser tidak ikut tercetak. Link template CV punya class warna
     sendiri (ink netral, lihat DESIGN.md 7) sehingga harus dibiarkan menang.
     Tanpa :not([class]), `color: inherit !important` akan mengalahkan class
-    Tailwind apa pun dan link jatuh ke warna parent (slate-600), jadi preview
+    Tailwind apa pun dan link jatuh ke warna parent (neutral-800), jadi preview
     di layar tidak pernah sama dengan PDF.
   */
   a:not([class]) {

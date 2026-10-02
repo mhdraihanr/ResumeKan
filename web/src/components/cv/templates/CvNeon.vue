@@ -67,13 +67,13 @@ const contactItems = computed(() => {
   >
     <div class="min-w-0 flex-1">
       <h1
-        class="text-[40px] font-bold leading-none tracking-[-0.04em] text-[#111]"
+        class="text-[40px] font-bold leading-none tracking-[-0.04em] text-[#000]"
       >
         {{ displayName }}
       </h1>
       <div
         v-if="contactItems.length"
-        class="mt-3 grid grid-cols-1 gap-x-4 gap-y-1 text-[13px] leading-snug text-[#111] sm:grid-cols-2"
+        class="mt-3 grid grid-cols-1 gap-x-4 gap-y-1 text-[13px] leading-snug text-[#000] sm:grid-cols-2"
       >
         <template v-for="item in contactItems" :key="item.label">
           <div class="flex items-center gap-2">
@@ -94,7 +94,7 @@ const contactItems = computed(() => {
               :href="item.href"
               target="_blank"
               rel="noopener"
-              class="min-w-0 break-words text-[#111] underline decoration-[#6b7280] underline-offset-2 hover:decoration-[#111]"
+              class="min-w-0 break-words text-[#000] underline decoration-[#6b7280] underline-offset-2 hover:decoration-[#000]"
             >
               {{ item.label }}
             </a>
@@ -111,13 +111,13 @@ const contactItems = computed(() => {
     />
   </header>
 
-  <p v-if="data.summary" class="mb-5 text-[14px] leading-relaxed text-[#111]">
+  <p v-if="data.summary" class="mb-5 text-[14px] leading-relaxed text-[#000]">
     {{ data.summary }}
   </p>
 
   <section v-if="sortedExperiences.length" class="mb-5">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.experience }}
     </h2>
@@ -129,24 +129,24 @@ const contactItems = computed(() => {
       <div
         class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-5"
       >
-        <div class="min-w-0 text-[10.5pt] text-[#111]">
+        <div class="min-w-0 text-[10.5pt] text-[#000]">
           <p>
             <span class="font-bold"
               >{{ experience.position || t.position }},</span
             >
-            <em v-if="experience.company" class="ml-1 text-[#111]">{{
+            <em v-if="experience.company" class="ml-1 text-[#000]">{{
               experience.company
             }}</em>
           </p>
           <p
             v-if="experience.employmentType"
-            class="text-[9pt] leading-snug text-[#111]"
+            class="text-[9pt] leading-snug text-[#000]"
           >
             {{ experience.employmentType }}
           </p>
         </div>
-        <div class="shrink-0 text-[9pt] leading-snug text-[#111] sm:text-right">
-          <p class="font-bold text-[#111]">
+        <div class="shrink-0 text-[9pt] leading-snug text-[#000] sm:text-right">
+          <p class="font-bold text-[#000]">
             {{ experience.startDate }} - {{ experience.endDate }}
           </p>
           <p v-if="experience.location">{{ experience.location }}</p>
@@ -158,7 +158,7 @@ const contactItems = computed(() => {
 
   <section v-if="data.education?.length" class="mb-5">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.education }}
     </h2>
@@ -170,18 +170,18 @@ const contactItems = computed(() => {
       <div
         class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-5"
       >
-        <div class="min-w-0 text-[10.5pt] text-[#111]">
+        <div class="min-w-0 text-[10.5pt] text-[#000]">
           <p>
             <span class="font-bold">{{ education.degree }},</span>
-            <em class="ml-1 text-[#111]">{{ education.institution }}</em>
+            <em class="ml-1 text-[#000]">{{ education.institution }}</em>
           </p>
-          <p v-if="education.gpa" class="text-[9pt] leading-snug text-[#111]">
+          <p v-if="education.gpa" class="text-[9pt] leading-snug text-[#000]">
             {{ t.gpa }}
-            <span class="font-bold text-[#111]">{{ education.gpa }}</span>
+            <span class="font-bold text-[#000]">{{ education.gpa }}</span>
           </p>
         </div>
-        <div class="shrink-0 text-[9pt] leading-snug text-[#111] sm:text-right">
-          <p class="font-bold text-[#111]">{{ education.year }}</p>
+        <div class="shrink-0 text-[9pt] leading-snug text-[#000] sm:text-right">
+          <p class="font-bold text-[#000]">{{ education.year }}</p>
           <p v-if="education.location">{{ education.location }}</p>
         </div>
       </div>
@@ -191,24 +191,24 @@ const contactItems = computed(() => {
 
   <section v-if="skillGroups.length" class="mb-5">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.skills }}
     </h2>
     <p
       v-for="(g, i) in skillGroups"
       :key="g.key"
-      class="text-[10pt] leading-relaxed text-[#111]"
+      class="text-[10pt] leading-relaxed text-[#000]"
       :class="i === 0 ? 'mt-2' : 'mt-1'"
     >
-      <span class="font-bold text-[#111]">{{ g.label }}:</span>
+      <span class="font-bold text-[#000]">{{ g.label }}:</span>
       {{ g.items.join(" · ") }}
     </p>
   </section>
 
   <section v-if="data.organizations?.length" class="mb-5">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.organizations }}
     </h2>
@@ -220,14 +220,14 @@ const contactItems = computed(() => {
       <div
         class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-5"
       >
-        <p class="text-[10.5pt] text-[#111]">
+        <p class="text-[10.5pt] text-[#000]">
           <span class="font-bold">{{ organization.organization }}</span>
-          <em v-if="organization.role" class="ml-1 text-[#111]">{{
+          <em v-if="organization.role" class="ml-1 text-[#000]">{{
             organization.role
           }}</em>
         </p>
-        <p class="shrink-0 text-[9pt] text-[#111] sm:text-right">
-          <span class="font-bold text-[#111]">{{ organization.period }}</span>
+        <p class="shrink-0 text-[9pt] text-[#000] sm:text-right">
+          <span class="font-bold text-[#000]">{{ organization.period }}</span>
         </p>
       </div>
       <BulletList :items="bullets(organization.description)" />
@@ -236,7 +236,7 @@ const contactItems = computed(() => {
 
   <section v-if="data.projects?.length" class="mb-5">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.projects }}
     </h2>
@@ -245,7 +245,7 @@ const contactItems = computed(() => {
       :key="index"
       class="mt-3 cv-entry"
     >
-      <p class="text-[10.5pt] font-bold text-[#111]">
+      <p class="text-[10.5pt] font-bold text-[#000]">
         {{ project.title }}
         <a
           v-if="project.link"
@@ -253,7 +253,7 @@ const contactItems = computed(() => {
           target="_blank"
           rel="noopener"
           :aria-label="`Buka link proyek ${project.title}`"
-          class="ml-1 inline-block align-baseline text-[#111] hover:underline"
+          class="ml-1 inline-block align-baseline text-[#000] hover:underline"
           ><svg
             viewBox="0 0 24 24"
             class="inline h-3.5 w-3.5"
@@ -268,21 +268,21 @@ const contactItems = computed(() => {
       </p>
       <p
         v-if="project.objective"
-        class="mt-0.5 text-[10pt] leading-relaxed text-[#111]"
+        class="mt-0.5 text-[10pt] leading-relaxed text-[#000]"
       >
         {{ project.objective }}
       </p>
       <p
         v-if="project.role || project.techStack"
-        class="mt-0.5 text-[9pt] text-[#111]"
+        class="mt-0.5 text-[9pt] text-[#000]"
       >
         <template v-if="project.role">
-          <span class="font-bold text-[#111]">{{ t.role }}</span>
+          <span class="font-bold text-[#000]">{{ t.role }}</span>
           {{ project.role }}
         </template>
         <span v-if="project.role && project.techStack"> · </span>
         <template v-if="project.techStack">
-          <span class="font-bold text-[#111]">{{ t.techStack }}</span>
+          <span class="font-bold text-[#000]">{{ t.techStack }}</span>
           {{ project.techStack }}
         </template>
       </p>
@@ -291,7 +291,7 @@ const contactItems = computed(() => {
 
   <section v-if="data.certificates?.length" class="mb-5">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.certificates }}
     </h2>
@@ -301,16 +301,16 @@ const contactItems = computed(() => {
       class="mt-3 cv-entry"
     >
       <div class="flex items-baseline justify-between gap-4">
-        <p class="text-[10.5pt] text-[#111]">
+        <p class="text-[10.5pt] text-[#000]">
           {{ cert.name }}
-          <span class="font-bold text-[#111]">by {{ cert.issuer }}</span>
+          <span class="font-bold text-[#000]">by {{ cert.issuer }}</span>
         </p>
-        <p class="shrink-0 text-[9pt] font-bold tabular-nums text-[#111]">
+        <p class="shrink-0 text-[9pt] font-bold tabular-nums text-[#000]">
           {{ cert.year }}
         </p>
       </div>
-      <p v-if="cert.credentialId" class="text-[9pt] text-[#111]">
-        <span class="font-bold text-[#111]">ID:</span>
+      <p v-if="cert.credentialId" class="text-[9pt] text-[#000]">
+        <span class="font-bold text-[#000]">ID:</span>
         {{ cert.credentialId }}
       </p>
     </div>
@@ -318,11 +318,11 @@ const contactItems = computed(() => {
 
   <section v-if="data.languages" class="mb-5">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#111]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.languages }}
     </h2>
-    <p class="mt-2 text-[10pt] leading-relaxed text-[#111]">
+    <p class="mt-2 text-[10pt] leading-relaxed text-[#000]">
       {{ data.languages }}
     </p>
   </section>

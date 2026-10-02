@@ -28,43 +28,43 @@ const {
 <template>
   <header class="mb-6 print:break-after-avoid">
     <h1
-      class="text-[36px] font-bold leading-none tracking-tight text-slate-900"
+      class="text-[36px] font-bold leading-none tracking-tight text-neutral-950"
     >
       {{ displayName }}
     </h1>
     <div v-if="hasAnyContact" class="mt-1 space-y-0.5">
       <p
         v-if="contactDirect.length"
-        class="flex flex-wrap gap-x-2 text-[10pt] text-slate-900"
+        class="flex flex-wrap gap-x-2 text-[10pt] text-neutral-950"
       >
         <template v-for="(item, i) in contactDirect" :key="item">
-          <span v-if="i > 0" class="text-slate-400">·</span
+          <span v-if="i > 0" class="text-neutral-400">·</span
           ><span>{{ item }}</span>
         </template>
       </p>
       <p
         v-if="contactLinks.length"
-        class="flex flex-wrap gap-x-2 text-[10pt] text-slate-700"
+        class="flex flex-wrap gap-x-2 text-[10pt] text-neutral-800"
       >
         <template v-for="(item, i) in contactLinks" :key="item.href">
-          <span v-if="i > 0" class="text-slate-400">·</span>
+          <span v-if="i > 0" class="text-neutral-400">·</span>
           <a
             :href="item.href"
             target="_blank"
             rel="noopener"
-            class="text-slate-900 underline decoration-slate-400 underline-offset-2 hover:decoration-slate-900"
+            class="text-neutral-950 underline decoration-neutral-400 underline-offset-2 hover:decoration-neutral-950"
             >{{ item.label }}</a
           >
         </template>
       </p>
     </div>
-    <p v-else class="mt-1 text-[10pt] text-slate-700">
+    <p v-else class="mt-1 text-[10pt] text-neutral-800">
       email · phone · address
     </p>
   </header>
 
   <section v-if="data.summary" class="mb-5">
-    <p class="text-[10pt] leading-relaxed text-slate-900">{{ data.summary }}</p>
+    <p class="text-[10pt] leading-relaxed text-neutral-950">{{ data.summary }}</p>
   </section>
 
   <section v-if="sortedExperiences.length" class="mb-5">
@@ -77,7 +77,7 @@ const {
       />
       <p
         v-if="e.employmentType || e.location"
-        class="text-[9pt] text-slate-900"
+        class="text-[9pt] text-neutral-950"
       >
         <span v-if="e.employmentType">{{ e.employmentType }}</span>
         <span v-if="e.employmentType && e.location"> · </span>
@@ -91,10 +91,10 @@ const {
     <PreviewSection :title="t.education" :modern="true" />
     <div v-for="(ed, i) in data.education" :key="i" class="mt-2 cv-entry">
       <EntryRow :title="ed.degree" :period="ed.year" :modern="true" />
-      <p class="text-[10pt] text-slate-900">
+      <p class="text-[10pt] text-neutral-950">
         {{ ed.institution }}<span v-if="ed.location"> · {{ ed.location }}</span>
       </p>
-      <p v-if="ed.gpa" class="text-[9pt] text-slate-900">
+      <p v-if="ed.gpa" class="text-[9pt] text-neutral-950">
         {{ t.gpa }} <span class="font-bold">{{ ed.gpa }}</span>
       </p>
       <BulletList :items="bullets(ed.achievements)" />
@@ -109,8 +109,8 @@ const {
         :period="o.period"
         :modern="true"
       />
-      <p v-if="o.role" class="text-[9pt] text-slate-900">
-        <span class="font-bold text-slate-900">{{ t.role }}</span>
+      <p v-if="o.role" class="text-[9pt] text-neutral-950">
+        <span class="font-bold text-neutral-950">{{ t.role }}</span>
         {{ o.role }}
       </p>
       <BulletList :items="bullets(o.description)" />
@@ -122,7 +122,7 @@ const {
     <p
       v-for="(g, i) in skillGroups"
       :key="g.key"
-      class="text-[10pt] leading-relaxed text-slate-900"
+      class="text-[10pt] leading-relaxed text-neutral-950"
       :class="i === 0 ? 'mt-2' : 'mt-1'"
     >
       <span class="font-bold">{{ g.label }}:</span>
@@ -133,7 +133,7 @@ const {
   <section v-if="data.projects?.length" class="mb-5">
     <PreviewSection :title="t.projects" :modern="true" />
     <div v-for="(p, i) in data.projects" :key="i" class="mt-2 cv-entry">
-      <p class="text-[10pt] font-bold text-slate-900">
+      <p class="text-[10pt] font-bold text-neutral-950">
         {{ p.title }}
         <a
           v-if="p.link"
@@ -141,7 +141,7 @@ const {
           target="_blank"
           rel="noopener"
           :aria-label="`Buka link proyek ${p.title}`"
-          class="ml-1 inline-block align-baseline text-slate-900 hover:underline"
+          class="ml-1 inline-block align-baseline text-neutral-950 hover:underline"
           ><svg
             viewBox="0 0 24 24"
             class="inline h-3 w-3"
@@ -154,17 +154,17 @@ const {
             /></svg
         ></a>
       </p>
-      <p v-if="p.objective" class="text-[10pt] text-slate-900">
+      <p v-if="p.objective" class="text-[10pt] text-neutral-950">
         {{ p.objective }}
       </p>
-      <p v-if="p.role || p.techStack" class="text-[9pt] text-slate-900">
+      <p v-if="p.role || p.techStack" class="text-[9pt] text-neutral-950">
         <template v-if="p.role">
-          <span class="font-bold text-slate-900">{{ t.role }}</span>
+          <span class="font-bold text-neutral-950">{{ t.role }}</span>
           {{ p.role }}
         </template>
         <span v-if="p.role && p.techStack"> · </span>
         <template v-if="p.techStack">
-          <span class="font-bold text-slate-900">{{ t.techStack }}</span>
+          <span class="font-bold text-neutral-950">{{ t.techStack }}</span>
           {{ p.techStack }}
         </template>
       </p>
@@ -175,21 +175,21 @@ const {
     <PreviewSection :title="t.certificates" :modern="true" />
     <div v-for="(c, i) in data.certificates" :key="i" class="mt-2 cv-entry">
       <div class="flex items-baseline justify-between gap-4">
-        <p class="text-[10pt] text-slate-900">
+        <p class="text-[10pt] text-neutral-950">
           {{ c.name }}
-          <span class="font-bold text-slate-900">by {{ c.issuer }}</span>
+          <span class="font-bold text-neutral-950">by {{ c.issuer }}</span>
         </p>
-        <p class="shrink-0 text-[9pt] text-slate-700">{{ c.year }}</p>
+        <p class="shrink-0 text-[9pt] text-neutral-800">{{ c.year }}</p>
       </div>
-      <p v-if="c.credentialId" class="text-[9pt] text-slate-900">
-        <span class="font-bold text-slate-900">ID:</span>
+      <p v-if="c.credentialId" class="text-[9pt] text-neutral-950">
+        <span class="font-bold text-neutral-950">ID:</span>
         {{ c.credentialId }}
       </p>
     </div>
   </section>
   <section v-if="data.languages" class="mb-2">
     <PreviewSection :title="t.other" :modern="true" />
-    <p class="mt-2 text-[10pt] text-slate-900">
+    <p class="mt-2 text-[10pt] text-neutral-950">
       <span class="font-bold">{{ t.languages }}</span> {{ data.languages }}
     </p>
   </section>
