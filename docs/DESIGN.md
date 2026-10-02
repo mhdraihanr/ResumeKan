@@ -354,6 +354,13 @@ selalu tersedia, dan sapaan memakai nama pengguna.
   tidak menghasilkan request `/translate` sama sekali dan hanya memunculkan pesan yang jelas.
 - Aksi destruktif tetap memakai `confirm()`. Disabled state pada PDF memakai `title` yang
   menjelaskan sebabnya, bukan hanya meredupkan tombol (R-27).
+- **Pending pada tombol PDF (2026-10-02):** karena render Chromium bisa 5-15 dtk, tombol
+  mengubah ikonnya saat berjalan. Tombol ikon di Dashboard: `Download` → `Loader2` berputar,
+  `:disabled` (hanya satu render PDF dalam satu waktu), `title`/`aria-label` → `Menyiapkan PDF...`,
+  `aria-busy="true"`. Tombol header editor (berlabel teks): `Download PDF` → `Menyiapkan PDF...`
+  - spinner, `:disabled`, `aria-busy="true"` — sejajar dengan pola `Menerjemahkan...`. Keduanya
+    punya timeout 60 dtk (`AbortController`) supaya tombol tidak berputar selamanya bila server
+    menggantung. Toast tetap hanya untuk hasil akhir, bukan indikator tunggu.
 - Baris aksi memakai `mt-auto` sehingga menempel ke dasar kartu apa pun panjang isinya.
 - Hover: hard shadow naik dari 4px ke 6px (penanda elevasi, bukan default di semua elemen, R-12).
 

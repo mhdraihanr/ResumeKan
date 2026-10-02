@@ -11,7 +11,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Js;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class CvController extends Controller
 {
@@ -76,7 +77,7 @@ class CvController extends Controller
         return response()->json(null, 204);
     }
 
-    public function pdf(Request $request, Cv $cv): StreamedResponse|JsonResponse
+    public function pdf(Request $request, Cv $cv): Response|JsonResponse
     {
         $this->authorizeOwner($request, $cv);
 
@@ -94,10 +95,26 @@ class CvController extends Controller
         $name = preg_replace('/[^\p{L}\p{N} _-]/u', '', $cv->data['personal']['name'] ?? 'CV') ?: 'CV';
         $html = $this->resolvePrintHtml($cv->data ?? [], $cv->template ?? 'modern', $cv->language ?? 'id');
 
-        return response()->streamDownload(function () use ($html) {
-            echo app(PdfService::class)->render($html);
-        }, $name . '_CV.pdf', [
+        // Render SEBELUM header dikirim. Dulu ini `streamDownload(fn () => echo ...)`
+        // yang mengirim `Content-Type: application/pdf` lebih dulu lalu merender di
+        // dalam closure. Kalau Browsershot gagal (Chromium tak ditemukan, timeout,
+        // OOM) header PDF sudah terkirim dan isinya cuma error -> browser menolak
+        // dengan ERR_INVALID_RESPONSE, dan exception di dalam closure tak bisa lagi
+        // diubah jadi respons JSON. Menghitung byte lebih dulu membuat kegagalan
+        // bisa ditangkap dan dibalas sebagai 502 JSON yang jelas.
+        try {
+            $pdf = app(PdfService::class)->render($html);
+        } catch (Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'message' => 'Gagal membuat PDF. Coba lagi sebentar lagi.',
+            ], 502);
+        }
+
+        return response($pdf, 200, [
             'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $name . '_CV.pdf"',
         ]);
     }
 

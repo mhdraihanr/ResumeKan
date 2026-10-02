@@ -5,8 +5,9 @@
 
 ## Konvensi
 
-- `401` belum login · `403` bukan pemilik resource · `404` tidak ada · `422` validasi · `429` rate limit.
+- `401` belum login · `403` bukan pemilik resource · `404` tidak ada · `422` validasi · `429` rate limit · `502` kegagalan layanan hilir (render PDF / AI gateway / terjemahan).
 - Semua route, selain auth dan shell print internal bertanda tangan, butuh login.
+- **Tanpa auth selalu `401` JSON, bukan redirect (2026-10-02).** App ini API-only: request ke `api/*` tanpa cookie sesi valid membalas `401 { "message": "Unauthenticated." }`, tidak pernah `500 "Route [login] not defined."` maupun redirect. Detail akar masalah di [ARCHITECTURE.md §4](ARCHITECTURE.md).
 - `422` membawa `errors` dengan kunci berpath JSON (`data.certificates.0.name`). Klien **tidak** menampilkan `message` mentahnya: `mapServerErrors` di `lib/cv-validation.ts` membuang awalan `data.` dan memetakan tiap kunci ke error inline pada field yang bersangkutan. `message` mentah hanya ditampilkan sebagai banner untuk kegagalan operasional (network/5xx) — lihat [ARCHITECTURE.md §4](ARCHITECTURE.md). Berlaku untuk submit final **dan** simpan draft (yang juga memakai jalur `errors` → inline, bukan toast pesan mentah).
 
 ## Auth
@@ -126,6 +127,8 @@ Butuh cookie Sanctum dan kepemilikan CV. Controller membangun HTML `print.html` 
 → `422` JSON `{ "message": "Lengkapi dulu sebelum mengunduh.", "errors": { "data.personal.name": ["Nama wajib diisi."], ... } }` bila `title` atau `data.personal.{name,email,phone,address}` kosong, **atau** format email/telepon salah (`data.personal.email` bukan email valid, `data.personal.phone` bukan angka + simbol `+ - ( ) . spasi` dengan min 7 digit), **atau** ada entri berulang setengah jadi (`data.<section>.<i>.<field>`, mis. `data.certificates.0.issuer`). Guard ini cerminan `REQUIRED_FIELDS` + `INVALID_FORMATS` + `ENTRY_RULES` klien (`web/src/lib/cv-validation.ts`) dan `Cv::missingForPdf()` di server; jaga ketiganya tetap sinkron.
 
 > **Catatan (2026-09-15):** selain kepemilikan, endpoint ini kini memvalidasi kelengkapan minimum + format + entri sebelum membuat PDF (guard server, "Opsi B"). Prinsipnya: apa yang tak bisa disimpan (`required`/`required_with`/format), tak bisa diunduh. Tombol `PDF` di Dashboard di-disable lewat `cv.is_complete`; gate klien di editor tetap ada untuk umpan balik instan.
+
+→ `502` JSON `{ "message": "Gagal membuat PDF. Coba lagi sebentar lagi." }` bila render Chromium/Browsershot gagal (2026-10-02). Controller merender PDF di dalam `try/catch` **sebelum** mengirim header, jadi kegagalan render tidak lagi menjadi respons rusak/`ERR_INVALID_RESPONSE` — klien menerima JSON yang bisa ditampilkan sebagai pesan. Klien juga memakai `fetch` ber-`credentials: "include"` + timeout 60 dtk, bukan `window.open`.
 
 **Field `is_complete` (2026-09-15):** `CvResource` menyertakan boolean `is_complete` (= `Cv::isComplete()`) di setiap item — termasuk list `GET /cvs` — agar UI bisa men-disable tombol unduh tanpa perlu memuat `data` penuh. Ringan (satu boolean per CV).
 

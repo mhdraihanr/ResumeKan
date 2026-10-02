@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import {
   Download,
@@ -64,6 +64,13 @@ async function handleDelete(cv: Cv) {
 }
 
 const translatingId = ref<number | null>(null);
+/** Id CV yang PDF-nya sedang dirender; dipakai untuk spinner tombol unduh. */
+const downloadingPdfId = ref<number | null>(null);
+let pdfAbort: AbortController | null = null;
+
+// Batalkan permintaan PDF yang masih berjalan saat pengguna meninggalkan halaman,
+// supaya tidak ada render sia-sia dan state tidak menggantung.
+onBeforeUnmount(() => pdfAbort?.abort());
 const translatedMessage = ref("");
 
 const SECTION_LABEL: Record<string, string> = {
@@ -213,6 +220,8 @@ async function duplicateTranslate(cv: Cv) {
 }
 
 async function downloadPdf(cv: Cv) {
+  if (downloadingPdfId.value !== null) return; // satu render PDF dalam satu waktu
+
   cvStore.error = "";
 
   // Tombol sudah disabled untuk CV belum lengkap; ini jaring pengaman kalau
@@ -222,40 +231,55 @@ async function downloadPdf(cv: Cv) {
     return;
   }
 
-  // Cek kelengkapan lewat server DULU tanpa membuka tab: CV belum lengkap ->
-  // 422 JSON yang akan tampil jelek bila dibuka langsung sebagai tab.
-  const res = await fetch(`/api/v1/cvs/${cv.id}/pdf`, {
-    credentials: "include",
-    headers: { Accept: "application/pdf" },
-  }).catch(() => null);
+  downloadingPdfId.value = cv.id;
+  const controller = new AbortController();
+  pdfAbort = controller;
+  // Render Chromium bisa 5-15 dtk; batas ini mencegah tombol berputar selamanya.
+  const timer = setTimeout(() => controller.abort(), 60_000);
 
-  if (!res) {
-    cvStore.error = "Gagal mengunduh PDF. Coba lagi.";
-    return;
+  try {
+    // Cek kelengkapan lewat server DULU tanpa membuka tab: CV belum lengkap ->
+    // 422 JSON yang akan tampil jelek bila dibuka langsung sebagai tab.
+    const res = await fetch(`/api/v1/cvs/${cv.id}/pdf`, {
+      credentials: "include",
+      headers: { Accept: "application/pdf" },
+      signal: controller.signal,
+    }).catch(() => null);
+
+    if (!res) {
+      cvStore.error = controller.signal.aborted
+        ? "PDF lama dibuat. Coba lagi."
+        : "Gagal mengunduh PDF. Coba lagi.";
+      return;
+    }
+
+    if (res.status === 422) {
+      const body = await res.json().catch(() => null);
+      cvStore.error = body?.message ?? "Lengkapi dulu sebelum mengunduh.";
+      return;
+    }
+
+    if (!res.ok) {
+      cvStore.error = "Gagal mengunduh PDF. Coba lagi.";
+      return;
+    }
+
+    // Sukses: unduh lewat anchor + object URL (bukan window.open) supaya tahan
+    // popup-blocker dan tetap tersimpan sebagai attachment.
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  } finally {
+    clearTimeout(timer);
+    if (pdfAbort === controller) pdfAbort = null;
+    downloadingPdfId.value = null;
   }
-
-  if (res.status === 422) {
-    const body = await res.json().catch(() => null);
-    cvStore.error = body?.message ?? "Lengkapi dulu sebelum mengunduh.";
-    return;
-  }
-
-  if (!res.ok) {
-    cvStore.error = "Gagal mengunduh PDF. Coba lagi.";
-    return;
-  }
-
-  // Sukses: unduh lewat anchor + object URL (bukan window.open) supaya tahan
-  // popup-blocker dan tetap tersimpan sebagai attachment.
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 function fmtDate(s?: string) {
@@ -541,17 +565,29 @@ function fmtDate(s?: string) {
 
                 <button
                   type="button"
-                  :disabled="cv.is_complete === false"
+                  :disabled="
+                    cv.is_complete === false || downloadingPdfId !== null
+                  "
+                  :aria-busy="downloadingPdfId === cv.id"
                   :title="
                     cv.is_complete === false
                       ? 'Lengkapi dulu sebelum mengunduh PDF'
-                      : 'Unduh PDF'
+                      : downloadingPdfId === cv.id
+                        ? 'Menyiapkan PDF...'
+                        : 'Unduh PDF'
                   "
-                  aria-label="Unduh PDF"
+                  :aria-label="
+                    downloadingPdfId === cv.id ? 'Menyiapkan PDF' : 'Unduh PDF'
+                  "
                   @click="downloadPdf(cv)"
                   class="flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white text-ink transition-colors hover:bg-powder focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:cursor-not-allowed disabled:border-ink/30 disabled:bg-transparent disabled:text-ink/40 disabled:hover:bg-transparent dark:border-border dark:bg-background dark:text-foreground dark:hover:bg-white/15 dark:disabled:border-border/40 dark:disabled:text-foreground/40"
                 >
-                  <Download class="size-4" aria-hidden="true" />
+                  <Loader2
+                    v-if="downloadingPdfId === cv.id"
+                    class="size-4 animate-spin"
+                    aria-hidden="true"
+                  />
+                  <Download v-else class="size-4" aria-hidden="true" />
                 </button>
 
                 <!-- Terjemah + duplikat dalam satu aksi, makna ikonnya tunggal.

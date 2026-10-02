@@ -71,6 +71,15 @@ touch /var/log/resumekan-api.log
 log "5/8 Backend: composer, migrasi, izin"
 cd "$API"
 composer install --no-dev --optimize-autoloader --no-interaction
+# Browsershot merender PDF lewat rantai PHP -> node -> api/node_modules/puppeteer
+# -> Chromium. Tanpa `api/node_modules`, PDF gagal dengan ENOENT walau Chromium
+# sistem terpasang. `npm ci` memakai package-lock.json; jatuh ke `npm install`
+# kalau lock belum ada.
+if [ -f package-lock.json ]; then
+	npm ci --no-audit --no-fund
+else
+	npm install --no-audit --no-fund
+fi
 php artisan migrate --force
 chown -R root:root storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache

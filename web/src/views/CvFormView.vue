@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
+import { Loader2 } from "lucide-vue-next";
 import { useRouter } from "vue-router";
 import { useCvStore } from "@/stores/cv";
 import { emptyCvData, normalizeCvData } from "@/types/cv";
@@ -10,7 +11,6 @@ import CvPreview from "@/components/cv/CvPreview.vue";
 const props = defineProps<{ id?: string }>();
 const router = useRouter();
 const cvStore = useCvStore();
-const win = window;
 
 const isEdit = computed(() => !!cvId.value);
 const cvId = ref<number | undefined>(props.id ? Number(props.id) : undefined);
@@ -23,6 +23,7 @@ const data = ref<CvData>(emptyCvData());
 const error = ref<string | null>(null);
 const saving = ref(false);
 const drafting = ref(false);
+const downloadingPdf = ref(false);
 const formRef = ref<InstanceType<typeof CvForm> | null>(null);
 const toast = ref<{ msg: string; ok: boolean } | null>(null);
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
@@ -180,47 +181,94 @@ async function draftSave() {
 
 /**
  * Unduh PDF hanya untuk CV yang sudah lengkap. Kelengkapan dicek SINKRON lewat
- * `isComplete()` dulu, jadi window tidak pernah dibuka saat data kurang —
- * pengguna tidak melihat tab berkelip terbuka lalu tertutup.
+ * `isComplete()` dulu, jadi tombol tidak pernah memicu render saat data kurang —
+ * pengguna tidak menunggu lama hanya untuk melihat penolakan.
  *
  * Kalau kurang: jalankan `prepareSubmit()` agar error inline muncul dan
  * pengguna dipindah ke step bermasalah, lalu tampilkan toast.
  *
- * Setelah lolos, `win.open` dipanggil TANPA `await` sebelumnya agar tetap
- * dianggap user-gesture dan tidak kena popup-blocker. Server punya guard
- * kelengkapan sendiri sebagai pertahanan berlapis untuk pemanggil langsung
- * (mis. tombol PDF di Dashboard), tetapi jalur editor sudah dijamin klien.
+ * PDF diambil lewat `fetch` + blob (bukan `win.open(pdfUrl)`). Dulu tab
+ * dinavigasi langsung ke URL API, sehingga request TIDAK membawa cookie SPA:
+ * kalau sesi kebetulan tidak terbaca, server membalas 401/500 dan tab
+ * menampilkan halaman error mentah (ERR_INVALID_RESPONSE), bukan PDF. Dengan
+ * fetch ber-`credentials: "include"`, cookie ikut terkirim dan setiap
+ * kegagalan bisa dibaca sebagai JSON lalu ditampilkan sebagai toast.
  */
 async function downloadPdf() {
+  if (downloadingPdf.value) return; // cegah dua render sekaligus
+
   if (!formRef.value?.isComplete()) {
     await formRef.value?.prepareSubmit();
     showToast("Lengkapi dulu sebelum mengunduh.", false);
     return;
   }
 
-  // Buka tab sinkron di awal dalam user-gesture agar tidak diblokir popup blocker
-  const pdfWin = win.open("about:blank", "_blank");
+  downloadingPdf.value = true;
+  // Server bisa sibuk (Chromium di Railway free 5-15 dtk); batas ini menjaga
+  // tombol tidak berputar selamanya bila server menggantung tanpa membalas.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 60_000);
 
-  // Simpan data terbaru (font, size, dan teks) sebelum server render PDF
-  if (cvId.value) {
-    try {
-      const payload = {
-        title: title.value,
-        template: template.value,
-        language: language.value,
-        data: data.value,
-      };
-      await cvStore.update(cvId.value, payload, true);
-    } catch {
-      // jika auto-save gagal, tetap arahkan window
+  try {
+    // Simpan data terbaru (font, size, dan teks) sebelum server render PDF
+    if (cvId.value) {
+      try {
+        const payload = {
+          title: title.value,
+          template: template.value,
+          language: language.value,
+          data: data.value,
+        };
+        await cvStore.update(cvId.value, payload, true);
+      } catch {
+        // jika auto-save gagal, tetap lanjut mengambil PDF dari data terakhir
+      }
     }
-  }
 
-  const pdfUrl = `/api/v1/cvs/${cvId.value}/pdf`;
-  if (pdfWin) {
-    pdfWin.location.href = pdfUrl;
-  } else {
-    win.open(pdfUrl, "_blank");
+    const res = await fetch(`/api/v1/cvs/${cvId.value}/pdf`, {
+      credentials: "include",
+      headers: { Accept: "application/pdf" },
+      signal: controller.signal,
+    }).catch(() => null);
+
+    if (!res) {
+      showToast(
+        controller.signal.aborted
+          ? "PDF lama dibuat. Coba lagi."
+          : "Gagal mengunduh PDF. Coba lagi.",
+        false,
+      );
+      return;
+    }
+
+    if (res.status === 422) {
+      const body = await res.json().catch(() => null);
+      showToast(body?.message ?? "Lengkapi dulu sebelum mengunduh.", false);
+      return;
+    }
+
+    if (res.status === 401) {
+      showToast("Sesi berakhir. Silakan masuk lagi.", false);
+      return;
+    }
+
+    if (!res.ok) {
+      showToast("Gagal mengunduh PDF. Coba lagi.", false);
+      return;
+    }
+
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  } finally {
+    clearTimeout(timer);
+    downloadingPdf.value = false;
   }
 }
 </script>
@@ -259,9 +307,16 @@ async function downloadPdf() {
             <button
               v-if="isEdit"
               @click="downloadPdf"
-              class="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-main dark:hover:bg-blue-700"
+              :disabled="downloadingPdf"
+              :aria-busy="downloadingPdf"
+              class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-main dark:hover:bg-blue-700"
             >
-              Download PDF
+              <Loader2
+                v-if="downloadingPdf"
+                class="size-3.5 animate-spin"
+                aria-hidden="true"
+              />
+              {{ downloadingPdf ? "Menyiapkan PDF..." : "Download PDF" }}
             </button>
           </div>
         </div>
