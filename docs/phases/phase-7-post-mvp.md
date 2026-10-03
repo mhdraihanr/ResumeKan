@@ -34,6 +34,14 @@ Menampung ide yang ditunda demi MVP ramping (YAGNI). Dieksekusi hanya jika ada s
 - OAuth Google/LinkedIn
 - ATS score checker
 
+### 7c. SEO dasar lintas halaman publik (✅ Fase 1 selesai 2026-10-03)
+
+- **Masalah:** audit Lighthouse produksi (skor 82) menemukan dua cacat SEO besar: `robots.txt is not valid (24 errors)` dan `Document does not have a meta description`.
+- **Akar masalah robots.txt:** Caddy melayani root `web/dist`, tetapi `robots.txt` hanya ada di `api/public/` → tidak pernah masuk `dist` → `/robots.txt` jatuh ke SPA fallback dan terbalas `index.html` (`200 text/html`). Lighthouse mem-parse HTML itu sebagai robots.
+- **Solusi Fase 1:** `web/public/robots.txt` (valid, allow halaman publik, disallow area privat + `Sitemap:`) dan `web/public/sitemap.xml`; `web/index.html` dapat `lang="id"`, `<title>` deskriptif, `<meta name="description">`, dan `<link rel="canonical">`; `api/public/robots.txt` dan `api/public/favicon.ico` (0 byte, tak terpakai) dihapus.
+- **Sisa (Fase 2, belum dikerjakan):** Open Graph + Twitter Card + JSON-LD `SoftwareApplication` + `og:image` 1200×630.
+- **Sisa (Fase 3, opsional):** prerender/SSG agar meta per-route ikut terkirim di HTML awal (SPA hanya mengekspos `index.html`). Detail → [ARCHITECTURE.md](../ARCHITECTURE.md) §4 SEO.
+
 ## Catatan
 
 - Fase 4 (AI Summary) tetap prioritas berikutnya setelah Fase 3 — jangan loncat ke 7a dulu.

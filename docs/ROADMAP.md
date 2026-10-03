@@ -53,7 +53,8 @@
 
 ## Deploy (nanti, bukan MVP)
 
-- [ ] FE: Vercel/Netlify · BE: VPS murah atau Railway (Browsershot butuh Chromium)
-- [ ] DB: Neon Postgres — tinggal ganti `.env`
+- [x] FE + BE satu origin di container Railway (Caddy menyajikan `web/dist` + reverse-proxy `/api`); Chromium via `google-chrome-stable` karena Ubuntu 22.04 tak punya paket `chromium` (2026-10-03)
+- [x] Build frontend di GitHub Actions (`build-web.yml` → release `dist-latest`), container hanya mengunduh (2026-10-02)
+- [x] DB: Neon Postgres (`ap-southeast-1`) — tinggal ganti `.env`
 
 ## Total estimasi: ±5 hari kerja

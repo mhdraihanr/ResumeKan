@@ -8,14 +8,16 @@ Generator CV ATS-friendly berbasis AI. Isi form → pilih template → download 
 
 | Layer    | Teknologi                                                  |
 | -------- | ---------------------------------------------------------- |
-| Backend  | Laravel 13 (API-only), PHP 8.3+, Sanctum (SPA cookie auth) |
-| Frontend | Vue 3 + TypeScript + Vite, Pinia, Vue Router               |
+| Backend  | Laravel 13 (API-only), PHP 8.4, Sanctum (SPA cookie auth)  |
+| Frontend | Vue 3 + TypeScript + Vite 8, Pinia, Vue Router             |
 | UI       | Tailwind CSS v4, shadcn-vue                                |
 | Animasi  | @vueuse/motion                                             |
 | Database | SQLite (lokal) → Neon Postgres (produksi)                  |
 | PDF      | Spatie Browsershot (headless Chrome)                       |
 | AI       | AI gateway OpenAI-compatible via HTTP client biasa         |
 | Foto     | Cloudinary (signed upload dari browser)                    |
+| Build    | GitHub Actions → release `dist-latest` (container 0.5 CPU) |
+| Deploy   | Railway container + Caddy (FE & API satu origin)           |
 
 ## Struktur Monorepo
 
@@ -23,8 +25,11 @@ Generator CV ATS-friendly berbasis AI. Isi form → pilih template → download 
 ResumeKan/
 ├── api/            # Laravel 13 (backend API)
 ├── web/            # Vue 3 SPA (frontend)
+├── deploy/         # deploy.sh, update.sh, install-deps.sh, Caddyfile
 └── docs/           # Dokumen sebelum development
 ```
+
+> **Deploy:** `deploy/install-deps.sh` memasang semua prasyarat container (PHP 8.4, Node 22, Chrome, Caddy) dan dipanggil otomatis oleh `deploy/deploy.sh`. Build frontend dibuat di GitHub Actions lalu diunduh container (lihat [ARCHITECTURE.md](docs/ARCHITECTURE.md) ADR-7).
 
 ## Menjalankan (harian)
 

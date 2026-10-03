@@ -4,16 +4,18 @@
 
 ## Prasyarat
 
-| Tool            | Versi    | Catatan                                |
-| --------------- | -------- | -------------------------------------- |
-| PHP             | ≥ 8.3    | ekstensi `sqlite3`, `pdo_sqlite` aktif |
-| Composer        | 2.x      |                                        |
-| Node.js         | ≥ 20 LTS |                                        |
-| Chromium/Chrome | terbaru  | untuk Browsershot (Fase 5)             |
+| Tool            | Versi    | Catatan                                       |
+| --------------- | -------- | --------------------------------------------- |
+| PHP             | ≥ 8.4    | ekstensi `sqlite3`, `pdo_sqlite` aktif        |
+| Composer        | 2.x      |                                               |
+| Node.js         | ≥ 22 LTS | CI & `deploy/install-deps.sh` memakai Node 22 |
+| Chromium/Chrome | terbaru  | untuk Browsershot (Fase 5)                    |
 
 Windows: cara termudah install PHP+Composer via [Laravel Herd](https://herd.laravel.com) (free) atau Laragon.
 
 > **PDF (Fase 5):** Browsershot butuh browser Chromium. `PdfService` otomatis memakai **Microsoft Edge** (Chromium, sudah ada di Windows) via `setChromePath()`. Fallback: `cd api && npm i puppeteer` (mengunduh Chrome sendiri). Catatan: `useChrome()` Browsershot v5 adalah no-op (tidak mendaftarkan argumen Chrome apa pun), jadi tidak dipakai.
+
+> **Prasyarat produksi (Linux/container):** bukan lingkungan yang sama seperti Windows. Ubuntu 22.04 **tidak punya paket `chromium`** (dipindah ke snap, dan snap butuh systemd), jadi Chromium dipasang dari repo Google (`google-chrome-stable`). `deploy/install-deps.sh` memasang semua prasyarat (PHP 8.4, Composer, Node 22, pnpm, Chrome, Caddy) dan dipanggil otomatis oleh `deploy/deploy.sh`; detail di [ARCHITECTURE.md](ARCHITECTURE.md) ADR-4.
 
 ## Environment Variables (api/.env)
 
