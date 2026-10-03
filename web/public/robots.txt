@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /$
+Allow: /login$
+Allow: /register$
+
+Disallow: /dashboard
+Disallow: /cv
+Disallow: /api/
+Disallow: /sanctum/
+Disallow: /up
+
+Sitemap: https://resumekan-production.up.railway.app/sitemap.xml
