@@ -87,19 +87,28 @@ export const useAuthStore = defineStore("auth", () => {
     else user.value = null;
   }
 
-  async function logout() {
-    loading.value = true;
-    try {
-      await fetchCsrf();
-      await fetch("/api/v1/logout", {
-        method: "POST",
-        headers: { Accept: "application/json" },
-        credentials: "include",
-      });
-    } finally {
-      user.value = null;
-      loading.value = false;
-    }
+  /**
+   * Logout optimistik: state lokal dibersihkan segera supaya UI terasa instan,
+   * lalu permintaan ke server dikirim di background (tidak ditunggu).
+   * Kegagalan request diabaikan — sesi lokal sudah berakhir dan cookie akan
+   * tetap hangus saat server merespons berikutnya.
+   */
+  function logout() {
+    user.value = null;
+    error.value = null;
+
+    void (async () => {
+      try {
+        await fetchCsrf();
+        await fetch("/api/v1/logout", {
+          method: "POST",
+          headers: { Accept: "application/json" },
+          credentials: "include",
+        });
+      } catch {
+        // Diabaikan: user sudah dianggap keluar di sisi klien.
+      }
+    })();
   }
 
   return {

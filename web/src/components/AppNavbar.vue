@@ -2,7 +2,7 @@
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 import { useDarkMode } from "@/composables/useDarkMode";
-import { Moon, Sun, Menu, X } from "lucide-vue-next";
+import { Moon, Sun, Menu, X, Loader2 } from "lucide-vue-next";
 import { ref } from "vue";
 
 const auth = useAuthStore();
@@ -12,6 +12,24 @@ const open = ref(false);
 
 const icon = () => (isDark() ? Sun : Moon);
 const label = () => (isDark() ? "Ganti ke mode terang" : "Ganti ke mode gelap");
+
+const loggingOut = ref(false);
+
+/**
+ * Logout optimistik: panggil store (yang langsung membersihkan sesi lokal),
+ * tampilkan state singkat untuk mencegah klik ganda, lalu pindah ke beranda.
+ */
+async function handleLogout() {
+  if (loggingOut.value) return;
+  loggingOut.value = true;
+  try {
+    auth.logout();
+    await router.push("/");
+    open.value = false;
+  } finally {
+    loggingOut.value = false;
+  }
+}
 </script>
 
 <template>
@@ -59,13 +77,13 @@ const label = () => (isDark() ? "Ganti ke mode terang" : "Ganti ke mode gelap");
         </template>
         <button
           v-else
-          @click="
-            auth.logout();
-            router.push('/');
-          "
-          class="rounded-base border-2 border-ink bg-white px-3 py-1.5 text-sm font-medium text-ink shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:border-border dark:bg-secondary-background dark:text-foreground"
+          @click="handleLogout"
+          :disabled="loggingOut"
+          :aria-busy="loggingOut ? 'true' : 'false'"
+          class="flex items-center gap-1.5 rounded-base border-2 border-ink bg-white px-3 py-1.5 text-sm font-medium text-ink shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-shadow dark:border-border dark:bg-secondary-background dark:text-foreground"
         >
-          Logout
+          <Loader2 v-if="loggingOut" class="size-3.5 animate-spin" />
+          {{ loggingOut ? "Keluar..." : "Logout" }}
         </button>
         <button
           @click="cycle()"
@@ -128,6 +146,16 @@ const label = () => (isDark() ? "Ganti ke mode terang" : "Ganti ke mode gelap");
             Daftar
           </RouterLink>
         </template>
+        <button
+          v-if="auth.isAuthenticated"
+          @click="handleLogout"
+          :disabled="loggingOut"
+          :aria-busy="loggingOut ? 'true' : 'false'"
+          class="flex items-center gap-2 rounded-base border-2 border-ink bg-white px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:opacity-60 dark:border-border dark:bg-secondary-background dark:text-foreground"
+        >
+          <Loader2 v-if="loggingOut" class="size-4 animate-spin" />
+          {{ loggingOut ? "Keluar..." : "Logout" }}
+        </button>
         <button
           @click="cycle()"
           class="flex items-center gap-2 rounded-base px-3 py-2 text-sm font-medium text-ink hover:bg-ink/5 dark:text-foreground dark:hover:bg-ink/20"
