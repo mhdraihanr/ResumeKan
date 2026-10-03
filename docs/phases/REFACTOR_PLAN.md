@@ -10,7 +10,7 @@ Audit 2026-08-31 menemukan 2 file menumpuk:
 
 | File                                  | Baris     | Masalah                                                                                                                                 |
 | ------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `web/src/components/cv/CvForm.vue`    | 928       | 9 section inline, duplikasi kelas 36×/26×/39×, hack `syncing` flag                                                                      |
+| `web/src/components/cv/CvForm.vue`    | 928       | 9 section inline (kini 10 setelah Sertifikat ditambah 2026-09-04), duplikasi kelas 36×/26×/39×, hack `syncing` flag                     |
 | `web/src/components/cv/CvPreview.vue` | 577       | Template duplikat penuh, dead code `contactLine`, 6× ul bullet identik. Audit ini dibuat sebelum Neon disederhanakan menjadi satu kolom |
 | `api/`                                | ≤121/file | ✅ sehat                                                                                                                                |
 
@@ -66,7 +66,7 @@ web/src/components/cv/
 │   └── CvNeon.vue          # single-column, mint divider, foto persegi opsional
 ├── sections/               # shared: PreviewSection, EntryRow, BulletList
 web/src/lib/
-└── cv-templates.ts         # token 1 sumber: font, headerAlign, h1Class, linkClass, otherMode, layout, accent, hasBorder, hasQr
+└── cv-templates.ts         # token 1 sumber: id, label, font, googleFamily, nameUppercase, layout, accent (headerAlign, headerMargin, h1Class, linkClass, otherMode, hasBorder, hasQr masih ada di tipe tapi belum dipakai konsumen)
 ```
 
 ## 4. Fase Eksekusi
@@ -95,7 +95,7 @@ web/src/lib/
 ### Fase 3 — Extract preview sections + token 1 sumber
 
 - Buat `sections/PreviewSection.vue`, `EntryRow.vue`, `BulletList.vue`.
-- Buat `lib/cv-templates.ts` — token 1 sumber (`font`, `headerAlign`, `nameUppercase`, `h1Class`, `linkClass`, `otherMode`).
+- Buat `lib/cv-templates.ts` — token 1 sumber (`font`, `nameUppercase`, `layout`, `accent`; `headerAlign`/`headerMargin`/`h1Class`/`linkClass`/`otherMode` belum dipakai konsumen).
 - `CvPreview.vue` jadi 1 sumber section (hapus duplikasi `v-if isModern` / `v-else` ~130 baris) — header & `Lainnya` vs `Sertifikasi`/`Bahasa` via `tpl.otherMode`, font/border via token.
 - `MetaStep.vue` & `HomeView.vue` baca `CV_TEMPLATES` untuk options (tambah template = tambah 1 entry token).
 - Verifikasi: preview modern & classic identik (browser), PDF Blade belum diubah.

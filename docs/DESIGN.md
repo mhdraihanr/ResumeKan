@@ -53,15 +53,15 @@ tanpa blur, warna flat, tapi tetap rapi dan profesional untuk audiens pencari ke
 - Powder `#b0e0e6` untuk teks di atas paper kontrasnya 1.43:1, gagal AA. Selalu pasangkan dengan ink.
 - Dark mode: background `#27272a` (zinc-800 abu medium Opsi A), surface `#3f3f46` (zinc-700 terangkat), teks `#f8fafc`, navy `#3b82f6` (lebih terang agar kontras), powder `#b0e0e6` tetap. Border `#f4f4f5` (zinc-100) agar terlihat di abu, shadow `#18181b` (zinc-900) tetap terbaca di atas surface abu. Latar gelap bukan hitam murni (alexmayhew.dev).
 - CTA utama harus navy. Powder hanya untuk highlight dan dekorasi.
-- Navy tidak dipakai sebagai warna teks di dalam dokumen CV. Dokumen CV hanya memakai 2 netral (ink + abu slate) + 1 aksen (navy/mint hanya untuk border heading section, R-29). Link di dalam dokumen CV memakai ink netral (lihat §7).
+- Navy tidak dipakai sebagai warna teks di dalam dokumen CV. Dokumen CV hanya memakai 2 netral (ink + abu neutral) + 1 aksen (navy/mint hanya untuk border heading section, R-29). Link di dalam dokumen CV memakai ink netral (lihat §7).
 
 ## 4. Tipografi
 
 ### Tipografi Antarmuka Aplikasi (UI)
 
 - Font stack UI: Tailwind default (system sans: `ui-sans-serif, system-ui, sans-serif`).
-- Heading: weight `font-black` (900), sama seperti heading preview CV (kontinuitas, R-07).
-- Body: weight `font-normal`, `text-slate-700` di light mode, max 12 kata per baris di landing.
+- Heading UI: weight `font-black` (900) untuk hierarki layar. Heading dokumen CV lebih ringan (`font-bold` untuk nama/h1, `font-extrabold` untuk heading section/h2) karena kertas tidak butuh bobot UI (R-07).
+- Body: weight `font-normal`, teks sekunder `text-ink/80` di light mode, max 12 kata per baris di landing.
 - Angka besar di landing: `font-black tabular-nums`.
 
 ### Tipografi Dokumen CV (Kustomisasi Font & Ukuran)
@@ -72,6 +72,7 @@ Dokumen CV mendukung pemilihan jenis font dan ukuran teks terkurasi untuk fleksi
    - **Bawaan Template (`default`)**: Menggunakan font default bawaan template (`font-serif` untuk Classic, `font-sans` untuk Modern & Neon).
    - **Inter (`inter`)**: Modern Sans, bersih, netral, sangat optimal untuk tech dan startup.
    - **Source Sans 3 (`source-sans`)**: Corporate Sans, keterbacaan tinggi, standar korporat & institusi.
+   - **Source Serif 4 (`source-serif`)**: Formal Serif, netral dan tegas, cocok untuk dokumen korporat dan teknis.
    - **Lora (`lora`)**: Formal Serif kontemporer, elegan, cocok untuk akademisi, hukum, dan manajemen.
    - **Merriweather (`merriweather`)**: Classic Editorial Serif, kokoh dan berbobot untuk posisi senior dan industri kreatif.
    - _Mekanisme Web Font_: Font non-default dimuat via Google Fonts CDN (`<Teleport to="head">` di `CvPreview.vue`). Penghitungan tinggi halaman otomatis menunggu `document.fonts.ready` sebelum paginasi dijalankan.
@@ -120,51 +121,52 @@ Dokumen CV mendukung pemilihan jenis font dan ukuran teks terkurasi untuk fleksi
 
 Empat tier, dari paling kuat ke paling lemah. Angka kontras diukur di atas putih (WCAG 2.1):
 
-| Tier | Peran                     | Kelas Tailwind                                  | Hex terukur | Kontras                          |
-| ---- | ------------------------- | ----------------------------------------------- | ----------- | -------------------------------- |
-| T1   | Entitas + label           | `font-semibold text-slate-900` (Neon: `#111`)   | `#0f172b`   | 17.83:1                          |
-| T2   | Isi / nilai / deskripsi   | `text-slate-900` (Neon: `#111`)                 | `#0f172b`   | 17.83:1                          |
-| T3   | Metadata sekunder         | `text-slate-700` (Neon: `#111` / `#314158`)     | `#314158`   | 10.36:1                          |
-| T4   | Dekoratif (pemisah/garis) | `text-slate-400` (Neon: `decoration-[#6b7280]`) | `#90a1b9`   | 2.56:1 (pemisah `·` & underline) |
+| Tier | Peran                     | Kelas Tailwind                                    | Hex terukur | Kontras                          |
+| ---- | ------------------------- | ------------------------------------------------- | ----------- | -------------------------------- |
+| T1   | Entitas + label           | `font-bold text-neutral-950` (Neon: `#000`)       | `#0a0a0a`   | 19.80:1                          |
+| T2   | Isi / nilai / deskripsi   | `text-neutral-950` (Neon: `#000`)                 | `#0a0a0a`   | 19.80:1                          |
+| T3   | Metadata sekunder         | `text-neutral-800` (Neon: `#000`)                 | `#262626`   | 15.13:1                          |
+| T4   | Dekoratif (pemisah/garis) | `text-neutral-400` (Neon: `decoration-[#6b7280]`) | `#a1a1a1`   | 2.58:1 (pemisah `·` & underline) |
 
-- Alasan revisi 2026-09-18 (Pure Monochrome Ink): isi deskripsi/bullet, ringkasan, dan teks body dinaikkan dari `slate-700` (`#314158`) ke `text-slate-900` (`#0f172b`, Neon `#111`) agar teks di preview dan cetak/download PDF hitam pekat maksimal, mengikuti standar resume ATS dan cetak laser. Pembeda T1 dan T2 kini murni berbasis font weight (`font-semibold`/`font-bold` vs `font-normal`), konsisten dengan standar resume Harvard.
-- Metadata sekunder (T3, periode & tanggal) dinaikkan dari `slate-500` (4.76:1) ke `text-slate-700` (10.36:1) agar tidak pudar/light abu saat dicetak di printer monokrom.
-- Elemen dekoratif T4 (pemisah `·` dan garis underline istirahat) dinaikkan dari `slate-300` (1.49:1) ke `text-slate-400` / `decoration-slate-400` (2.56:1) agar lebih kontras dan tegas tanpa mendominasi teks.
-- Semua teks terbaca jauh melampaui WCAG AA (minimum 4.5:1), dengan body text mencapai 17.83:1.
+- Alasan revisi 2026-09-18 (Pure Monochrome Ink): isi deskripsi/bullet, ringkasan, dan teks body dinaikkan dari `slate-700` ke ink (`text-neutral-950`, Neon `#000`) agar teks di preview dan cetak/download PDF hitam pekat maksimal, mengikuti standar resume ATS dan cetak laser. Pembeda T1 dan T2 kini murni berbasis font weight (`font-bold` vs `font-normal`), konsisten dengan standar resume Harvard.
+- Revisi 2026-10-02 (neutral near-black, commit `f7191a7`): seluruh ink dokumen CV pindah dari palet `slate-*` (biru-abu, mis. `#0f172b`) ke `neutral-*` (near-black, mis. `#0a0a0a`) supaya warna terlihat lebih hitam pekat dan netral di layar maupun cetak. Neon memakai `#000` murni.
+- Metadata sekunder (T3, periode & tanggal) kini `text-neutral-800` (`#262626`, 15.13:1) agar tetap lebih ringan dari body tanpa pudar saat dicetak di printer monokrom.
+- Elemen dekoratif T4 (pemisah `·` dan garis underline istirahat) kini `text-neutral-400` (`#a1a1a1`, 2.58:1) agar lebih kontras dan tegas tanpa mendominasi teks.
+- Semua teks terbaca jauh melampaui WCAG AA (minimum 4.5:1), dengan body text mencapai 19.80:1.
 
 ### Warna Link di Dalam Dokumen CV
 
 Link tidak memakai warna aksen. Aturannya (revisi 2026-09-18):
 
-| Template | Warna teks                 | Underline (istirahat)  | Underline (hover)      | Kontras |
-| -------- | -------------------------- | ---------------------- | ---------------------- | ------- |
-| modern   | `text-slate-900` `#0f172b` | `decoration-slate-400` | `decoration-slate-900` | 17.83:1 |
-| classic  | `text-slate-900` `#0f172b` | `decoration-slate-400` | `decoration-slate-900` | 17.83:1 |
-| neon     | `text-[#111]` `#111111`    | `decoration-[#6b7280]` | `decoration-[#111]`    | 18.88:1 |
+| Template | Warna teks                   | Underline (istirahat)    | Underline (hover)        | Kontras |
+| -------- | ---------------------------- | ------------------------ | ------------------------ | ------- |
+| modern   | `text-neutral-950` `#0a0a0a` | `decoration-neutral-400` | `decoration-neutral-950` | 19.80:1 |
+| classic  | `text-neutral-950` `#0a0a0a` | `decoration-neutral-400` | `decoration-neutral-950` | 19.80:1 |
+| neon     | `text-[#000]` `#000000`      | `decoration-[#6b7280]`   | `decoration-[#000]`      | 21.00:1 |
 
 - Akar masalah (ditemukan 2026-09-13 lewat pengukuran PDF asli): `CvPreview.vue` punya `@media print { a { color: inherit !important; text-decoration: none !important } }`. Aturan `!important` itu **mengalahkan setiap class warna Tailwind** pada `<a>`, apa pun yang ditulis di template. Di Browsershot (yang merender dalam print media) link jatuh ke `inherit` = warna parent (`<p class="text-slate-600">`), jadi link di PDF selalu `#45556c` (slate-600), bukan ink, dan underline-nya hilang. Akibatnya preview di layar dan PDF memang beda persis di link, dan R5 pertama (mengubah class di template) tidak mengubah PDF sama sekali.
 - Perbaikan: aturan print dipersempit ke `a:not([class])` dan `!important` dicabut. Link tanpa class (mis. tautan di dalam teks yang ditulis user) tetap dinetralkan supaya biru default browser tidak ikut tercetak; link template CV, yang semuanya punya class warna sendiri, kini benar-benar menerapkan warnanya di PDF. Alternatif menghapus aturan print sepenuhnya ditolak karena `<a>` berwarna di dalam konten user akan ikut tercetak biru.
 - Konsekuensi: palet dokumen menyusut ke 2 netral + 1 aksen border (R-29), navy hanya dipakai untuk border heading section modern, bukan teks.
 - Underline tetap `underline` permanen (bukan `hover:underline` saja) supaya link tetap terbaca sebagai link tanpa warna. Di atas kertas, underline adalah satu-satunya sinyal link yang bertahan (WCAG 1.4.1: jangan pakai warna sebagai satu-satunya pembeda).
-- Underline istirahat memakai `decoration-slate-400` (`#90a1b9`) / Neon `decoration-[#6b7280]` agar lebih kontras dari sebelumnya (`slate-300`); hover menguat ke ink.
-- Verifikasi lewat PDF asli (bukan simulasi): warna teks link di PDF terukur `#0f172b` (modern, classic) dan `#111111` (neon), dengan garis underline benar-benar ada sebagai vector di PDF. Diukur juga di browser: media `screen` dan `print` menghasilkan warna dan underline identik, jadi preview = PDF.
+- Underline istirahat memakai `decoration-neutral-400` (`#a1a1a1`) / Neon `decoration-[#6b7280]` (`#6b7280`) agar lebih kontras dari sebelumnya; hover menguat ke ink.
+- Verifikasi lewat PDF asli (bukan simulasi): warna teks link di PDF terukur `#0a0a0a` (modern, classic) dan `#000000` (neon), dengan garis underline benar-benar ada sebagai vector di PDF. Diukur juga di browser: media `screen` dan `print` menghasilkan warna dan underline identik, jadi preview = PDF.
 
 ### Warna Data Pribadi di Header (revisi 2026-09-18)
 
 Baris kontak di header tidak lagi dua tonjolan. Data pribadi non-link (email, telepon, alamat) naik dari slate-600 ke **ink**, sama dengan link:
 
-| Elemen                            | modern / classic           | neon      | Underline |
-| --------------------------------- | -------------------------- | --------- | --------- |
-| email, telepon, alamat            | `text-slate-900` `#0f172b` | `#111111` | tidak     |
-| LinkedIn, Website, GitHub (`<a>`) | `text-slate-900` `#0f172b` | `#111111` | ya        |
-| pemisah `·`                       | `text-slate-400` (T4)      | n/a       | tidak     |
+| Elemen                            | modern / classic             | neon      | Underline |
+| --------------------------------- | ---------------------------- | --------- | --------- |
+| email, telepon, alamat            | `text-neutral-950` `#0a0a0a` | `#000000` | tidak     |
+| LinkedIn, Website, GitHub (`<a>`) | `text-neutral-950` `#0a0a0a` | `#000000` | ya        |
+| pemisah `·`                       | `text-neutral-400` (T4)      | n/a       | tidak     |
 
 - Alasan: sebelumnya email/telepon/alamat dibaca lebih lemah dari link di sebelahnya (`slate-600` = `#45556c`, 7.58:1 vs ink 17.83:1) padahal keduanya sama-sama cara recruiter menghubungi kandidat. Beda tonjolan di baris yang sama membuat link terlihat lebih penting daripada nomor telepon, padahal tidak.
 - Underline **tidak** diberikan ke email/telepon/alamat. Bukan link, jadi underline akan jadi janji palsu (recruiter mengira bisa diklik). Warna saja sudah menyamakan bobot visual; underline tetap eksklusif penanda link (WCAG 1.4.1, dan konsisten dengan aturan link di atas).
-- Catatan Neon: `mailto:` dan `tel:` di Neon memang dirender sebagai `<a>` (bisa diklik di PDF), jadi keduanya ber-underline. Satu-satunya item non-link di Neon adalah alamat, dan itu kini ikut ink `#111111`.
+- Catatan Neon: `mailto:` dan `tel:` di Neon memang dirender sebagai `<a>` (bisa diklik di PDF), jadi keduanya ber-underline. Satu-satunya item non-link di Neon adalah alamat, dan itu kini ikut ink `#000000`.
 - Pemisah `·` sengaja tetap T4 (slate-300/#cad5e2): ia murni dekoratif, dan menaikkannya ke ink akan membuat baris kontak terbaca sebagai satu blok teks rapat tanpa jeda.
-- Baris placeholder `email · phone · address` saat seluruh kontak kosong juga tidak diubah (tetap `slate-600`): itu teks contoh, bukan data user, jadi justru tepat kalau lebih redup.
-- Verifikasi lewat PDF asli: email/telepon di PDF terukur `#0f172b` (modern, classic) dan alamat di Neon `#111111`, identik dengan link di dokumen yang sama; di browser media `screen` dan `print` menghasilkan `#0f172b` yang sama, jadi preview = PDF.
+- Baris placeholder `email · phone · address` saat seluruh kontak kosong juga tidak diubah (tetap `text-neutral-800`): itu teks contoh, bukan data user, jadi justru tepat kalau lebih redup.
+- Verifikasi lewat PDF asli: email/telepon di PDF terukur `#0a0a0a` (modern, classic) dan alamat di Neon `#000000`, identik dengan link di dokumen yang sama; di browser media `screen` dan `print` menghasilkan `#0a0a0a` yang sama, jadi preview = PDF.
 - Di atas preview: toggle Modern / Classic / Neon yang mengubah template preview live (bukti fitur template). Tombol Modern dan Classic dilengkapi badge mini "ATS" berbasis properti `atsFriendly`.
 - Toggle preview full render, bukan gambar. Ini juga membuktikan template asli, bukan mock.
 - Tanpa badge/eyebrow pill di atas headline (AI slop — pill badge, Exa pols.dev/slop.md, antislop-ui). Headline langsung tanpa `mt-4` kompensasi.
@@ -284,10 +286,10 @@ palet Ink & Navy. Komponen yang diperlukan untuk Fase 6: button, card, badge.
 - Field dark-mode (audit 2026-09-01): field memakai `dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus:border-ring`; placeholder dikontrol di satu tempat `.dark .cv-form input::placeholder` → `color-mix(in srgb, var(--foreground) 80%, transparent)` (5.21:1 di atas `#55555c`, sebelumnya 65% = 4.04:1). `FormLabel` span → `text-slate-700 dark:text-foreground/75` (6.44:1, sebelumnya slate-700 1.23:1 saat dipakai di luar `<label>`). Field text = `#f8fafc` 7.03:1, input bg efektif `#55555c` (color-mix 12% foreground).
 - Foto profil (opsional, template Neon): thumbnail klikabel buka modal lightbox aksesibel (`role="dialog"`, `aria-modal`, `aria-label`, tutup via ✕/Esc/klik-luar). Tombol `Hapus foto` → `text-red-600 dark:text-red-300` (5.44:1, sebelumnya red-600 1.98:1); error upload → `text-red-600 dark:text-red-300`; teks petunjuk → `text-slate-500 dark:text-slate-400` (4.77:1). `label → div` agar klik area kosong tidak memicu delete (label meneruskan klik ke kontrol pertama).
 - Warna error dark = `red-300` (`#ffa2a2`, 5.44:1 di atas kartu `#3f3f46`), bukan `red-400` (3.78:1, gagal AA untuk teks 11px). Berlaku untuk semua pesan error (inline, banner, toast) — audit 2026-09-15.
-- Teks sekunder step form (audit 2026-09-18): label section `<h2>`, teks bantuan `<p>`, dan empty state memakai `text-slate-500 dark:text-slate-300` (`#cad5e2`, 7.03:1 di atas zinc-700; light `#62748e` 4.76:1 di atas putih). Sebelumnya `dark:text-slate-400` (`#90a1b9`, 3.97:1, gagal) dan `text-slate-400` light (2.63:1, gagal). Counter karakter (mis. `x/500`) dan badge `text-[10px]` ikut pola sama (`text-slate-500 dark:text-slate-300`). Step chip non-active dan indikator "Langkah N/9" naik dari `dark:text-foreground/60` (`#babbbd`, 3.52:1, gagal) ke `dark:text-foreground/75` (`#c9c9cb`, 5.44:1 lolos). Prinsip: untuk teks sekunder dark mode pakai token abu **solid** (slate-300), bukan color-mix opacity rendah (`foreground/60`) yang gagal kontras. Verifikasi sweep kedua mode: light 205 simpul (0 gagal nyata), dark 205 simpul (0 gagal).
+- Teks sekunder step form (audit 2026-09-18): label section `<h2>`, teks bantuan `<p>`, dan empty state memakai `text-slate-500 dark:text-slate-300` (`#cad5e2`, 7.03:1 di atas zinc-700; light `#62748e` 4.76:1 di atas putih). Sebelumnya `dark:text-slate-400` (`#90a1b9`, 3.97:1, gagal) dan `text-slate-400` light (2.63:1, gagal). Counter karakter (mis. `x/500`) dan badge `text-[10px]` ikut pola sama (`text-slate-500 dark:text-slate-300`). Step chip non-active dan indikator "Langkah N/10" naik dari `dark:text-foreground/60` (`#babbbd`, 3.52:1, gagal) ke `dark:text-foreground/75` (`#c9c9cb`, 5.44:1 lolos). Prinsip: untuk teks sekunder dark mode pakai token abu **solid** (slate-300), bukan color-mix opacity rendah (`foreground/60`) yang gagal kontras. Verifikasi sweep kedua mode: light 205 simpul (0 gagal nyata), dark 205 simpul (0 gagal).
 - Aturan: CSS kustom non-scoped yang menimpa warna (mis. blok `.cv-form` di `CvForm.vue`) **wajib** dibungkus `@layer components`. CSS unlayered selalu menang atas utility Tailwind v4 (ber-layer) tanpa peduli specificity — pernah membuat semua pesan error dark berubah abu (bug 2026-09-15).
 - Konsekuensi penting (audit kontras 2026-09-18): karena utility Tailwind **menang** atas aturan warna di `@layer components`, blok `.dark .cv-form h2/p/label>span` (color-mix) di `CvForm.vue` **kalah** dari utility `dark:text-*` yang di-set inline di komponen step. Jadi kontras teks sekunder diatur lewat utility `dark:text-slate-300`/`dark:text-foreground/75` di tiap komponen step, bukan lewat color-mix di blok `.cv-form`. Aturan color-mix lama hanya efektif sebagai fallback untuk elemen tanpa utility warna.
-- CV form stepper: 9 langkah (Info, Pribadi, Ringkasan, Pengalaman, Pendidikan, Organisasi, Keahlian, Proyek, Lainnya). Chip bernomur 3 state (active navy, completed ✓ emerald, upcoming muted). Klikable, `v-show` per section (state field persist). Prev/Next + "Langkah N/9" indicator. Simpan CV di step terakhir. Inspirasi: FlowCV wizard, Rezi UX audit (Exa: progress indicator + guided navigation).
+- CV form stepper: 10 langkah (Info, Pribadi, Ringkasan, Pengalaman, Pendidikan, Organisasi, Keahlian, Proyek, Sertifikat, Lainnya). Chip bernomur 3 state (active navy, completed ✓ emerald, upcoming muted). Klikable, `v-show` per section (state field persist). Prev/Next + "Langkah N/10" indicator. Simpan CV di step terakhir. Inspirasi: FlowCV wizard, Rezi UX audit (Exa: progress indicator + guided navigation).
 - Kontras teks di kedua mode minimal AA (R-25). Tidak pakai warna yang sama untuk text dan background di dark mode (R-34).
 
 ## 11. Dashboard (halaman daftar CV)

@@ -38,7 +38,7 @@
 | `web/src/views/RegisterView.vue`     | Register split panel (2026-08-30): mirror login — aside ink pitch panel + form card neobrutalism, label eksplisit, autocomplete name/email/new-password, show/hide password, error aria-live, toggle dark di card, bg-dots panel kanan                |
 | `web/src/views/DashboardView.vue`    | Dashboard + dark variants (bg/card/button/error/empty)                                                                                                                                                                                                |
 | `web/src/views/CvFormView.vue`       | CV form + preview + dark variants (main/card/h1/back/draft/pdf/preview/toast)                                                                                                                                                                         |
-| `web/src/components/cv/CvForm.vue`   | Shell form (refactor 2026-08-31: isi pindah ke `steps/*.vue` + `form/*.vue`; dark CSS field pindah ke `<style>` non-scoped bernamespace `.cv-form` di `CvForm.vue`) + stepper tabs 9 langkah (2026-08-30)                                             |
+| `web/src/components/cv/CvForm.vue`   | Shell form (refactor 2026-08-31: isi pindah ke `steps/*.vue` + `form/*.vue`; dark CSS field pindah ke `<style>` non-scoped bernamespace `.cv-form` di `CvForm.vue`) + stepper tabs 10 langkah (2026-08-30; Sertifikat ditambah 2026-09-04)            |
 
 ### Files modified
 
@@ -102,10 +102,10 @@
 - Foto profil: thumbnail jadi tombol buka modal lightbox aksesibel (`role="dialog"`, `aria-modal`, `aria-label`, tutup via ✕/Esc/klik-luar). Container foto `<label>` → `<div>` agar klik area kosong tidak memicu delete. URL foto dihapus dari UI.
 - Verifikasi browser semua step: Pribadi 235 elemen, step lain 236 elemen — 0 fail (teks & placeholder ≥4.5:1). get_errors 0.
 
-### CvForm — stepper tabs 9 langkah (2026-08-30, uncommitted)
+### CvForm — stepper tabs 10 langkah (2026-08-30, uncommitted)
 
 - Form panjang 9 section satu scroll (scrollHeight 4107px) terlalu overwhelm. Inspirasi: FlowCV (multi-step wizard, `currentStep` state, Next/Back, progress tracking), Rezi UX audit (Exa: "maze-like navigation without clear indicators of progress" — fix: visual progress indicators, step-by-step guided navigation, Next button). Implementasi Opsi A: stepper tabs horizontal di atas form.
-- 9 langkah: Info, Pribadi, Ringkasan, Pengalaman, Pendidikan, Organisasi, Keahlian, Proyek, Lainnya. Chip bernomor 3 state: active (`bg-slate-900`/`dark:bg-main`), completed (`✓` emerald), upcoming (`text-slate-500`, 4.76:1 PASS; sebelumnya slate-400 2.56:1 gagal). Klikable — user bisa lompat ke step mana saja. `v-show` per section (bukan `v-if`) agar state field tidak hilang saat pindah step. Prev/Next button di bawah form + "Langkah N/9" indicator. Di step terakhir Next berubah jadi Simpan CV.
+- 10 langkah: Info, Pribadi, Ringkasan, Pengalaman, Pendidikan, Organisasi, Keahlian, Proyek, Sertifikat, Lainnya (Sertifikat ditambah 2026-09-04). Chip bernomor 3 state: active (`bg-slate-900`/`dark:bg-main`), completed (`✓` emerald), upcoming (`text-slate-500`, 4.76:1 PASS; sebelumnya slate-400 2.56:1 gagal). Klikable — user bisa lompat ke step mana saja. `v-show` per section (bukan `v-if`) agar state field tidak hilang saat pindah step. Prev/Next button di bawah form + "Langkah N/10" indicator. Di step terakhir Next berubah jadi Simpan CV.
 - Implementasi: `activeStep` ref + `steps` array, `v-show="activeStep === N"` per section, nav HTML + scoped CSS `.dark nav`. ~60 baris baru, tidak ada file/dependency baru, tidak split komponen. Preview kanan tetap real-time.
 - Verifikasi browser: light (step 1→2→3, jump ke 4, jump ke 9 Simpan CV muncul) + dark (stepper nav terbaca, active chip navy, completed ✓ hijau, upcoming muted). vue-tsc 0 error.
 
