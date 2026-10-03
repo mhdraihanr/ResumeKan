@@ -77,10 +77,11 @@ Dokumen CV mendukung pemilihan jenis font dan ukuran teks terkurasi untuk fleksi
    - _Mekanisme Web Font_: Font non-default dimuat via Google Fonts CDN (`<Teleport to="head">` di `CvPreview.vue`). Penghitungan tinggi halaman otomatis menunggu `document.fonts.ready` sebelum paginasi dijalankan.
 
 2. **Pilihan Skala Ukuran Teks (`fontSize`)**
-   - **Kompak (`compact`)**: Base 10pt (body 9pt, heading skala ~0.9x). Berguna untuk memadatkan isi CV agar pas dalam 1 atau 2 halaman utuh tanpa memotong teks.
-   - **Standar (`default`)**: Base 11pt (body 10pt). Rasio seimbang standar industri.
-   - **Lega (`spacious`)**: Base 12pt (body 11pt, heading skala ~1.1x). Cocok untuk profil ringkas dengan pengalaman terpilih agar mengisi halaman secara proporsional.
-   - _Mekanisme CSS_: Menggunakan kelas kontainer `.cv-size-compact` dan `.cv-size-spacious` di `main.css` dengan aturan spesifisitas tinggi (`!important`) untuk menimpa kelas `text-[10pt]` / `text-[9pt]` Tailwind v4 secara deterministik.
+   - Semua ukuran font dokumen CV memakai satuan **pt** (bukan px) supaya preview layar dan cetak PDF identik. Nilai default: **nama/h1 24pt, heading section/h2 11pt, body 10pt, meta 9pt**.
+   - **Kompak (`compact`)**: h1 21pt, h2 10pt, body 9pt, meta 8pt. Berguna untuk memadatkan isi CV agar pas dalam 1 atau 2 halaman utuh tanpa memotong teks.
+   - **Standar (`default`)**: h1 24pt, h2 11pt, body 10pt, meta 9pt. Rasio seimbang standar industri.
+   - **Lega (`spacious`)**: h1 27pt, h2 12pt, body 11pt, meta 10pt. Cocok untuk profil ringkas dengan pengalaman terpilih agar mengisi halaman secara proporsional.
+   - _Mekanisme CSS_: Menggunakan kelas kontainer `.cv-size-compact` dan `.cv-size-spacious` di `main.css` dengan aturan spesifisitas tinggi (`!important`) yang menargetkan kelas `text-[24pt]` (h1), `text-[11pt]` (h2), `text-[10pt]` (body), dan `text-[9pt]` (meta) Tailwind v4 secara deterministik.
 
 3. **Sinkronisasi Single-Source Preview & PDF**
    - Nilai `fontFamily` dan `fontSize` disimpan dalam struktur JSON `data` CV, divalidasi oleh `StoreCvRequest.php`, dan diinjeksikan langsung ke `print.html` melalui `print-main.ts`.

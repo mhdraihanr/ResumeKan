@@ -55,6 +55,13 @@ Catatan pemasangan: `ui-ux-pro-max` disalin dari repo `ui-ux-pro-max-skill`, tet
 
 Untuk pekerjaan UI, `antislop` mewajibkan arah desain disepakati lebih dulu. Di repo ini arah itu ada di `docs/DESIGN.md` (palet, dials, tipografi, aturan komponen). Baca dokumen itu sebelum menulis UI, dan jangan mengarang gaya baru di luar palet yang sudah ditetapkan.
 
+### 1.5 Context7 (c7)
+
+"c7" berarti **Context7** (`use context7`). Sebelum menulis kode yang memakai _library_ atau _framework_ pihak ketiga, ambil dokumentasi terbarunya lewat Context7 (panggil `resolve-library-id`, lalu `query-docs`).
+
+- Jika tugas **tidak** menyentuh _library_ pihak ketiga (mis. hanya mengubah kelas Tailwind lokal, teks, atau konfigurasi internal), lewati Context7 dan **nyatakan secara eksplisit** bahwa tidak ada _library_ yang perlu di-_query_.
+- Jangan mengarang jawaban API dari ingatan saat Context7 tersedia; ambil dari dokumentasi.
+
 ## 2. Aturan Pengujian
 
 - Saat pengujian diperlukan, **prioritaskan pengujian melalui GitHub Copilot Web di VS Code**.
@@ -83,6 +90,31 @@ Setiap perubahan UI **wajib diverifikasi lewat browser terintegrasi VS Code** (_
 - Sesi login bisa berakhir saat dimuat ulang (_reload_) — jika halaman dialihkan (_redirect_) ke `/login`, minta kredensial pengujian ke pengguna atau minta pengguna login terlebih dahulu.
 - Verifikasi juga mode gelap (_dark mode_) bila perubahan menyentuh warna/batas (_border_).
 - Untuk perubahan responsif, periksa minimal tampilan desktop + _viewport_ sempit.
+
+### 3.1 Urutan alat verifikasi (berjenjang, wajib)
+
+Verifikasi visual harus benar-benar terjadi di browser. Coba berurutan, dan jangan menarik kesimpulan sebelum salah satu benar-benar berhasil:
+
+1. **Playwright VS Code (jalur utama).** `openBrowserPage` / `navigatePage` / `readPage` / `screenshotPage` / `clickElement` / `typeInPage` / `runPlaywrightCode`.
+2. **Playwright MCP** (`mcp_playwright_browser_*`) bila tool-nya aktif.
+3. **Chrome DevTools MCP** (`mcp_chrome_devtoo_*`) sebagai alternatif, setelah dipastikan terhubung ke tab yang sama (lihat 3.2).
+4. **Semua jalur gagal → STOP.** Minta pengguna memverifikasi manual. **Jangan** mengklaim "selesai dan terverifikasi", dan **jangan** menyajikan "sudah baca kode" sebagai bukti visual.
+
+### 3.2 Pastikan alat benar-benar terhubung dulu
+
+- Cek daftar tab/page lebih dulu (`list_pages` / _snapshot_). Page ID harus menunjuk ke tab aplikasi yang benar, bukan `about:blank` atau tab lain.
+- Pastikan _dev server_ memang melayani URL target. Jika tidak, laporkan, jangan lanjut berpura-pura memverifikasi.
+- Jika tool evaluasi DOM (`browser_evaluate`) nonaktif atau mengembalikan nilai kosong, jangan jadikan itu dasar klaim. Pakai jalur yang masih mengembalikan bukti (mis. _screenshot_ atau `readPage`).
+
+### 3.3 Elemen beranimasi (v-motion, transisi)
+
+- Sebelum _screenshot_ atau mengukur elemen beranimasi, matikan dulu gerak lewat `addStyleTag` (`*{animation:none!important;transition:none!important}`). Animasi membuat tool menunggu elemen "stabil" lalu timeout.
+- Untuk klik, utamakan klik lewat skrip (`runPlaywrightCode`) atau opsi `force: true`. Hindari `clickElement` pada elemen beranimasi karena rawan timeout.
+
+### 3.4 Kejujuran hasil
+
+- _Screenshot_ gagal atau status interaksi tidak pasti: katakan apa adanya. Jangan dibulatkan menjadi "berhasil".
+- Setiap klaim visual harus punya artefak (_screenshot_/_snapshot_) atau nilai terukur (_computed style_, _bounding box_). Jika tidak ada, sebut "belum terverifikasi visual".
 
 ## 4. Aturan Git
 

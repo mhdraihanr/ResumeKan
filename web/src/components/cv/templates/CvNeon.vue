@@ -63,17 +63,17 @@ const contactItems = computed(() => {
 
 <template>
   <header
-    class="mb-5 flex items-center justify-between gap-6 print:break-after-avoid"
+    class="mb-4 flex items-center justify-between gap-6 print:break-after-avoid"
   >
     <div class="min-w-0 flex-1">
       <h1
-        class="text-[40px] font-bold leading-none tracking-[-0.04em] text-[#000]"
+        class="text-[24pt] font-bold leading-none tracking-[-0.04em] text-[#000]"
       >
         {{ displayName }}
       </h1>
       <div
         v-if="contactItems.length"
-        class="mt-3 grid grid-cols-1 gap-x-4 gap-y-1 text-[13px] leading-snug text-[#000] sm:grid-cols-2"
+        class="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-[10pt] leading-snug text-[#000] sm:grid-cols-2"
       >
         <template v-for="item in contactItems" :key="item.label">
           <div class="flex items-center gap-2">
@@ -111,25 +111,25 @@ const contactItems = computed(() => {
     />
   </header>
 
-  <p v-if="data.summary" class="mb-5 text-[14px] leading-relaxed text-[#000]">
+  <p v-if="data.summary" class="mb-4 text-[10pt] leading-snug text-[#000]">
     {{ data.summary }}
   </p>
 
-  <section v-if="sortedExperiences.length" class="mb-5">
+  <section v-if="sortedExperiences.length" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.experience }}
     </h2>
     <div
       v-for="(experience, index) in sortedExperiences"
       :key="index"
-      class="mt-3 cv-entry"
+      class="mt-2 cv-entry"
     >
       <div
         class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-5"
       >
-        <div class="min-w-0 text-[10.5pt] text-[#000]">
+        <div class="min-w-0 text-[10pt] text-[#000]">
           <p>
             <span class="font-bold"
               >{{ experience.position || t.position }},</span
@@ -156,21 +156,21 @@ const contactItems = computed(() => {
     </div>
   </section>
 
-  <section v-if="data.education?.length" class="mb-5">
+  <section v-if="data.education?.length" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.education }}
     </h2>
     <div
       v-for="(education, index) in data.education"
       :key="index"
-      class="mt-3 cv-entry"
+      class="mt-2 cv-entry"
     >
       <div
         class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-5"
       >
-        <div class="min-w-0 text-[10.5pt] text-[#000]">
+        <div class="min-w-0 text-[10pt] text-[#000]">
           <p>
             <span class="font-bold">{{ education.degree }},</span>
             <em class="ml-1 text-[#000]">{{ education.institution }}</em>
@@ -189,16 +189,16 @@ const contactItems = computed(() => {
     </div>
   </section>
 
-  <section v-if="skillGroups.length" class="mb-5">
+  <section v-if="skillGroups.length" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.skills }}
     </h2>
     <p
       v-for="(g, i) in skillGroups"
       :key="g.key"
-      class="text-[10pt] leading-relaxed text-[#000]"
+      class="text-[10pt] leading-snug text-[#000]"
       :class="i === 0 ? 'mt-2' : 'mt-1'"
     >
       <span class="font-bold text-[#000]">{{ g.label }}:</span>
@@ -206,21 +206,21 @@ const contactItems = computed(() => {
     </p>
   </section>
 
-  <section v-if="data.organizations?.length" class="mb-5">
+  <section v-if="data.organizations?.length" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.organizations }}
     </h2>
     <div
       v-for="(organization, index) in data.organizations"
       :key="index"
-      class="mt-3 cv-entry"
+      class="mt-2 cv-entry"
     >
       <div
         class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-5"
       >
-        <p class="text-[10.5pt] text-[#000]">
+        <p class="text-[10pt] text-[#000]">
           <span class="font-bold">{{ organization.organization }}</span>
           <em v-if="organization.role" class="ml-1 text-[#000]">{{
             organization.role
@@ -234,18 +234,18 @@ const contactItems = computed(() => {
     </div>
   </section>
 
-  <section v-if="data.projects?.length" class="mb-5">
+  <section v-if="data.projects?.length" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.projects }}
     </h2>
     <div
       v-for="(project, index) in data.projects"
       :key="index"
-      class="mt-3 cv-entry"
+      class="mt-2 cv-entry"
     >
-      <p class="text-[10.5pt] font-bold text-[#000]">
+      <p class="text-[10pt] font-bold text-[#000]">
         {{ project.title }}
         <a
           v-if="project.link"
@@ -268,7 +268,7 @@ const contactItems = computed(() => {
       </p>
       <p
         v-if="project.objective"
-        class="mt-0.5 text-[10pt] leading-relaxed text-[#000]"
+        class="mt-0.5 text-[10pt] leading-snug text-[#000]"
       >
         {{ project.objective }}
       </p>
@@ -289,19 +289,19 @@ const contactItems = computed(() => {
     </div>
   </section>
 
-  <section v-if="data.certificates?.length" class="mb-5">
+  <section v-if="data.certificates?.length" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.certificates }}
     </h2>
     <div
       v-for="(cert, index) in data.certificates"
       :key="index"
-      class="mt-3 cv-entry"
+      class="mt-2 cv-entry"
     >
       <div class="flex items-baseline justify-between gap-4">
-        <p class="text-[10.5pt] text-[#000]">
+        <p class="text-[10pt] text-[#000]">
           {{ cert.name }}
           <span class="font-bold text-[#000]">by {{ cert.issuer }}</span>
         </p>
@@ -316,13 +316,13 @@ const contactItems = computed(() => {
     </div>
   </section>
 
-  <section v-if="data.languages" class="mb-5">
+  <section v-if="data.languages" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[16px] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
     >
       {{ t.languages }}
     </h2>
-    <p class="mt-2 text-[10pt] leading-relaxed text-[#000]">
+    <p class="mt-2 text-[10pt] leading-snug text-[#000]">
       {{ data.languages }}
     </p>
   </section>

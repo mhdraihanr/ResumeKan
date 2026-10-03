@@ -28,7 +28,7 @@ const {
 <template>
   <header class="mb-6 print:break-after-avoid">
     <h1
-      class="text-[36px] font-bold leading-none tracking-tight text-neutral-950"
+      class="text-[24pt] font-bold leading-none tracking-tight text-neutral-950"
     >
       {{ displayName }}
     </h1>
@@ -64,7 +64,9 @@ const {
   </header>
 
   <section v-if="data.summary" class="mb-5">
-    <p class="text-[10pt] leading-relaxed text-neutral-950">{{ data.summary }}</p>
+    <p class="text-[10pt] leading-relaxed text-neutral-950">
+      {{ data.summary }}
+    </p>
   </section>
 
   <section v-if="sortedExperiences.length" class="mb-5">

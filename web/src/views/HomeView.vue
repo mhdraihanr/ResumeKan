@@ -18,6 +18,8 @@ import {
 } from "lucide-vue-next";
 import type { CvData } from "@/types/cv";
 import { CV_TEMPLATES, type CvTemplateId } from "@/lib/cv-templates";
+// Ganti file ini dengan foto asli untuk preview Neon di home.
+import samplePhoto from "@/assets/sample/foto-placeholder.png";
 
 const template = ref<CvTemplateId>("modern");
 
@@ -31,6 +33,7 @@ const sample: CvData = {
     linkedin: "linkedin.com/in/jokowidodo",
     website: "",
     github: "",
+    photo: samplePhoto,
   },
   summary:
     "Frontend Developer dengan pengalaman membangun antarmuka web yang cepat dan mudah digunakan. Terbiasa dengan Vue, TypeScript, dan Tailwind CSS.",

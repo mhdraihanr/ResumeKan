@@ -45,7 +45,7 @@ async function handleLogout() {
         class="flex shrink-0 items-center"
         aria-label="ResumeKan"
       >
-        <AppLogo :height="28" />
+        <AppLogo :height="34" />
       </RouterLink>
 
       <!-- Desktop -->
