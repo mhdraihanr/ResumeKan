@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLogo from "@/components/AppLogo.vue";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
@@ -25,9 +26,9 @@ async function submit() {
     <aside
       class="hidden flex-col justify-between border-r-2 border-ink bg-ink p-10 text-paper lg:flex dark:border-border"
     >
-      <RouterLink to="/" class="text-xl font-black tracking-tight"
-        >ResumeKan</RouterLink
-      >
+      <RouterLink to="/" class="flex w-fit items-center" aria-label="ResumeKan">
+        <AppLogo :height="30" tone="on-dark" />
+      </RouterLink>
       <div>
         <h2 class="max-w-sm text-4xl font-black leading-tight tracking-tight">
           CV yang lolos

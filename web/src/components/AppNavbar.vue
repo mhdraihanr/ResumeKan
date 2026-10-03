@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppLogo from "@/components/AppLogo.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 import { useDarkMode } from "@/composables/useDarkMode";
@@ -41,9 +42,10 @@ async function handleLogout() {
     >
       <RouterLink
         to="/"
-        class="text-lg font-black tracking-tight text-ink dark:text-foreground"
+        class="flex shrink-0 items-center"
+        aria-label="ResumeKan"
       >
-        ResumeKan
+        <AppLogo :height="28" />
       </RouterLink>
 
       <!-- Desktop -->
