@@ -7,6 +7,10 @@
 #
 # Skrip ini tidak memuat satu pun secret. APP_KEY dan DB_URL dibaca dari
 # deploy/.env.production, yang tidak masuk git.
+#
+# Kalau ada perangkat wajib yang belum terpasang (git, PHP 8.4, Composer, Node,
+# Caddy), skrip ini otomatis menjalankan deploy/install-deps.sh. Matikan dengan
+# SKIP_DEPS_INSTALL=1 bila ingin memeriksa saja tanpa memasang apa pun.
 set -euo pipefail
 
 REPO_URL="${REPO_URL:-https://github.com/mhdraihanr/ResumeKan.git}"
@@ -35,12 +39,39 @@ fi
 
 [ "$(id -u)" = "0" ] || fail "Jalankan sebagai root (di container)."
 
-log "1/8 Periksa perangkat yang dibutuhkan"
-# pnpm TIDAK diwajibkan: dist normalnya diunduh dari CI (butuh curl + tar).
-# pnpm hanya dipakai kalau unduhan gagal, dan itu diperiksa di langkah 6.
-for bin in git php composer caddy curl tar; do
-	command -v "$bin" >/dev/null || fail "$bin tidak ditemukan. Selesaikan Langkah 4 dan 5 panduan dulu."
+log "1/8 Periksa dan pasang perangkat yang dibutuhkan"
+# Perangkat wajib: git, php, composer, caddy, curl, tar, node+npm.
+# node/npm wajib karena Step 5 menjalankan `npm ci` (Puppeteer untuk PDF).
+# Kalau ada yang hilang, install-deps.sh memasangnya otomatis (idempotent).
+# Set SKIP_DEPS_INSTALL=1 untuk mematikan pemasangan otomatis ini.
+need_install=0
+for bin in git php composer caddy curl tar node npm; do
+	command -v "$bin" >/dev/null || need_install=1
 done
+if php_cmd="$(command -v php)" && [ -n "$php_cmd" ]; then
+	"$php_cmd" -r 'exit(version_compare(PHP_VERSION, "8.4.0", ">=") ? 0 : 1);' || need_install=1
+else
+	need_install=1
+fi
+
+if [ "$need_install" = "1" ]; then
+	if [ "${SKIP_DEPS_INSTALL:-0}" = "1" ]; then
+		for bin in git php composer caddy curl tar node npm; do
+			command -v "$bin" >/dev/null || fail "$bin tidak ditemukan (SKIP_DEPS_INSTALL=1)."
+		done
+		php -r 'exit(version_compare(PHP_VERSION, "8.4.0", ">=") ? 0 : 1);' \
+			|| fail "Butuh PHP >= 8.4, yang ada: $(php -v | head -1)"
+	else
+		[ -f "$SCRIPT_DIR/install-deps.sh" ] \
+			|| fail "Ada perangkat yang belum terpasang dan $SCRIPT_DIR/install-deps.sh tidak ada."
+		printf 'Ada perangkat yang belum terpasang; menjalankan install-deps.sh...\n'
+		bash "$SCRIPT_DIR/install-deps.sh"
+		# Verifikasi ulang setelah pemasangan.
+		for bin in git php composer caddy curl tar node npm; do
+			command -v "$bin" >/dev/null || fail "$bin masih tidak ditemukan setelah pemasangan."
+		done
+	fi
+fi
 php -r 'exit(version_compare(PHP_VERSION, "8.4.0", ">=") ? 0 : 1);' \
 	|| fail "Butuh PHP >= 8.4, yang ada: $(php -v | head -1)"
 
