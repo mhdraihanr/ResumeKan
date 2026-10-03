@@ -20,6 +20,9 @@ const {
   () => props.language ?? "id",
 );
 
+// Ink Neon = hitam pekat `#000` (T1/T2) dan marker bullet juga `#000`, ditulis
+// literal di class (docs/DESIGN.md §4). Divider mint tetap aksen, bukan ink.
+
 // Ikon Material inline (SVG path) untuk tiap tipe kontak, mengikuti referensi.
 const icons: Record<string, string> = {
   location:
@@ -67,13 +70,13 @@ const contactItems = computed(() => {
   >
     <div class="min-w-0 flex-1">
       <h1
-        class="text-[24pt] font-bold leading-none tracking-[-0.04em] text-[#000]"
+        class="text-[24pt] font-bold leading-none tracking-[-0.04em] text-black"
       >
         {{ displayName }}
       </h1>
       <div
         v-if="contactItems.length"
-        class="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-[10pt] leading-snug text-[#000] sm:grid-cols-2"
+        class="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-[10pt] leading-snug text-black sm:grid-cols-2"
       >
         <template v-for="item in contactItems" :key="item.label">
           <div class="flex items-center gap-2">
@@ -94,7 +97,7 @@ const contactItems = computed(() => {
               :href="item.href"
               target="_blank"
               rel="noopener"
-              class="min-w-0 break-words text-[#000] underline decoration-[#6b7280] underline-offset-2 hover:decoration-[#000]"
+              class="min-w-0 break-words text-black underline decoration-[#6b7280] underline-offset-2 hover:decoration-black"
             >
               {{ item.label }}
             </a>
@@ -111,13 +114,13 @@ const contactItems = computed(() => {
     />
   </header>
 
-  <p v-if="data.summary" class="mb-4 text-[10pt] leading-snug text-[#000]">
+  <p v-if="data.summary" class="mb-4 text-[10pt] leading-snug text-black">
     {{ data.summary }}
   </p>
 
   <section v-if="sortedExperiences.length" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-black"
     >
       {{ t.experience }}
     </h2>
@@ -129,36 +132,40 @@ const contactItems = computed(() => {
       <div
         class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-5"
       >
-        <div class="min-w-0 text-[10pt] text-[#000]">
+        <div class="min-w-0 text-[10pt] text-black">
           <p>
             <span class="font-bold"
               >{{ experience.position || t.position }},</span
             >
-            <em v-if="experience.company" class="ml-1 text-[#000]">{{
+            <em v-if="experience.company" class="ml-1 text-black">{{
               experience.company
             }}</em>
           </p>
           <p
             v-if="experience.employmentType"
-            class="text-[9pt] leading-snug text-[#000]"
+            class="text-[9pt] leading-snug text-black"
           >
             {{ experience.employmentType }}
           </p>
         </div>
-        <div class="shrink-0 text-[9pt] leading-snug text-[#000] sm:text-right">
-          <p class="font-bold text-[#000]">
+        <div class="shrink-0 text-[9pt] leading-snug text-black sm:text-right">
+          <p class="font-bold text-black">
             {{ experience.startDate }} - {{ experience.endDate }}
           </p>
           <p v-if="experience.location">{{ experience.location }}</p>
         </div>
       </div>
-      <BulletList :items="bullets(experience.description)" />
+      <BulletList
+        :items="bullets(experience.description)"
+        ink-class="text-black"
+        marker-class="marker:text-black"
+      />
     </div>
   </section>
 
   <section v-if="data.education?.length" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-black"
     >
       {{ t.education }}
     </h2>
@@ -170,45 +177,49 @@ const contactItems = computed(() => {
       <div
         class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-5"
       >
-        <div class="min-w-0 text-[10pt] text-[#000]">
+        <div class="min-w-0 text-[10pt] text-black">
           <p>
             <span class="font-bold">{{ education.degree }},</span>
-            <em class="ml-1 text-[#000]">{{ education.institution }}</em>
+            <em class="ml-1 text-black">{{ education.institution }}</em>
           </p>
-          <p v-if="education.gpa" class="text-[9pt] leading-snug text-[#000]">
+          <p v-if="education.gpa" class="text-[9pt] leading-snug text-black">
             {{ t.gpa }}
-            <span class="font-bold text-[#000]">{{ education.gpa }}</span>
+            <span class="font-bold text-black">{{ education.gpa }}</span>
           </p>
         </div>
-        <div class="shrink-0 text-[9pt] leading-snug text-[#000] sm:text-right">
-          <p class="font-bold text-[#000]">{{ education.year }}</p>
+        <div class="shrink-0 text-[9pt] leading-snug text-black sm:text-right">
+          <p class="font-bold text-black">{{ education.year }}</p>
           <p v-if="education.location">{{ education.location }}</p>
         </div>
       </div>
-      <BulletList :items="bullets(education.achievements)" />
+      <BulletList
+        :items="bullets(education.achievements)"
+        ink-class="text-black"
+        marker-class="marker:text-black"
+      />
     </div>
   </section>
 
   <section v-if="skillGroups.length" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-black"
     >
       {{ t.skills }}
     </h2>
     <p
       v-for="(g, i) in skillGroups"
       :key="g.key"
-      class="text-[10pt] leading-snug text-[#000]"
+      class="text-[10pt] leading-snug text-black"
       :class="i === 0 ? 'mt-2' : 'mt-1'"
     >
-      <span class="font-bold text-[#000]">{{ g.label }}:</span>
+      <span class="font-bold text-black">{{ g.label }}:</span>
       {{ g.items.join(" · ") }}
     </p>
   </section>
 
   <section v-if="data.organizations?.length" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-black"
     >
       {{ t.organizations }}
     </h2>
@@ -220,23 +231,27 @@ const contactItems = computed(() => {
       <div
         class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-5"
       >
-        <p class="text-[10pt] text-[#000]">
+        <p class="text-[10pt] text-black">
           <span class="font-bold">{{ organization.organization }}</span>
-          <em v-if="organization.role" class="ml-1 text-[#000]">{{
+          <em v-if="organization.role" class="ml-1 text-black">{{
             organization.role
           }}</em>
         </p>
-        <p class="shrink-0 text-[9pt] text-[#000] sm:text-right">
-          <span class="font-bold text-[#000]">{{ organization.period }}</span>
+        <p class="shrink-0 text-[9pt] text-black sm:text-right">
+          <span class="font-bold text-black">{{ organization.period }}</span>
         </p>
       </div>
-      <BulletList :items="bullets(organization.description)" />
+      <BulletList
+        :items="bullets(organization.description)"
+        ink-class="text-black"
+        marker-class="marker:text-black"
+      />
     </div>
   </section>
 
   <section v-if="data.projects?.length" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-black"
     >
       {{ t.projects }}
     </h2>
@@ -245,7 +260,7 @@ const contactItems = computed(() => {
       :key="index"
       class="mt-2 cv-entry"
     >
-      <p class="text-[10pt] font-bold text-[#000]">
+      <p class="text-[10pt] font-bold text-black">
         {{ project.title }}
         <a
           v-if="project.link"
@@ -253,7 +268,7 @@ const contactItems = computed(() => {
           target="_blank"
           rel="noopener"
           :aria-label="`Buka link proyek ${project.title}`"
-          class="ml-1 inline-block align-baseline text-[#000] hover:underline"
+          class="ml-1 inline-block align-baseline text-black hover:underline"
           ><svg
             viewBox="0 0 24 24"
             class="inline h-3.5 w-3.5"
@@ -268,21 +283,21 @@ const contactItems = computed(() => {
       </p>
       <p
         v-if="project.objective"
-        class="mt-0.5 text-[10pt] leading-snug text-[#000]"
+        class="mt-0.5 text-[10pt] leading-snug text-black"
       >
         {{ project.objective }}
       </p>
       <p
         v-if="project.role || project.techStack"
-        class="mt-0.5 text-[9pt] text-[#000]"
+        class="mt-0.5 text-[9pt] text-black"
       >
         <template v-if="project.role">
-          <span class="font-bold text-[#000]">{{ t.role }}</span>
+          <span class="font-bold text-black">{{ t.role }}</span>
           {{ project.role }}
         </template>
         <span v-if="project.role && project.techStack"> · </span>
         <template v-if="project.techStack">
-          <span class="font-bold text-[#000]">{{ t.techStack }}</span>
+          <span class="font-bold text-black">{{ t.techStack }}</span>
           {{ project.techStack }}
         </template>
       </p>
@@ -291,7 +306,7 @@ const contactItems = computed(() => {
 
   <section v-if="data.certificates?.length" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-black"
     >
       {{ t.certificates }}
     </h2>
@@ -301,16 +316,16 @@ const contactItems = computed(() => {
       class="mt-2 cv-entry"
     >
       <div class="flex items-baseline justify-between gap-4">
-        <p class="text-[10pt] text-[#000]">
+        <p class="text-[10pt] text-black">
           {{ cert.name }}
-          <span class="font-bold text-[#000]">by {{ cert.issuer }}</span>
+          <span class="font-bold text-black">by {{ cert.issuer }}</span>
         </p>
-        <p class="shrink-0 text-[9pt] font-bold tabular-nums text-[#000]">
+        <p class="shrink-0 text-[9pt] font-bold tabular-nums text-black">
           {{ cert.year }}
         </p>
       </div>
-      <p v-if="cert.credentialId" class="text-[9pt] text-[#000]">
-        <span class="font-bold text-[#000]">ID:</span>
+      <p v-if="cert.credentialId" class="text-[9pt] text-black">
+        <span class="font-bold text-black">ID:</span>
         {{ cert.credentialId }}
       </p>
     </div>
@@ -318,11 +333,11 @@ const contactItems = computed(() => {
 
   <section v-if="data.languages" class="mb-4">
     <h2
-      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-[#000]"
+      class="border-b-2 border-[#6ee7b7] pb-1.5 text-[11pt] font-bold uppercase tracking-[0.03em] text-black"
     >
       {{ t.languages }}
     </h2>
-    <p class="mt-2 text-[10pt] leading-snug text-[#000]">
+    <p class="mt-2 text-[10pt] leading-snug text-black">
       {{ data.languages }}
     </p>
   </section>

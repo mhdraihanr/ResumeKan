@@ -62,11 +62,11 @@ web/src/components/cv/
 ├── CvPreview.vue           # router: pilih CvModern/CvClassic/CvNeon via comp computed
 ├── templates/              # 1 template = 1 file (header include masing-masing)
 │   ├── CvModern.vue        # single-column, navy accent
-│   ├── CvClassic.vue       # single-column, serif, center header, split otherMode
+│   ├── CvClassic.vue       # single-column, serif, header center
 │   └── CvNeon.vue          # single-column, mint divider, foto persegi opsional
 ├── sections/               # shared: PreviewSection, EntryRow, BulletList
 web/src/lib/
-└── cv-templates.ts         # token 1 sumber: id, label, font, googleFamily, nameUppercase, layout, accent (headerAlign, headerMargin, h1Class, linkClass, otherMode, hasBorder, hasQr masih ada di tipe tapi belum dipakai konsumen)
+└── cv-templates.ts         # token 1 sumber: id, label, atsFriendly, font, googleFamily, nameUppercase
 ```
 
 ## 4. Fase Eksekusi
@@ -95,8 +95,8 @@ web/src/lib/
 ### Fase 3 — Extract preview sections + token 1 sumber
 
 - Buat `sections/PreviewSection.vue`, `EntryRow.vue`, `BulletList.vue`.
-- Buat `lib/cv-templates.ts` — token 1 sumber (`font`, `nameUppercase`, `layout`, `accent`; `headerAlign`/`headerMargin`/`h1Class`/`linkClass`/`otherMode` belum dipakai konsumen).
-- `CvPreview.vue` jadi 1 sumber section (hapus duplikasi `v-if isModern` / `v-else` ~130 baris) — header & `Lainnya` vs `Sertifikasi`/`Bahasa` via `tpl.otherMode`, font/border via token.
+- Buat `lib/cv-templates.ts` — token 1 sumber (`id`, `label`, `atsFriendly`, `font`, `googleFamily`, `nameUppercase`).
+- `CvPreview.vue` jadi 1 sumber section (hapus duplikasi `v-if isModern` / `v-else` ~130 baris) — header & `Lainnya` vs `Sertifikasi`/`Bahasa` via tiap template, font/border via token.
 - `MetaStep.vue` & `HomeView.vue` baca `CV_TEMPLATES` untuk options (tambah template = tambah 1 entry token).
 - Verifikasi: preview modern & classic identik (browser), PDF Blade belum diubah.
 

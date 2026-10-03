@@ -53,6 +53,9 @@ const comp = computed(() =>
       : CvModern,
 );
 
+// Warna ink per template ditulis langsung di class masing-masing template
+// (classic `text-black`, modern `text-neutral-950`), bukan lewat override CSS.
+
 const resolvedFont = computed(
   () => CV_FONTS.find((f) => f.id === props.fontFamily) ?? CV_FONTS[0]!,
 );

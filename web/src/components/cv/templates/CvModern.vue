@@ -44,7 +44,7 @@ const {
       </p>
       <p
         v-if="contactLinks.length"
-        class="flex flex-wrap gap-x-2 text-[10pt] text-neutral-800"
+        class="flex flex-wrap gap-x-2 text-[10pt] text-neutral-950"
       >
         <template v-for="(item, i) in contactLinks" :key="item.href">
           <span v-if="i > 0" class="text-neutral-400">·</span>

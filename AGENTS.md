@@ -72,7 +72,7 @@ Untuk pekerjaan UI, `antislop` mewajibkan arah desain disepakati lebih dulu. Di 
 
 Setiap perubahan UI **wajib diverifikasi lewat browser terintegrasi VS Code** (_browser tools_), bukan hanya dari kode. Ikuti loop tertutup ini:
 
-1. **Edit kode** → pastikan _dev server_ berjalan (`pnpm dev` di `web/`, default `http://localhost:5173`).
+1. **Edit kode** → pastikan _dev server_ berjalan (`pnpm dev` di `web/`, default `http://localhost:5173`). **Pakai server yang sudah jalan kalau ada, jangan _start_ yang baru** (lihat §3.2).
 2. **Buka/navigasi** halaman target di browser terintegrasi (`openBrowserPage` / `navigatePage`). Jika pengguna sudah membagikan tab, gunakan tab tersebut — jangan buka tab baru.
 3. **Periksa hasil** dengan minimal dua dari:
 
@@ -104,6 +104,9 @@ Verifikasi visual harus benar-benar terjadi di browser. Coba berurutan, dan jang
 
 - Cek daftar tab/page lebih dulu (`list_pages` / _snapshot_). Page ID harus menunjuk ke tab aplikasi yang benar, bukan `about:blank` atau tab lain.
 - Pastikan _dev server_ memang melayani URL target. Jika tidak, laporkan, jangan lanjut berpura-pura memverifikasi.
+- **Pakai server yang sudah jalan, jangan _start_ yang baru.** Sebelum menjalankan `pnpm dev`, `php artisan serve`, atau server apa pun untuk verifikasi atau pengujian, cek dulu apakah server-nya sudah hidup. Lihat terminal VS Code yang sudah terbuka, atau _probe_ HTTP sekali: `curl -s -o /dev/null -w "%{http_code}" http://localhost:5173` (API: `:8000`). `200` berarti sudah melayani. Kalau ada yang melayani URL target, **pakai itu**; jangan buka port baru.
+- **Kenapa pakai yang sudah ada.** Server yang sudah jalan biasanya sudah terdaftar di `SANCTUM_STATEFUL_DOMAINS` (mis. `localhost:5173`), jadi login dan _auth_ berfungsi. Port baru belum terdaftar, sehingga verifikasi bisa gagal karena CORS/CSRF, bukan karena kode. Buka port baru hanya kalau memang belum ada yang melayani; kalau terpaksa, tambahkan dulu ke `SANCTUM_STATEFUL_DOMAINS`.
+- **Jangan matikan server yang bukan milikmu.** Setelah verifikasi, hentikan hanya server yang kamu nyalakan sendiri. Server yang sudah ada sebelum sesi dimulai milik pengguna; biarkan hidup.
 - Jika tool evaluasi DOM (`browser_evaluate`) nonaktif atau mengembalikan nilai kosong, jangan jadikan itu dasar klaim. Pakai jalur yang masih mengembalikan bukti (mis. _screenshot_ atau `readPage`).
 
 ### 3.3 Elemen beranimasi (v-motion, transisi)

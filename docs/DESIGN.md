@@ -121,15 +121,17 @@ Dokumen CV mendukung pemilihan jenis font dan ukuran teks terkurasi untuk fleksi
 
 Empat tier, dari paling kuat ke paling lemah. Angka kontras diukur di atas putih (WCAG 2.1):
 
-| Tier | Peran                     | Kelas Tailwind                                    | Hex terukur | Kontras                          |
-| ---- | ------------------------- | ------------------------------------------------- | ----------- | -------------------------------- |
-| T1   | Entitas + label           | `font-bold text-neutral-950` (Neon: `#000`)       | `#0a0a0a`   | 19.80:1                          |
-| T2   | Isi / nilai / deskripsi   | `text-neutral-950` (Neon: `#000`)                 | `#0a0a0a`   | 19.80:1                          |
-| T3   | Metadata sekunder         | `text-neutral-800` (Neon: `#000`)                 | `#262626`   | 15.13:1                          |
-| T4   | Dekoratif (pemisah/garis) | `text-neutral-400` (Neon: `decoration-[#6b7280]`) | `#a1a1a1`   | 2.58:1 (pemisah `·` & underline) |
+| Tier | Peran                     | Kelas Tailwind                                                                               | Hex terukur (modern / classic / neon) | Kontras                          |
+| ---- | ------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------- | -------------------------------- |
+| T1   | Entitas + label           | `font-bold text-neutral-950` (classic: `font-bold text-black`, neon: `font-bold text-black`) | `#0a0a0a` / `#000000` / `#000000`     | 19.80:1 / 21.00:1 / 21.00:1      |
+| T2   | Isi / nilai / deskripsi   | `text-neutral-950` (classic: `text-black`, neon: `text-black`)                               | `#0a0a0a` / `#000000` / `#000000`     | 19.80:1 / 21.00:1 / 21.00:1      |
+| T3   | Metadata sekunder         | `text-neutral-800` (neon: `text-black`)                                                      | `#262626` / `#262626` / `#000000`     | 15.13:1 / 15.13:1 / 21.00:1      |
+| T4   | Dekoratif (pemisah/garis) | `text-neutral-400` (neon: `decoration-[#6b7280]`)                                            | `#a1a1a1` / `#a1a1a1` / `#a1a1a1`     | 2.58:1 (pemisah `·` & underline) |
 
 - Alasan revisi 2026-09-18 (Pure Monochrome Ink): isi deskripsi/bullet, ringkasan, dan teks body dinaikkan dari `slate-700` ke ink (`text-neutral-950`, Neon `#000`) agar teks di preview dan cetak/download PDF hitam pekat maksimal, mengikuti standar resume ATS dan cetak laser. Pembeda T1 dan T2 kini murni berbasis font weight (`font-bold` vs `font-normal`), konsisten dengan standar resume Harvard.
 - Revisi 2026-10-02 (neutral near-black, commit `f7191a7`): seluruh ink dokumen CV pindah dari palet `slate-*` (biru-abu, mis. `#0f172b`) ke `neutral-*` (near-black, mis. `#0a0a0a`) supaya warna terlihat lebih hitam pekat dan netral di layar maupun cetak. Neon memakai `#000` murni.
+- Revisi 2026-10-03 (Classic hitam pekat): T1/T2 template **classic** dinaikkan dari `#0a0a0a` ke `#000` murni supaya benar-benar pekat seperti neon. Warna ditulis **literal di class template** (`CvClassic.vue` memakai `text-black`/`border-black`), bukan menimpa CSS: komponen bersama (`PreviewSection`, `EntryRow`, `BulletList`) menerima prop `inkClass`/`ruleClass` dengan default `text-neutral-950`/`border-neutral-950`, sehingga **modern tetap `#0a0a0a`** dan neon tetap `#000` tanpa aturan override. T3 (`text-neutral-800`, periode/tahun) dan T4 (pemisah `·`/underline `text-neutral-400`) classic sengaja **tidak** diubah agar hierarki T3/T4 tetap ada; hanya T1/T2 yang jadi `#000`. Verifikasi browser: classic T1/T2 `rgb(0,0,0)`, modern tetap `#0a0a0a` + border navy `#1e40af`, neon `#000` + divider mint `#6ee7b7`, media `screen` == `print`.
+- Revisi 2026-10-03 (Neon diseragamkan): `CvNeon.vue` sebelumnya menulis ink sebagai arbitrary value `text-[#000]`/`decoration-[#000]` dan lupa mengoper `inkClass`/`markerClass` ke `BulletList`, sehingga bullet jatuh ke default `text-neutral-950` (`#0a0a0a`) dan marker `marker:text-neutral-800` (`#262626`) — bocor near-black di tengah dokumen yang seharusnya `#000`. Kini seluruh ink Neon memakai literal `text-black`/`decoration-black` (identik dengan Classic) dan setiap `BulletList` dioper `ink-class="text-black" marker-class="marker:text-black"`. Divider mint `#6ee7b7` tetap aksen, bukan ink. `CvTemplateConfig` juga dibersihkan: 10 field mati (`badge`, `headerAlign`, `headerMargin`, `h1Class`, `linkClass`, `otherMode`, `layout`, `accent`, `hasBorder`, `hasQr`) dihapus, tersisa `id`, `label`, `atsFriendly`, `font`, `googleFamily`, `nameUppercase`.
 - Metadata sekunder (T3, periode & tanggal) kini `text-neutral-800` (`#262626`, 15.13:1) agar tetap lebih ringan dari body tanpa pudar saat dicetak di printer monokrom.
 - Elemen dekoratif T4 (pemisah `·` dan garis underline istirahat) kini `text-neutral-400` (`#a1a1a1`, 2.58:1) agar lebih kontras dan tegas tanpa mendominasi teks.
 - Semua teks terbaca jauh melampaui WCAG AA (minimum 4.5:1), dengan body text mencapai 19.80:1.
@@ -141,32 +143,32 @@ Link tidak memakai warna aksen. Aturannya (revisi 2026-09-18):
 | Template | Warna teks                   | Underline (istirahat)    | Underline (hover)        | Kontras |
 | -------- | ---------------------------- | ------------------------ | ------------------------ | ------- |
 | modern   | `text-neutral-950` `#0a0a0a` | `decoration-neutral-400` | `decoration-neutral-950` | 19.80:1 |
-| classic  | `text-neutral-950` `#0a0a0a` | `decoration-neutral-400` | `decoration-neutral-950` | 19.80:1 |
-| neon     | `text-[#000]` `#000000`      | `decoration-[#6b7280]`   | `decoration-[#000]`      | 21.00:1 |
+| classic  | `text-black` `#000000`       | `decoration-neutral-400` | `decoration-black`       | 21.00:1 |
+| neon     | `text-black` `#000000`       | `decoration-[#6b7280]`   | `decoration-black`       | 21.00:1 |
 
 - Akar masalah (ditemukan 2026-09-13 lewat pengukuran PDF asli): `CvPreview.vue` punya `@media print { a { color: inherit !important; text-decoration: none !important } }`. Aturan `!important` itu **mengalahkan setiap class warna Tailwind** pada `<a>`, apa pun yang ditulis di template. Di Browsershot (yang merender dalam print media) link jatuh ke `inherit` = warna parent (`<p class="text-slate-600">`), jadi link di PDF selalu `#45556c` (slate-600), bukan ink, dan underline-nya hilang. Akibatnya preview di layar dan PDF memang beda persis di link, dan R5 pertama (mengubah class di template) tidak mengubah PDF sama sekali.
 - Perbaikan: aturan print dipersempit ke `a:not([class])` dan `!important` dicabut. Link tanpa class (mis. tautan di dalam teks yang ditulis user) tetap dinetralkan supaya biru default browser tidak ikut tercetak; link template CV, yang semuanya punya class warna sendiri, kini benar-benar menerapkan warnanya di PDF. Alternatif menghapus aturan print sepenuhnya ditolak karena `<a>` berwarna di dalam konten user akan ikut tercetak biru.
 - Konsekuensi: palet dokumen menyusut ke 2 netral + 1 aksen border (R-29), navy hanya dipakai untuk border heading section modern, bukan teks.
 - Underline tetap `underline` permanen (bukan `hover:underline` saja) supaya link tetap terbaca sebagai link tanpa warna. Di atas kertas, underline adalah satu-satunya sinyal link yang bertahan (WCAG 1.4.1: jangan pakai warna sebagai satu-satunya pembeda).
 - Underline istirahat memakai `decoration-neutral-400` (`#a1a1a1`) / Neon `decoration-[#6b7280]` (`#6b7280`) agar lebih kontras dari sebelumnya; hover menguat ke ink.
-- Verifikasi lewat PDF asli (bukan simulasi): warna teks link di PDF terukur `#0a0a0a` (modern, classic) dan `#000000` (neon), dengan garis underline benar-benar ada sebagai vector di PDF. Diukur juga di browser: media `screen` dan `print` menghasilkan warna dan underline identik, jadi preview = PDF.
+- Verifikasi lewat PDF asli (bukan simulasi): warna teks link di PDF terukur `#0a0a0a` (modern) dan `#000000` (classic, neon), dengan garis underline benar-benar ada sebagai vector di PDF. Diukur juga di browser: media `screen` dan `print` menghasilkan warna dan underline identik, jadi preview = PDF.
 
 ### Warna Data Pribadi di Header (revisi 2026-09-18)
 
 Baris kontak di header tidak lagi dua tonjolan. Data pribadi non-link (email, telepon, alamat) naik dari slate-600 ke **ink**, sama dengan link:
 
-| Elemen                            | modern / classic             | neon      | Underline |
-| --------------------------------- | ---------------------------- | --------- | --------- |
-| email, telepon, alamat            | `text-neutral-950` `#0a0a0a` | `#000000` | tidak     |
-| LinkedIn, Website, GitHub (`<a>`) | `text-neutral-950` `#0a0a0a` | `#000000` | ya        |
-| pemisah `·`                       | `text-neutral-400` (T4)      | n/a       | tidak     |
+| Elemen                            | modern                       | classic                 | neon      | Underline |
+| --------------------------------- | ---------------------------- | ----------------------- | --------- | --------- |
+| email, telepon, alamat            | `text-neutral-950` `#0a0a0a` | `text-black` `#000000`  | `#000000` | tidak     |
+| LinkedIn, Website, GitHub (`<a>`) | `text-neutral-950` `#0a0a0a` | `text-black` `#000000`  | `#000000` | ya        |
+| pemisah `·`                       | `text-neutral-400` (T4)      | `text-neutral-400` (T4) | n/a       | tidak     |
 
 - Alasan: sebelumnya email/telepon/alamat dibaca lebih lemah dari link di sebelahnya (`slate-600` = `#45556c`, 7.58:1 vs ink 17.83:1) padahal keduanya sama-sama cara recruiter menghubungi kandidat. Beda tonjolan di baris yang sama membuat link terlihat lebih penting daripada nomor telepon, padahal tidak.
 - Underline **tidak** diberikan ke email/telepon/alamat. Bukan link, jadi underline akan jadi janji palsu (recruiter mengira bisa diklik). Warna saja sudah menyamakan bobot visual; underline tetap eksklusif penanda link (WCAG 1.4.1, dan konsisten dengan aturan link di atas).
 - Catatan Neon: `mailto:` dan `tel:` di Neon memang dirender sebagai `<a>` (bisa diklik di PDF), jadi keduanya ber-underline. Satu-satunya item non-link di Neon adalah alamat, dan itu kini ikut ink `#000000`.
 - Pemisah `·` sengaja tetap T4 (slate-300/#cad5e2): ia murni dekoratif, dan menaikkannya ke ink akan membuat baris kontak terbaca sebagai satu blok teks rapat tanpa jeda.
 - Baris placeholder `email · phone · address` saat seluruh kontak kosong juga tidak diubah (tetap `text-neutral-800`): itu teks contoh, bukan data user, jadi justru tepat kalau lebih redup.
-- Verifikasi lewat PDF asli: email/telepon di PDF terukur `#0a0a0a` (modern, classic) dan alamat di Neon `#000000`, identik dengan link di dokumen yang sama; di browser media `screen` dan `print` menghasilkan `#0a0a0a` yang sama, jadi preview = PDF.
+- Verifikasi lewat PDF asli: email/telepon di PDF terukur `#0a0a0a` (modern) dan `#000000` (classic), sedangkan alamat di Neon `#000000`, identik dengan link di dokumen yang sama; di browser media `screen` dan `print` menghasilkan warna yang sama, jadi preview = PDF.
 - Di atas preview: toggle Modern / Classic / Neon yang mengubah template preview live (bukti fitur template). Tombol Modern dan Classic dilengkapi badge mini "ATS" berbasis properti `atsFriendly`.
 - Toggle preview full render, bukan gambar. Ini juga membuktikan template asli, bukan mock.
 - Tanpa badge/eyebrow pill di atas headline (AI slop — pill badge, Exa pols.dev/slop.md, antislop-ui). Headline langsung tanpa `mt-4` kompensasi.

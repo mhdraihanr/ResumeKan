@@ -3,7 +3,6 @@ export type CvTemplateId = "modern" | "classic" | "neon";
 export interface CvTemplateConfig {
   id: CvTemplateId;
   label: string;
-  badge?: string;
   atsFriendly: boolean;
   /**
    * Inline font-family untuk teks CV. Selalu font Google (bukan font sistem)
@@ -14,57 +13,26 @@ export interface CvTemplateConfig {
   font: string;
   /** Nama family Google Fonts yang dimuat untuk `font` bawaan template. */
   googleFamily: string;
-  headerAlign: "left" | "center";
+  /** Nama kandidat ditampilkan uppercase (classic) atau apa adanya. */
   nameUppercase: boolean;
-  headerMargin: string;
-  h1Class: string;
-  linkClass: string;
-  otherMode: "combined" | "split";
-  layout: "single" | "mixed";
-  accent: string;
-  hasBorder: boolean;
-  hasQr: boolean;
 }
 
 export const CV_TEMPLATES: Record<CvTemplateId, CvTemplateConfig> = {
   modern: {
     id: "modern",
     label: "Modern",
-    badge: "ATS Friendly",
     atsFriendly: true,
     font: "'Inter', sans-serif",
     googleFamily: "Inter",
-    headerAlign: "left",
     nameUppercase: false,
-    headerMargin: "mb-6",
-    h1Class: "text-2xl font-bold tracking-tight text-neutral-950",
-    linkClass:
-      "text-[#1e40af] underline decoration-neutral-300 underline-offset-2 hover:decoration-[#1e40af]",
-    otherMode: "combined",
-    layout: "single",
-    accent: "#1e40af",
-    hasBorder: false,
-    hasQr: false,
   },
   classic: {
     id: "classic",
     label: "Classic",
-    badge: "ATS Friendly",
     atsFriendly: true,
     font: "'Lora', serif",
     googleFamily: "Lora",
-    headerAlign: "center",
     nameUppercase: true,
-    headerMargin: "mb-3",
-    h1Class:
-      "text-2xl font-bold uppercase tracking-wide text-neutral-950 sm:text-[26px]",
-    linkClass:
-      "underline decoration-neutral-300 underline-offset-2 hover:decoration-neutral-950",
-    otherMode: "split",
-    layout: "single",
-    accent: "#0a0a0a",
-    hasBorder: false,
-    hasQr: false,
   },
   neon: {
     id: "neon",
@@ -72,16 +40,7 @@ export const CV_TEMPLATES: Record<CvTemplateId, CvTemplateConfig> = {
     atsFriendly: true,
     font: "'Inter', sans-serif",
     googleFamily: "Inter",
-    headerAlign: "left",
     nameUppercase: false,
-    headerMargin: "mb-7",
-    h1Class: "text-[42px] font-bold tracking-[-0.04em] text-[#000]",
-    linkClass: "text-[#262626] hover:underline",
-    otherMode: "split",
-    layout: "single",
-    accent: "#6ee7b7",
-    hasBorder: false,
-    hasQr: false,
   },
 };
 
