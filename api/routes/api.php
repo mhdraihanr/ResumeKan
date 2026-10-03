@@ -5,8 +5,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CvController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:register');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/cvs/{cv}/pdf', [CvController::class, 'pdf'])->name('cvs.pdf');
     Route::post('/cvs/{cv}/translate', [CvController::class, 'translate'])->middleware('throttle:5,1')->name('cvs.translate');
 
-    Route::post('/ai/summary', [AiController::class, 'summary'])->middleware('throttle:5,1')->name('ai.summary');
+    Route::post('/ai/summary', [AiController::class, 'summary'])->middleware('throttle:ai')->name('ai.summary');
 
     Route::post('/upload-signature', [CvController::class, 'uploadSignature'])->name('upload.signature');
 });
