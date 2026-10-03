@@ -22,3 +22,32 @@
 # tetap menganggapnya masalah dan menghentikan install.
 allowBuilds:
   vue-demi: true
+
+# Patch transitif untuk advisory keamanan (audit 2026-10-03). Semua paket ini
+# hanya muncul lewat devDependency CLI (shadcn-vue, eslint, vite tooling) dan
+# TIDAK ikut ke bundle produksi; override di sini murni higiene supply-chain.
+#
+# Rentang dibatasi pada major yang sama dengan yang dideklarasikan konsumennya.
+# Override tanpa batas major berbahaya: ia bisa menaikkan paket ke major baru
+# yang tak kompatibel (mis. fast-uri 4.x padahal ajv minta ^3.0.1), atau
+# memaksa baris lama ke versi ESM-only (mis. brace-expansion 5.x untuk
+# minimatch@3 yang memanggilnya sebagai fungsi CJS lewat require()).
+#
+# `braces` dan `decode-uri-component` sengaja TIDAK di-override:
+# - braces: advisory-nya belum punya versi patch.
+# - decode-uri-component: satu-satunya versi patch (0.5.0) ESM-only, sementara
+#   konsumennya (source-map-resolve lewat tooling stylus) memanggilnya sebagai
+#   fungsi CJS lewat require(). Karena tidak ada patch di dalam major ^0.2.0,
+#   memaksa 0.5.0 hanya memindahkan advisory menjadi bug runtime laten.
+overrides:
+  fast-uri: ">=3.1.8 <4"
+  undici: ">=8.10.2 <9"
+  qs: ">=6.16.0 <7"
+  ip-address: ">=10.7.1 <11"
+  hono: ">=4.13.7 <5"
+  # brace-expansion punya dua baris major di pohon ini; tiap baris diarahkan ke
+  # patch-nya sendiri supaya tetap kompatibel dengan konsumennya.
+  "brace-expansion@1": "1.1.21"
+  "brace-expansion@2": "2.1.7"
+  "brace-expansion@3": "3.0.9"
+  "brace-expansion@5": "5.0.12"

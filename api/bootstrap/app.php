@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ResolveClientIp;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -29,6 +30,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // dan cookie jadi http:// dan login ditolak di produksi.
         // Aman di lokal: tidak berpengaruh kalau tidak ada proxy.
         $middleware->trustProxies(at: '*');
+
+        // `$request->ip()` stabil dari X-Real-IP Railway (lihat ResolveClientIp).
+        $middleware->append(ResolveClientIp::class);
         $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
