@@ -41,6 +41,7 @@ ResumeKan adalah web app yang membantu pencari kerja (fokus: Indonesia) membuat 
 
 - Satu user maksimal **10 CV** aktif.
 - Endpoint AI di-rate-limit **5 request/menit/user**.
+- Login dibatasi **5 percobaan/menit per email+IP** (cadangan **10/menit per email**); register dibatasi **10/menit per IP**.
 - Data CV milik user; tidak ada akses antar-user.
 - Delete CV bersifat permanen (tanpa trash) di v1.
 

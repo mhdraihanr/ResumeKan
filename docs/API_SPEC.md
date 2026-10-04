@@ -19,6 +19,8 @@
 | POST   | `/logout`   | —                                              | `204`                   |
 | GET    | `/user`     | —                                              | `{ user }`              |
 
+> **Rate limit auth (2026-10-03):** `POST /register` dibatasi **10/menit per IP**. `POST /login` dibatasi dua lapis: **5/menit per email+IP** (batas utama) dan **10/menit per email** (cadangan, supaya satu akun yang diserang dari banyak IP tetap kena). Lewat batas → `429` + header `Retry-After`/`X-RateLimit-*`. Limiter ada di `AppServiceProvider::boot()`; kunci IP memakai `X-Real-IP` yang di-stabilkan `ResolveClientIp` (lihat [ARCHITECTURE.md §5](ARCHITECTURE.md)) — tanpa itu tiap request dianggap IP berbeda dan batas tidak pernah tercapai.
+
 ## Upload Foto (Cloudinary)
 
 ### `POST /upload-signature` (auth)
@@ -82,7 +84,7 @@ Klien lalu `POST` ke `https://api.cloudinary.com/v1_1/{cloud_name}/image/upload`
 
 ## AI
 
-### `POST /ai/summary` (throttle: 5/menit/user)
+### `POST /ai/summary` (throttle: 5/menit/user, limiter bernama `ai`, nilai dari `AI_THROTTLE_PER_MINUTE`)
 
 ```json
 { "cv_id": 1, "job_description": "Dicari Senior Frontend Engineer..." }

@@ -90,6 +90,8 @@ POST   /api/v1/cvs { projects: [{ title, role, link: "github.com/x" }] } → 201
 
 **AI (Fase 4):** `POST /api/v1/ai/summary` → `200`; request ke-6 dalam 1 menit → `429`.
 
+**Rate limit auth (2026-10-03):** `POST /login` salah password 6× dalam 1 menit untuk email+IP yang sama → `429`; email sama dari IP berbeda tetap kena batas cadangan 10/menit; `POST /register` 11× dalam 1 menit dari IP yang sama → `429`. Diuji otomatis di `api/tests/Feature/LoginRateLimitTest.php` (percobaan ke-6 → `429`, `X-Real-IP` berbeda punya kuota terpisah, `X-Real-IP` privat/CGNAT diabaikan).
+
 **PDF (Fase 5):** dengan session aktif, `GET /api/v1/cvs/{id}/pdf` → `200 application/pdf`; cek signature awal `%PDF-`, nama file di header `Content-Disposition`, dan ukuran file lebih dari satu halaman kosong. Dari halaman edit, klik **Download PDF** dan pastikan file bernama `{nama}_CV.pdf` terunduh serta kontennya sama dengan preview. Bila PDF kosong, cek bahwa `PdfService` memakai `Browsershot::html()` dan argumen Chromium untuk module dari shell `file://`, bukan request URL print balik ke API. Cek paginasi (2026-09-08): PDF multi-halaman tidak memotong judul section/entry di tengah (break-inside avoid) dan titik pecah halaman sama dengan preview editor.
 
 **Gate Download PDF (2026-09-15):** tombol `Download PDF`/`PDF` hanya mengunduh untuk CV yang **lengkap**; jika kurang, tidak ada tab/window yang dibuka. Gate berlapis: cek klien di editor + guard server di endpoint.

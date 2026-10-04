@@ -83,7 +83,8 @@ api/
 │   ├── Http/
 │   │   ├── Controllers/     # CvController, AuthController, AiController
 │   │   ├── Requests/        # StoreCvRequest (validasi skema JSON)
-│   │   └── Resources/       # CvResource
+│   │   ├── Resources/       # CvResource
+│   │   └── Middleware/      # ResolveClientIp (X-Real-IP → REMOTE_ADDR)
 │   ├── Services/
 │   │   ├── AiService.php
 │   │   └── PdfService.php
@@ -177,7 +178,8 @@ Tombol `Download PDF` di editor menolak mengunduh CV yang belum lengkap. Pola in
 - Validasi input dua sisi: validator klien (`web/src/lib/cv-validation.ts`) + Form Request (BE). BE adalah sumber kebenaran; validator klien hanya memberi umpan balik lebih awal dan tidak menggantikan validasi server.
 - **API-only: guest tidak pernah diarahkan ke route `login` (2026-10-02).** Laravel `ApplicationBuilder::withMiddleware()` memasang default `redirectGuestsTo(fn () => route('login'))`. Di app API-only route `login` tidak ada, dan callback ini dipanggil dari dalam middleware `Authenticate` — **sebelum** exception renderer — sehingga request tanpa auth melempar `RouteNotFoundException` dan berakhir `500 "Route [login] not defined."` (bukan `401`). `api/bootstrap/app.php` menimpanya dengan `redirectGuestsTo(fn () => null)` **dan** menambah renderer `AuthenticationException` → `401 { "message": "Unauthenticated." }` untuk `api/*`/request yang mengharapkan JSON. Renderer saja tidak cukup; callback `redirectGuestsTo` harus di-null-kan eksplisit.
 - **PDF render tidak boleh membocorkan 500 mentah (2026-10-02):** `CvController::pdf()` merender PDF lebih dulu di dalam `try/catch`, baru mengirim header; kegagalan render → `502 JSON`, bukan respons setengah terkirim. Kontrak lengkap di [API_SPEC.md](API_SPEC.md#pdf).
-- Rate limit global API + khusus endpoint AI.
+- **Rate limit (2026-10-03):** tidak ada throttle global di grup `api`; yang berlaku tiga limiter bernama di `AppServiceProvider::boot()` — `login` (5/menit per email+IP, cadangan 10/menit per email), `register` (10/menit per IP), `ai` (per user, nilai dari `config('ai.throttle_per_minute')`). Endpoint `translate` tetap `throttle:5,1` (per user saat login).
+- **Client IP stabil (`ResolveClientIp`, 2026-10-03):** Railway mengirim `X-Real-IP`. Middleware `App\Http\Middleware\ResolveClientIp` menyalinnya ke `REMOTE_ADDR` dan membuang `X-Forwarded-For`/`Forwarded`, **hanya** bila IP publik (privat/CGNAT ditolak agar tidak bisa dipalsukan). Tanpa ini edge memberi IP CGNAT berbeda tiap request, kunci throttle pecah, dan batas tidak pernah tercapai.
 - CORS dibatasi ke origin frontend saja.
 - Endpoint AI memvalidasi ukuran payload (CV data ≤ ~50 KB).
 - `job_description` dibatasi `max:3000` di server dan `maxlength="1500"` di klien.
