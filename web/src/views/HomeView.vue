@@ -132,15 +132,6 @@ const openFaq = ref<number | null>(0);
         class="mx-auto grid max-w-6xl items-center gap-8 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:py-14"
       >
         <div class="lg:-translate-y-12">
-          <!-- Hierarki dark sengaja halus (Opsi A, revisi Opsi C): eyebrow 10.02:1
-               (slate-300) -> sub 12.08:1 (slate-200) -> h1 14.24:1 (foreground).
-               JANGAN pakai dark:text-slate-400 di eyebrow: rasionya 5.66:1, jarak 6.4 poin
-               ke sub terlalu jauh padahal ukurannya cuma beda 2px (14px vs 16px), sehingga
-               terbaca sebagai dua blok yang tidak konsisten (eyebrow tampak disabled),
-               bukan hierarki. slate-400 juga GAGAL 3.97:1 di surface #3f3f46.
-               JANGAN perkecil max-w sub ke max-w-sm (384px): teksnya hanya 404px, sehingga
-               max-w-sm memecahnya jadi 2 baris timpang (357px + 43px "lamar.") - widow parah.
-               Ambang aman satu baris ada di 416px. -->
           <p class="mb-3 text-sm font-medium text-ink/75 dark:text-slate-300">
             Aplikasi pembuat CV ATS untuk pencari kerja di Indonesia
           </p>
@@ -220,9 +211,11 @@ const openFaq = ref<number | null>(0);
                 </span>
               </button>
             </div>
-            <!-- Live preview: tinggi lebih besar di phone kecil agar tidak kepotong, scale tetap -->
+            <!-- Live preview: tinggi lebih besar di phone kecil agar tidak kepotong, scale tetap.
+                 pt-2 = jarak napas antara bar toggle dan nama di dokumen (chrome hero saja,
+                 tidak memengaruhi PDF karena CvPreview compact tetap px-0 py-4). -->
             <div
-              class="h-[520px] overflow-hidden bg-white p-0 @[520px]:h-[540px]"
+              class="h-[540px] overflow-hidden bg-white p-0 pt-2 @[520px]:h-[560px]"
             >
               <div class="origin-top scale-[0.72] @[520px]:scale-[0.85]">
                 <CvPreview :data="sample" :template="template" compact />
