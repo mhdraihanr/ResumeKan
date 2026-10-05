@@ -2,10 +2,14 @@
 
 use App\Http\Controllers\AiController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ConfigController;
 use App\Http\Controllers\CvController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:register');
+Route::get('/config', [ConfigController::class, 'show'])->name('config.show');
+
+Route::post('/register', [AuthController::class, 'register'])
+    ->middleware(['throttle:register', 'turnstile']);
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
 Route::middleware('auth:sanctum')->group(function () {

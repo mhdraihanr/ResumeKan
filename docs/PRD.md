@@ -41,7 +41,8 @@ ResumeKan adalah web app yang membantu pencari kerja (fokus: Indonesia) membuat 
 
 - Satu user maksimal **10 CV** aktif.
 - Endpoint AI di-rate-limit **5 request/menit/user**.
-- Login dibatasi **5 percobaan/menit per email+IP** (cadangan **10/menit per email**); register dibatasi **10/menit per IP**.
+- Login dibatasi **5 percobaan/menit per email+IP** (cadangan **10/menit per email**); register dibatasi **dua lapis per IP** — **5/menit** (burst) dan **20/jam** (akumulasi spam) — angkanya bisa diatur lewat env `REGISTER_PER_MINUTE`/`REGISTER_PER_HOUR`.
+- Register dijaga **tiga lapis anti-spam** (2026-10-04): (1) rate limit IP di atas; (2) **Cloudflare Turnstile** — widget wajib lolos sebelum form bisa disubmit, token diverifikasi server-side ke Cloudflare; (3) **honeypot + jeda waktu** — field tersembunyi `website` harus tetap kosong dan form tidak boleh terkirim < 2 detik setelah dibuka (token cap waktu terenkripsi dari `GET /config`). Ketiganya tanpa mengubah alur email (tidak ada verifikasi email di v1).
 - Data CV milik user; tidak ada akses antar-user.
 - Delete CV bersifat permanen (tanpa trash) di v1.
 

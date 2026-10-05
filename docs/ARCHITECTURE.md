@@ -75,16 +75,22 @@ Audit ATS berdasarkan riset Exa (OneResume, ATSFixer, ATS Verification, Resumefa
 - **Konsekuensi:** setiap perubahan `web/**` yang di-push ke `main` **wajib menunggu CI "Build Web" selesai** sebelum `deploy/update.sh` dijalankan, kalau tidak container mengambil `dist` versi lama. Release `dist-latest` selalu ditimpa, jadi URL unduhannya tetap.
 - **Catatan dev vs prod:** `pnpm dev` menyajikan ESM unbundled (ratusan request, tanpa minify/tree-shake) demi HMR — skornya di Lighthouse **tidak mewakili produksi** dan bukan indikator bug. Angka yang sah hanya dari `pnpm preview` (menyajikan `dist`) atau produksi langsung.
 
+### ADR-8: Anti-spam register berlapis (Turnstile + honeypot + jeda waktu), tanpa verifikasi email
+
+- **Keputusan:** `POST /register` dijaga tiga lapis di server, plus rate limit IP yang sudah ada: middleware `VerifyTurnstile` (alias `turnstile`) memeriksa (1) honeypot `website` harus kosong, (2) `spam_token` dari `GET /config` — cap waktu terenkripsi `Crypt::encryptString(now()->timestamp)` — tidak boleh < 2 detik, lalu (3) memverifikasi `cf-turnstile-response` ke `siteverify` Cloudflare. Site key publik & `spam_token` dibagikan lewat `GET /config` (`ConfigController`), diambil frontend saat halaman register dibuka.
+- **Alasan:** PRD §5 melarang OAuth dan v1 tanpa verifikasi email (MAIL_MAILER=log), jadi bot bisa daftar massal. Rate limit IP saja tidak cukup (bot ganti IP). Turnstile menyaring manusia-vs-bot tanpa captcha teks dan gratis; honeypot + jeda waktu menangkap bot naif yang mengisi semua field atau submit instan.
+- **Konsekuensi:** register butuh dua request (config + register) dan widget hanya muncul kalau `turnstile_site_key` terisi — environment tanpa key tetap jalan (dev/test). Token Turnstile sekali pakai, jadi FE mereset widget setelah submit gagal. Secret `TURNSTILE_SECRET_KEY` wajib di produksi; kalau kosong, middleware fail-open di non-produksi (memudahkan test lokal) dan fail-closed di produksi. Kalau Cloudflare down, register ikut gagal — trade-off yang diterima demi anti-spam.
+
 ## 3. Struktur Folder
 
 ```
 api/
 ├── app/
 │   ├── Http/
-│   │   ├── Controllers/     # CvController, AuthController, AiController
+│   │   ├── Controllers/     # CvController, AuthController, AiController, ConfigController
 │   │   ├── Requests/        # StoreCvRequest (validasi skema JSON)
 │   │   ├── Resources/       # CvResource
-│   │   └── Middleware/      # ResolveClientIp (X-Real-IP → REMOTE_ADDR)
+│   │   └── Middleware/      # ResolveClientIp (X-Real-IP → REMOTE_ADDR), VerifyTurnstile (anti-spam)
 │   ├── Services/
 │   │   ├── AiService.php
 │   │   └── PdfService.php
@@ -178,7 +184,7 @@ Tombol `Download PDF` di editor menolak mengunduh CV yang belum lengkap. Pola in
 - Validasi input dua sisi: validator klien (`web/src/lib/cv-validation.ts`) + Form Request (BE). BE adalah sumber kebenaran; validator klien hanya memberi umpan balik lebih awal dan tidak menggantikan validasi server.
 - **API-only: guest tidak pernah diarahkan ke route `login` (2026-10-02).** Laravel `ApplicationBuilder::withMiddleware()` memasang default `redirectGuestsTo(fn () => route('login'))`. Di app API-only route `login` tidak ada, dan callback ini dipanggil dari dalam middleware `Authenticate` — **sebelum** exception renderer — sehingga request tanpa auth melempar `RouteNotFoundException` dan berakhir `500 "Route [login] not defined."` (bukan `401`). `api/bootstrap/app.php` menimpanya dengan `redirectGuestsTo(fn () => null)` **dan** menambah renderer `AuthenticationException` → `401 { "message": "Unauthenticated." }` untuk `api/*`/request yang mengharapkan JSON. Renderer saja tidak cukup; callback `redirectGuestsTo` harus di-null-kan eksplisit.
 - **PDF render tidak boleh membocorkan 500 mentah (2026-10-02):** `CvController::pdf()` merender PDF lebih dulu di dalam `try/catch`, baru mengirim header; kegagalan render → `502 JSON`, bukan respons setengah terkirim. Kontrak lengkap di [API_SPEC.md](API_SPEC.md#pdf).
-- **Rate limit (2026-10-03):** tidak ada throttle global di grup `api`; yang berlaku tiga limiter bernama di `AppServiceProvider::boot()` — `login` (5/menit per email+IP, cadangan 10/menit per email), `register` (10/menit per IP), `ai` (per user, nilai dari `config('ai.throttle_per_minute')`). Endpoint `translate` tetap `throttle:5,1` (per user saat login).
+- **Rate limit (2026-10-03):** tidak ada throttle global di grup `api`; yang berlaku tiga limiter bernama di `AppServiceProvider::boot()` — `login` (5/menit per email+IP, cadangan 10/menit per email), `register` (dua lapis per IP: 5/menit + 20/jam, dari `config('security.register.*')` via env `REGISTER_PER_MINUTE`/`REGISTER_PER_HOUR`), `ai` (per user, nilai dari `config('ai.throttle_per_minute')`). Endpoint `translate` tetap `throttle:5,1` (per user saat login).
 - **Client IP stabil (`ResolveClientIp`, 2026-10-03):** Railway mengirim `X-Real-IP`. Middleware `App\Http\Middleware\ResolveClientIp` menyalinnya ke `REMOTE_ADDR` dan membuang `X-Forwarded-For`/`Forwarded`, **hanya** bila IP publik (privat/CGNAT ditolak agar tidak bisa dipalsukan). Tanpa ini edge memberi IP CGNAT berbeda tiap request, kunci throttle pecah, dan batas tidak pernah tercapai.
 - CORS dibatasi ke origin frontend saja.
 - Endpoint AI memvalidasi ukuran payload (CV data ≤ ~50 KB).

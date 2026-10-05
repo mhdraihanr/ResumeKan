@@ -1,12 +1,15 @@
 # deploy/
 
-Perkakas deploy untuk container Railway (tanpa systemd). Penjelasan langkah demi langkah ada di
-[../docs/DEPLOY_VPS_PEMULA.md](../docs/DEPLOY_VPS_PEMULA.md); folder ini isinya berkas yang dipakai skrip.
+Perkakas deploy untuk container Railway (tanpa systemd). Panduan singkat ada di
+[../docs/DEPLOY_VPS_PEMULA.md](../docs/DEPLOY_VPS_PEMULA.md), sedangkan penjelasan langkah demi langkah beserta cara
+memperbaiki kegagalan ada di [../docs/DEPLOY_VPS_TEKNIS.md](../docs/DEPLOY_VPS_TEKNIS.md); folder ini isinya berkas yang
+dipakai skrip.
 
 | Berkas                    | Fungsi                                                                     |
 | ------------------------- | -------------------------------------------------------------------------- |
 | `deploy.sh`               | Bangun container dari nol: kode, `.env`, Caddyfile, build, jalankan proses |
 | `update.sh`               | Pasang kode terbaru ke container yang sedang hidup                         |
+| `install-deps.sh`         | Pasang perkakas sistem (PHP 8.4, Node 22, Caddy, Chromium); idempotent     |
 | `lib-dist.sh`             | Helper unduh hasil build frontend dari GitHub Actions (dipakai dua skrip)  |
 | `Caddyfile`               | Konfigurasi Caddy satu host (:8080, SPA + reverse proxy `/api/*`)          |
 | `watchdog.sh`             | Penjaga `php -S`, pengganti systemd                                        |
@@ -59,7 +62,10 @@ Simpan juga di manajer sandi.
 
 - **Tidak** menyentuh database selain menjalankan migrasi yang pending.
 - **Tidak** memakai `migrate:fresh`. Database Neon tetap utuh antar redeploy.
-- **Tidak** mengubah `api/bootstrap/app.php` dan `api/app/Providers/AppServiceProvider.php`. Kalau `trustProxies` dan
-  `forceScheme` belum ada di sana, isi dulu dengan mengikuti Langkah 8 panduan, lalu commit supaya tidak perlu mengulang.
-- **Tidak** memasang perkakas sistem (PHP, Node, Caddy, Chromium). Itu Langkah 4 dan 5 panduan, dan hanya perlu saat
-  container benar-benar baru.
+- **Tidak** mengubah `api/bootstrap/app.php` dan `api/app/Providers/AppServiceProvider.php`. Ketiga suntingan produksi
+  (termasuk `api/app/Services/PdfService.php`) sudah ada di repo sejak commit `31be3af`, jadi tidak ada langkah manual
+  yang tertinggal.
+- **Tidak** memasang swap, jam WIB, atau setelan memori kernel. Itu langkah manual di panduan (Langkah 4 di
+  [../docs/DEPLOY_VPS_PEMULA.md](../docs/DEPLOY_VPS_PEMULA.md)), dan hanya perlu saat container benar-benar baru.
+- **Tidak** memasang perkakas sistem secara manual: `deploy.sh` memanggil `install-deps.sh` otomatis kalau ada yang
+  hilang.

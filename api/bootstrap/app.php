@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\ResolveClientIp;
+use App\Http\Middleware\VerifyTurnstile;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -34,6 +35,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // `$request->ip()` stabil dari X-Real-IP Railway (lihat ResolveClientIp).
         $middleware->append(ResolveClientIp::class);
         $middleware->statefulApi();
+
+        // Alias `turnstile` dipakai route register (lihat routes/api.php).
+        $middleware->alias([
+            'turnstile' => VerifyTurnstile::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

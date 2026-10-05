@@ -6,7 +6,7 @@
 ## Konvensi
 
 - `401` belum login · `403` bukan pemilik resource · `404` tidak ada · `422` validasi · `429` rate limit · `502` kegagalan layanan hilir (render PDF / AI gateway / terjemahan).
-- Semua route, selain auth dan shell print internal bertanda tangan, butuh login.
+- Semua route, selain auth, `GET /config`, dan shell print internal bertanda tangan, butuh login.
 - **Tanpa auth selalu `401` JSON, bukan redirect (2026-10-02).** App ini API-only: request ke `api/*` tanpa cookie sesi valid membalas `401 { "message": "Unauthenticated." }`, tidak pernah `500 "Route [login] not defined."` maupun redirect. Detail akar masalah di [ARCHITECTURE.md §4](ARCHITECTURE.md).
 - `422` membawa `errors` dengan kunci berpath JSON (`data.certificates.0.name`). Klien **tidak** menampilkan `message` mentahnya: `mapServerErrors` di `lib/cv-validation.ts` membuang awalan `data.` dan memetakan tiap kunci ke error inline pada field yang bersangkutan. `message` mentah hanya ditampilkan sebagai banner untuk kegagalan operasional (network/5xx) — lihat [ARCHITECTURE.md §4](ARCHITECTURE.md). Berlaku untuk submit final **dan** simpan draft (yang juga memakai jalur `errors` → inline, bukan toast pesan mentah).
 
@@ -14,12 +14,20 @@
 
 | Method | Path        | Body                                           | Response                |
 | ------ | ----------- | ---------------------------------------------- | ----------------------- |
-| POST   | `/register` | `name, email, password, password_confirmation` | `201 { user }` + cookie |
+| GET    | `/config`   | —                                              | `{ turnstile_site_key, spam_token }` |
+| POST   | `/register` | `name, email, password, password_confirmation, website, spam_token, cf-turnstile-response` | `201 { user }` + cookie |
 | POST   | `/login`    | `email, password`                              | `{ user }` + cookie     |
 | POST   | `/logout`   | —                                              | `204`                   |
 | GET    | `/user`     | —                                              | `{ user }`              |
 
-> **Rate limit auth (2026-10-03):** `POST /register` dibatasi **10/menit per IP**. `POST /login` dibatasi dua lapis: **5/menit per email+IP** (batas utama) dan **10/menit per email** (cadangan, supaya satu akun yang diserang dari banyak IP tetap kena). Lewat batas → `429` + header `Retry-After`/`X-RateLimit-*`. Limiter ada di `AppServiceProvider::boot()`; kunci IP memakai `X-Real-IP` yang di-stabilkan `ResolveClientIp` (lihat [ARCHITECTURE.md §5](ARCHITECTURE.md)) — tanpa itu tiap request dianggap IP berbeda dan batas tidak pernah tercapai.
+> **Anti-spam register (2026-10-04):** selain rate limit, `POST /register` dijaga middleware `turnstile`. Tiga field tambahan **wajib**:
+> - `cf-turnstile-response` — token dari widget Turnstile; diverifikasi ke `siteverify` Cloudflare (secret dari `TURNSTILE_SECRET_KEY`). Token sekali pakai, ambil baru setelah submit gagal.
+> - `website` — **honeypot**, harus string kosong; terisi → `422` (bot mengisi semua field).
+> - `spam_token` — cap waktu terenkripsi dari `GET /config`; submit < 2 detik setelah halaman dibuka → `422` (submit instan).
+>
+> Gagal salah satu → `422 { "message": "..." }`. Widget Turnstile di-render hanya kalau `turnstile_site_key` tidak kosong, jadi environment tanpa key (dev/test) tetap bisa register.
+
+> **Rate limit auth (2026-10-03):** `POST /register` dibatasi **dua lapis per IP** — **5/menit** (burst) dan **20/jam** (akumulasi), keduanya dari `config/security.php` via env `REGISTER_PER_MINUTE`/`REGISTER_PER_HOUR`. `POST /login` dibatasi dua lapis: **5/menit per email+IP** (batas utama) dan **10/menit per email** (cadangan, supaya satu akun yang diserang dari banyak IP tetap kena). Lewat batas → `429` + header `Retry-After`/`X-RateLimit-*`. Limiter ada di `AppServiceProvider::boot()`; kunci IP memakai `X-Real-IP` yang di-stabilkan `ResolveClientIp` (lihat [ARCHITECTURE.md §5](ARCHITECTURE.md)) — tanpa itu tiap request dianggap IP berbeda dan batas tidak pernah tercapai.
 
 ## Upload Foto (Cloudinary)
 

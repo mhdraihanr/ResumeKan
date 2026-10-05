@@ -29,6 +29,10 @@
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <!-- Test selalu mulai tanpa secret Turnstile supaya hasilnya tidak
+             bergantung pada .env lokal. Test yang memang butuh verifikasi
+             menyetel secret-nya sendiri (lihat RegisterSpamTest::fakeCloudflare). -->
+        <env name="TURNSTILE_SECRET_KEY" value="" force="true"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

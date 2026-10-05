@@ -40,6 +40,10 @@ CLOUDINARY_FOLDER=cvs           # folder penyimpanan foto CV
 
 CV_MAX_PER_USER=10
 AI_THROTTLE_PER_MINUTE=5
+
+# Cloudflare Turnstile (anti-spam register) — https://dash.cloudflare.com → Turnstile
+TURNSTILE_SITE_KEY=             # public site key, dibagikan ke frontend lewat GET /config
+TURNSTILE_SECRET_KEY=           # secret server-side; WAJIB diisi di produksi (kosong = fail-open di non-produksi)
 ```
 
 ## Menjalankan Development (harian)

@@ -20,7 +20,7 @@
 
 Route closure dari Fase 0 sudah dipindah ke `api/app/Http/Controllers/AuthController.php`.
 
-**Rate limit (2026-10-03):** `POST /register` = `throttle:register` (**10/menit per IP**), `POST /login` = `throttle:login` (**5/menit per email+IP** + cadangan **10/menit per email**). Limiter di `AppServiceProvider::boot()`; kunci IP stabil lewat middleware `ResolveClientIp` (`X-Real-IP` Railway). Uji: `api/tests/Feature/LoginRateLimitTest.php`.
+**Rate limit (2026-10-03):** `POST /register` = `throttle:register` (**dua lapis per IP: 5/menit + 20/jam**, dari `config/security.php` via env `REGISTER_PER_MINUTE`/`REGISTER_PER_HOUR`), `POST /login` = `throttle:login` (**5/menit per email+IP** + cadangan **10/menit per email**). Limiter di `AppServiceProvider::boot()`; kunci IP stabil lewat middleware `ResolveClientIp` (`X-Real-IP` Railway). Uji: `api/tests/Feature/LoginRateLimitTest.php`, `api/tests/Feature/RegisterRateLimitTest.php`.
 
 ### Frontend
 

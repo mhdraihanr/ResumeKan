@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    // Turnstile melindungi endpoint publik (register) dari bot. Site key memang
+    // publik dan dikirim ke FE lewat GET /api/v1/config; secret key hanya di
+    // server. Kosong di lokal = middleware fail-open, di produksi = fail-closed.
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+        'timeout' => (int) env('TURNSTILE_TIMEOUT', 5),
+    ],
+
 ];

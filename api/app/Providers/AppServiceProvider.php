@@ -34,8 +34,7 @@ class AppServiceProvider extends ServiceProvider
         // enumerasi akun tidak dibatasi sama sekali (tidak ada throttle global
         // di grup `api`). Login dibatasi per email+IP supaya satu IP yang
         // menyerang banyak akun tetap kena, dan satu akun yang diserang dari
-        // banyak IP juga kena. Register dibatasi per IP karena belum ada email
-        // untuk dijadikan kunci.
+        // banyak IP juga kena.
         RateLimiter::for('login', function (Request $request) {
             $email = mb_strtolower((string) $request->input('email'));
 
@@ -47,8 +46,19 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        // Register dibatasi per IP karena belum ada email untuk dijadikan kunci.
+        // Dua lapis: `per_minute` menahan burst, `per_hour` menahan akumulasi
+        // spam. Nilainya dari config/security.php agar bisa diubah lewat .env.
+        // `by` diberi prefix unik supaya kedua limit tidak berbagi key.
         RateLimiter::for('register', function (Request $request) {
-            return Limit::perMinute(10)->by($request->ip());
+            $ip = $request->ip();
+
+            return [
+                Limit::perMinute((int) config('security.register.per_minute', 5))
+                    ->by('register:minute:' . $ip),
+                Limit::perHour((int) config('security.register.per_hour', 20))
+                    ->by('register:hour:' . $ip),
+            ];
         });
 
         // Endpoint AI memanggil provider berbayar, jadi dibatasi per user

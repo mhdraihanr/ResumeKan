@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import AppLogo from "@/components/AppLogo.vue";
-import { ref } from "vue";
+import TurnstileWidget from "@/components/TurnstileWidget.vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import { fetchPublicConfig } from "@/api/config";
 import { useDarkMode } from "@/composables/useDarkMode";
 import { Eye, EyeOff, Moon, Sun } from "lucide-vue-next";
 
@@ -16,14 +18,53 @@ const password = ref("");
 const passwordConfirmation = ref("");
 const showPassword = ref(false);
 
+// Bukti anti-spam. `website` adalah field umpan yang harus tetap kosong.
+const honeypot = ref("");
+const siteKey = ref("");
+const spamToken = ref("");
+const turnstileToken = ref("");
+const configError = ref<string | null>(null);
+const widget = ref<InstanceType<typeof TurnstileWidget> | null>(null);
+
+// Submit terkunci sampai config termuat, dan (kalau Turnstile aktif) sampai
+// widget memberi token. Tanpa ini user menekan Daftar, ditolak server, bingung.
+const canSubmit = computed(
+  () =>
+    !auth.loading &&
+    configError.value === null &&
+    (siteKey.value === "" || turnstileToken.value !== ""),
+);
+
+onMounted(async () => {
+  try {
+    const config = await fetchPublicConfig();
+    siteKey.value = config.turnstile_site_key;
+    spamToken.value = config.spam_token;
+  } catch (e) {
+    configError.value =
+      e instanceof Error ? e.message : "Gagal memuat konfigurasi keamanan.";
+  }
+});
+
 async function submit() {
   await auth.register(
     name.value,
     email.value,
     password.value,
     passwordConfirmation.value,
+    {
+      turnstileToken: turnstileToken.value,
+      honeypot: honeypot.value,
+      spamToken: spamToken.value,
+    },
   );
-  if (auth.isAuthenticated) router.push("/dashboard");
+  if (auth.isAuthenticated) {
+    router.push("/dashboard");
+    return;
+  }
+  // Token Turnstile sekali pakai: minta yang baru agar percobaan ulang bisa lolos.
+  turnstileToken.value = "";
+  widget.value?.reset();
 }
 </script>
 
@@ -166,9 +207,39 @@ async function submit() {
               class="w-full rounded-base border-2 border-ink bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-navy dark:border-border dark:bg-ink/20 dark:text-foreground dark:focus:ring-main"
             />
           </div>
+
+          <!-- Honeypot: tak terlihat & tak terjangkau keyboard untuk manusia,
+               tapi sering diisi bot yang melengkapi semua field. -->
+          <div class="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+            <label for="website">Website</label>
+            <input
+              id="website"
+              v-model="honeypot"
+              type="text"
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </div>
+
+          <TurnstileWidget
+            v-if="siteKey"
+            ref="widget"
+            :site-key="siteKey"
+            @verified="turnstileToken = $event"
+            @expired="turnstileToken = ''"
+          />
+
+          <p
+            v-if="configError"
+            role="alert"
+            class="rounded-base border-2 border-error bg-red-50 p-3 text-sm font-medium text-error dark:bg-red-900/20 dark:text-red-300"
+          >
+            {{ configError }}
+          </p>
+
           <button
             type="submit"
-            :disabled="auth.loading"
+            :disabled="!canSubmit"
             class="w-full rounded-base border-2 border-ink bg-navy px-3 py-2.5 text-sm font-bold text-white shadow-shadow transition hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none disabled:opacity-50 dark:border-border dark:bg-main dark:shadow-[4px_4px_0_0_#09090b]"
           >
             {{ auth.loading ? "Memproses..." : "Daftar" }}

@@ -9,6 +9,16 @@ export interface User {
   created_at?: string;
 }
 
+/** Bukti anti-spam yang dirakit form register (lihat VerifyTurnstile di API). */
+export interface RegisterSpam {
+  /** Token Turnstile dari widget (`cf-turnstile-response`). */
+  turnstileToken: string;
+  /** Nilai field umpan; user asli selalu mengirim string kosong. */
+  honeypot: string;
+  /** Cap waktu terenkripsi dari `GET /config` (anti submit instan). */
+  spamToken: string;
+}
+
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null);
   const loading = ref(false);
@@ -25,6 +35,7 @@ export const useAuthStore = defineStore("auth", () => {
     email: string,
     password: string,
     passwordConfirmation: string,
+    spam: RegisterSpam,
   ) {
     loading.value = true;
     error.value = null;
@@ -42,6 +53,10 @@ export const useAuthStore = defineStore("auth", () => {
           email,
           password,
           password_confirmation: passwordConfirmation,
+          // Honeypot dikirim apa adanya; backend menolak kalau terisi.
+          website: spam.honeypot,
+          spam_token: spam.spamToken,
+          "cf-turnstile-response": spam.turnstileToken,
         }),
       });
       const json = await res.json();
