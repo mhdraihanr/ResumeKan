@@ -7,6 +7,7 @@ import { emptyCvData, normalizeCvData } from "@/types/cv";
 import type { CvData } from "@/types/cv";
 import CvForm from "@/components/cv/CvForm.vue";
 import CvPreview from "@/components/cv/CvPreview.vue";
+import ImportCvPanel from "@/components/cv/ImportCvPanel.vue";
 
 const props = defineProps<{ id?: string }>();
 const router = useRouter();
@@ -28,10 +29,79 @@ const formRef = ref<InstanceType<typeof CvForm> | null>(null);
 const toast = ref<{ msg: string; ok: boolean } | null>(null);
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
-function showToast(msg: string, ok = true) {
+function showToast(msg: string, ok = true, ms = 2600) {
   toast.value = { msg, ok };
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => (toast.value = null), 2600);
+  toastTimer = setTimeout(() => (toast.value = null), ms);
+}
+
+/**
+ * Apakah form berisi ketikan user? Dipakai untuk memutuskan konfirmasi
+ * sebelum menimpa. Hanya field yang user isi sendiri yang dicek — font,
+ * ukuran, dan foto SELALU punya nilai bawaan/isi sehingga tidak dihitung.
+ */
+function formTerisi(): boolean {
+  const d = data.value;
+  if (title.value.trim() !== "") return true;
+  const p = d.personal;
+  if ([p.name, p.email, p.phone, p.address].some((v) => v.trim() !== ""))
+    return true;
+  if ((d.summary ?? "").trim() !== "") return true;
+  if ((d.languages ?? "").trim() !== "") return true;
+  const entries = [
+    d.experiences,
+    d.education,
+    d.organizations,
+    d.certificates,
+    d.projects,
+  ];
+  if (entries.some((list) => (list?.length ?? 0) > 0)) return true;
+  return (d.skills ?? []).some((g) => g.items.trim() !== "");
+}
+
+/**
+ * Hasil impor dari `ImportCvPanel`. Menimpa form dengan hasil parse, jadi
+ * kalau user sudah mengetik lebih dulu ia dikonfirmasi dulu. Foto profil dan
+ * pilihan font SENGAJA dipertahankan: keduanya tidak dibaca AI dari berkas,
+ * jadi menimpanya berarti menghapus pilihan user tanpa alasan.
+ */
+function onImported(payload: { data: CvData; warnings: string[] }) {
+  if (
+    formTerisi() &&
+    !confirm("Impor akan mengganti isian form yang sekarang. Lanjutkan?")
+  ) {
+    showToast("Impor dibatalkan. Isian form tidak diubah.", false);
+    return;
+  }
+
+  const hasil = normalizeCvData(payload.data);
+  hasil.fontFamily = data.value.fontFamily ?? "default";
+  hasil.fontSize = data.value.fontSize ?? "default";
+  hasil.personal.photo = data.value.personal.photo ?? "";
+  data.value = hasil;
+
+  // Judul tidak dibaca AI dari berkas. Selalu pakai nama hasil parse: kalau
+  // form kosong, ini mengisi judul pertama; kalau user menerima penimpaan,
+  // judul lama pasti tidak lagi cocok dengan isi baru (judul "Budi" dengan
+  // data "Ani" lebih membingungkan daripada judul yang ikut berubah).
+  const nama = hasil.personal.name.trim();
+  if (nama !== "") {
+    title.value = nama;
+  }
+
+  if (payload.warnings.length > 0) {
+    showToast(
+      `CV berhasil dibaca. Lengkapi: ${payload.warnings.join(", ")}.`,
+      false,
+      6000,
+    );
+  } else {
+    showToast("CV berhasil dibaca. Periksa dulu sebelum menyimpan.");
+  }
+}
+
+function onImportError(message: string) {
+  showToast(message, false);
 }
 
 /** Ringkasan entri kosong yang dibuang saat submit, mis. `2 entri kosong diabaikan`. */
@@ -334,6 +404,11 @@ async function downloadPdf() {
             >
               {{ error }}
             </p>
+            <ImportCvPanel
+              class="mb-4"
+              @imported="onImported"
+              @error="onImportError"
+            />
             <CvForm
               ref="formRef"
               v-model="data"

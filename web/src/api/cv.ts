@@ -9,17 +9,12 @@ function xsrfToken(): string {
   return m ? decodeURIComponent(m[1]!) : "";
 }
 
-async function req<T>(path: string, opts: RequestInit = {}): Promise<T> {
-  const res = await fetch(path, {
-    ...opts,
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      "X-XSRF-TOKEN": xsrfToken(),
-      ...(opts.headers as Record<string, string>),
-    },
-    credentials: "include",
-  });
+/**
+ * Terjemahkan respons jadi nilai atau lempar `Error` ber-`status`/`errors`.
+ * Dipakai bersama oleh jalur JSON (`req`) dan multipart (`reqForm`) supaya
+ * bentuk error tetap seragam di semua pemanggil.
+ */
+async function parseResponse<T>(res: Response): Promise<T> {
   if (res.status === 204) return undefined as T;
   const json = await res.json();
   if (!res.ok) {
@@ -32,6 +27,37 @@ async function req<T>(path: string, opts: RequestInit = {}): Promise<T> {
     throw err;
   }
   return json as T;
+}
+
+async function req<T>(path: string, opts: RequestInit = {}): Promise<T> {
+  const res = await fetch(path, {
+    ...opts,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "X-XSRF-TOKEN": xsrfToken(),
+      ...(opts.headers as Record<string, string>),
+    },
+    credentials: "include",
+  });
+  return parseResponse<T>(res);
+}
+
+/**
+ * Jalur multipart. `Content-Type` sengaja TIDAK diset manual: browser harus
+ * menulisnya sendiri agar `boundary` FormData ikut terkirim.
+ */
+async function reqForm<T>(path: string, body: FormData): Promise<T> {
+  const res = await fetch(path, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "X-XSRF-TOKEN": xsrfToken(),
+    },
+    credentials: "include",
+    body,
+  });
+  return parseResponse<T>(res);
 }
 
 export const cvApi = {
@@ -87,6 +113,19 @@ export const cvApi = {
         }),
       }),
     ),
+  /**
+   * Unggah berkas CV (PDF/DOCX) untuk diekstrak + disusun AI jadi `CvData`.
+   * Tidak menulis DB: hasil hanya dipakai mengisi form di klien.
+   */
+  parseCv: (file: File) =>
+    csrf().then(() => {
+      const form = new FormData();
+      form.append("file", file);
+      return reqForm<{ data: CvData; warnings: string[] }>(
+        "/api/v1/ai/parse-cv",
+        form,
+      );
+    }),
   translate: (cvId: number, target = "en") =>
     csrf().then(() =>
       req<{ data: CvData }>(`/api/v1/cvs/${cvId}/translate`, {
