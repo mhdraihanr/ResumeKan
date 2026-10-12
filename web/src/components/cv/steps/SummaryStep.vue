@@ -1,15 +1,29 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import type { CvData } from "@/types/cv";
 import FormTextarea from "../form/FormTextarea.vue";
 
-defineProps<{ cvId?: number; aiLoading: boolean; aiError: string }>();
+const props = defineProps<{
+  cvId?: number;
+  aiLoading: boolean;
+  aiError: string;
+  /** Peta path field -> pesan error inline, mis. `summary`. */
+  errors?: Record<string, string>;
+}>();
 const emit = defineEmits<{ (e: "generate", jobDescription?: string): void }>();
 
 const data = defineModel<CvData>({ required: true });
 
+function err(path: string): string | undefined {
+  return props.errors?.[path];
+}
+
 const showTailor = ref(false);
 const jobDescription = ref("");
+
+/** Batas ringkasan — selaras `max:600` di `StoreCvRequest`. */
+const SUMMARY_MAX = 600;
+const summaryLength = computed(() => (data.value.summary ?? "").length);
 
 function handleGenerate() {
   const jd = jobDescription.value.trim();
@@ -134,13 +148,22 @@ function handleGenerate() {
       {{ aiError }}
     </p>
     <FormTextarea
+      id="summary-text"
       v-model="data.summary"
-      maxlength="600"
+      :maxlength="SUMMARY_MAX"
       rows="3"
       placeholder="Ringkasan profesional singkat... (klik Generate AI jika CV sudah tersimpan)"
+      :error="err('summary')"
     />
-    <p class="text-right text-xs text-slate-500 dark:text-slate-300">
-      {{ (data.summary ?? "").length }}/600
+    <p
+      class="text-right text-xs"
+      :class="
+        summaryLength > SUMMARY_MAX
+          ? 'font-medium text-red-600 dark:text-red-300'
+          : 'text-slate-500 dark:text-slate-300'
+      "
+    >
+      {{ summaryLength }}/{{ SUMMARY_MAX }}
     </p>
   </section>
 </template>

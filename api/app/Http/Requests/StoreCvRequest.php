@@ -93,6 +93,10 @@ class StoreCvRequest extends FormRequest
             'data.skills.max' => 'Maksimal :max grup keahlian.',
             'data.certificates.max' => 'Maksimal :max sertifikat.',
             'data.projects.max' => 'Maksimal :max proyek.',
+
+            // Batas panjang teks bebas (pesan bawaan berbahasa Inggris).
+            'data.summary.max' => 'Ringkasan maksimal :max karakter.',
+            'data.languages.max' => 'Bahasa maksimal :max karakter.',
         ];
     }
 

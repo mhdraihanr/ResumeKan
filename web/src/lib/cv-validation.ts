@@ -262,6 +262,37 @@ export const INVALID_FORMATS: {
   },
 ];
 
+/**
+ * Batas panjang teks bebas — selaras `StoreCvRequest` (`summary` 600,
+ * `languages` 200). Atribut `maxlength` di form tidak menolong untuk data
+ * hasil impor AI: nilainya masuk tanpa pernah diketik, jadi pelanggaran hanya
+ * ketahuan dari 422 server (pesan Inggris) dan UI tidak tahu field mana yang
+ * harus ditandai. Pesan menyebut kelebihan karakter supaya user tahu berapa
+ * yang harus dipangkas.
+ */
+export const MAX_LENGTHS: {
+  path: string;
+  step: number;
+  label: string;
+  max: number;
+  get: (data: CvData) => string | undefined;
+}[] = [
+  {
+    path: "summary",
+    step: 2,
+    label: "Ringkasan",
+    max: 600,
+    get: (d) => d.summary,
+  },
+  {
+    path: "languages",
+    step: 9,
+    label: "Bahasa",
+    max: 200,
+    get: (d) => d.languages,
+  },
+];
+
 /** Field yang formatnya salah (terisi tapi tidak valid). */
 export function collectInvalid(
   data: CvData,
@@ -282,6 +313,20 @@ export function collectInvalid(
         label: rule.label,
         step: rule.step,
         message: rule.message,
+      });
+    }
+  }
+
+  for (const rule of MAX_LENGTHS) {
+    const value = rule.get(data);
+    if (blank(value)) continue;
+    const panjang = String(value).length;
+    if (panjang > rule.max) {
+      out.push({
+        path: rule.path,
+        label: rule.label,
+        step: rule.step,
+        message: `${rule.label} maksimal ${rule.max} karakter — kelebihan ${panjang - rule.max} karakter.`,
       });
     }
   }

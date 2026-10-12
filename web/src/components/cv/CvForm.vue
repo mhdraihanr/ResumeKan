@@ -341,14 +341,17 @@ async function generateSummary(jobDescription?: string) {
         :errors="fieldErrors"
       />
     </div>
-    <SummaryStep
-      v-show="activeStep === 2"
-      v-model="local"
-      :cv-id="cvId"
-      :ai-loading="aiLoading"
-      :ai-error="aiError"
-      @generate="generateSummary"
-    />
+    <div :class="activeStep === 2 ? 'cv-step-active' : ''">
+      <SummaryStep
+        v-show="activeStep === 2"
+        v-model="local"
+        :cv-id="cvId"
+        :ai-loading="aiLoading"
+        :ai-error="aiError"
+        :errors="fieldErrors"
+        @generate="generateSummary"
+      />
+    </div>
     <div :class="activeStep === 3 ? 'cv-step-active' : ''">
       <ExperienceStep
         v-show="activeStep === 3"
@@ -370,7 +373,13 @@ async function generateSummary(jobDescription?: string) {
         :errors="fieldErrors"
       />
     </div>
-    <SkillsStep v-show="activeStep === 6" v-model="local" />
+    <div :class="activeStep === 6 ? 'cv-step-active' : ''">
+      <SkillsStep
+        v-show="activeStep === 6"
+        v-model="local"
+        :errors="fieldErrors"
+      />
+    </div>
     <div :class="activeStep === 7 ? 'cv-step-active' : ''">
       <ProjectsStep
         v-show="activeStep === 7"
@@ -385,7 +394,13 @@ async function generateSummary(jobDescription?: string) {
         :errors="fieldErrors"
       />
     </div>
-    <OtherStep v-show="activeStep === 9" v-model="local" />
+    <div :class="activeStep === 9 ? 'cv-step-active' : ''">
+      <OtherStep
+        v-show="activeStep === 9"
+        v-model="local"
+        :errors="fieldErrors"
+      />
+    </div>
 
     <!-- Step navigation -->
     <div class="flex items-center justify-between gap-3 pt-2">
