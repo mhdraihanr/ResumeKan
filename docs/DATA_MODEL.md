@@ -45,6 +45,8 @@ Standar Laravel (`id`, `name`, `email` unique, `password`, `timestamps`). Tidak 
 
 Index: `user_id`. Tidak perlu index lain.
 
+> **Import CV (2026-10-07):** `POST /ai/parse-cv` **tidak mengubah skema** — tidak ada kolom/tabel baru. Output AI dinormalisasi ke bentuk `CvData` di bawah (semua kunci ada, kunci asing dibuang, ringkasan ≤600 char, entri dipotong sesuai `StoreCvRequest`) lalu hanya mengisi form di klien; user menyimpan lewat `POST/PUT /cvs` yang sudah ada.
+
 ## Skema `data` (JSON)
 
 ```jsonc

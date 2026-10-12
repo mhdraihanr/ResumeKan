@@ -33,6 +33,11 @@ AI_API_KEY=                    # dari dashboard AI gateway kamu
 AI_BASE_URL=https://api.example.com/v1  # OpenAI-compatible gateway (ganti sesuai provider)
 AI_MODEL=provider/model-name   # mis. anthropic/claude-3-haiku, openai/gpt-4o-mini — ganti tanpa ubah kode
 
+> **Catatan gateway.** Sebagian gateway (mis. 9Router) membuang pesan `system` untuk
+> model deepseek/glm. Karena itu `AiService` mengirim instruksi di pesan `user`,
+> bukan `system` — jangan ubah tanpa mengecek ulang perilaku gateway. Parameter
+> `response_format`/`enable_thinking` juga diabaikan gateway tersebut.
+
 CLOUDINARY_CLOUD_NAME=dzqrr2ks  # dari Cloudinary Console → Dashboard
 CLOUDINARY_API_KEY=             # dari Settings → API Keys → baris `root`
 CLOUDINARY_API_SECRET=          # dari baris `root` yang sama (View/Reveal)
@@ -40,6 +45,7 @@ CLOUDINARY_FOLDER=cvs           # folder penyimpanan foto CV
 
 CV_MAX_PER_USER=10
 AI_THROTTLE_PER_MINUTE=5
+AI_PARSE_THROTTLE_PER_MINUTE=3
 
 # Cloudflare Turnstile (anti-spam register) — https://dash.cloudflare.com → Turnstile
 TURNSTILE_SITE_KEY=             # public site key, dibagikan ke frontend lewat GET /config

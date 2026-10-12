@@ -47,9 +47,9 @@
 - [x] Landing page (hero, fitur, CTA) + animasi ringan (@vueuse/motion)
 - [x] Dark mode, responsive check, empty states
 
-## Fase 7 — Post-MVP Backlog (ditahan) [detail](phases/phase-7-post-mvp.md)
+## Fase 7 — Post-MVP Backlog (sebagian selesai) [detail](phases/phase-7-post-mvp.md)
 
-- [ ] Import CV dari PDF/DOCX → auto-isi form (hybrid pdfparser + AiService, ditahan sampai MVP selesai)
+- [x] Import CV dari PDF/DOCX → auto-isi form (hybrid pdfparser + AiService) — ✅ selesai 2026-10-07 (T1–T7b), task breakdown: [phase-7a-import-cv.md](phases/phase-7a-import-cv.md)
 
 ## Deploy (nanti, bukan MVP)
 

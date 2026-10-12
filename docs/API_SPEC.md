@@ -12,15 +12,16 @@
 
 ## Auth
 
-| Method | Path        | Body                                           | Response                |
-| ------ | ----------- | ---------------------------------------------- | ----------------------- |
-| GET    | `/config`   | —                                              | `{ turnstile_site_key, spam_token }` |
-| POST   | `/register` | `name, email, password, password_confirmation, website, spam_token, cf-turnstile-response` | `201 { user }` + cookie |
-| POST   | `/login`    | `email, password`                              | `{ user }` + cookie     |
-| POST   | `/logout`   | —                                              | `204`                   |
-| GET    | `/user`     | —                                              | `{ user }`              |
+| Method | Path        | Body                                                                                       | Response                             |
+| ------ | ----------- | ------------------------------------------------------------------------------------------ | ------------------------------------ |
+| GET    | `/config`   | —                                                                                          | `{ turnstile_site_key, spam_token }` |
+| POST   | `/register` | `name, email, password, password_confirmation, website, spam_token, cf-turnstile-response` | `201 { user }` + cookie              |
+| POST   | `/login`    | `email, password`                                                                          | `{ user }` + cookie                  |
+| POST   | `/logout`   | —                                                                                          | `204`                                |
+| GET    | `/user`     | —                                                                                          | `{ user }`                           |
 
 > **Anti-spam register (2026-10-04):** selain rate limit, `POST /register` dijaga middleware `turnstile`. Tiga field tambahan **wajib**:
+>
 > - `cf-turnstile-response` — token dari widget Turnstile; diverifikasi ke `siteverify` Cloudflare (secret dari `TURNSTILE_SECRET_KEY`). Token sekali pakai, ambil baru setelah submit gagal.
 > - `website` — **honeypot**, harus string kosong; terisi → `422` (bot mengisi semua field).
 > - `spam_token` — cap waktu terenkripsi dari `GET /config`; submit < 2 detik setelah halaman dibuka → `422` (submit instan).
@@ -107,6 +108,38 @@ Server membaca data CV milik user dari DB — FE tidak mengirim ulang isi CV. Ri
 **ATS Keyword Tailoring (2026-09-18):** field opsional `job_description` (string, max 3000 char) memungkinkan penyelarasan ringkasan dengan target lowongan. Jika diisi, prompt AI menambahkan instruksi menyelaraskan kata kunci dan penekanan posisi dengan kebutuhan lowongan **tanpa mengarang fakta baru** — hanya menghubungkan pengalaman asli user dengan istilah lowongan. Di FE, textarea target lowongan tersedia di panel "Sesuaikan dengan Target Lowongan (ATS Tailoring)" pada step Ringkasan (collapsible, opsional). Prompt dipotong ke 1500 char di klien dan 3000 char di server.
 
 Error AI gateway → `502 { "message": "AI service unavailable" }`.
+
+### `POST /ai/parse-cv` (auth, throttle: 3/menit/user, limiter bernama `ai-parse`, nilai dari `AI_PARSE_THROTTLE_PER_MINUTE`)
+
+Import CV dari berkas: server mengekstrak teks lalu meminta AI menyusunnya jadi `CvData`. **Tidak menulis DB** — hasil hanya mengisi form di klien untuk direview user (tidak auto-save).
+
+Request `multipart/form-data`:
+
+| Field      | Aturan                                              |
+| ---------- | --------------------------------------------------- |
+| `file`     | wajib, PDF/DOCX (MIME asli, bukan ekstensi), ≤ 5 MB |
+| `language` | opsional, `in:id,en` (default `id`) — bahasa prompt |
+
+```json
+{
+  "data": { "...CvData": "..." },
+  "warnings": ["Pengalaman kerja", "Pendidikan", "Keahlian"]
+}
+```
+
+`warnings` berisi label section inti yang kosong setelah parse (field personal + `experiences`/`education`/`skills`). FE menampilkannya sebagai toast "Lengkapi: ...".
+
+Kode error:
+
+| Status | Kapan                                              | Body                                                       |
+| ------ | -------------------------------------------------- | ---------------------------------------------------------- |
+| `401`  | tanpa auth                                         | `{ "message": "Unauthenticated." }`                        |
+| `422`  | berkas tidak valid/terlalu besar, atau tak terbaca | `{ "message": "..." }` (mis. "File tidak berisi teks ...") |
+| `429`  | lewat throttle                                     | header `Retry-After`                                       |
+| `502`  | gateway AI gagal                                   | `{ "message": "AI service unavailable" }`                  |
+| `503`  | `AI_API_KEY` kosong                                | `{ "message": "AI belum dikonfigurasi" }`                  |
+
+Batasan v1: PDF text-based saja (scan/gambar ditolak), maks 5 halaman (DOCX tidak dihitung halaman), berkas dibaca lalu dihapus (tidak disimpan ke disk). Hasil AI selalu dinormalisasi agar lolos validasi simpan: ringkasan dipotong 600 karakter, grup skill tanpa label diberi label `Keahlian`, jumlah entri dipotong sesuai batas `StoreCvRequest`. Implementasi: `DocumentTextExtractor` (`smalot/pdfparser` untuk PDF + `ZipArchive` `word/document.xml` untuk DOCX) → `AiService::structureCvData()`. Lihat [phase-7a-import-cv.md](phases/phase-7a-import-cv.md).
 
 ### `POST /cvs/{id}/translate` (auth, throttle: 5/menit/user)
 

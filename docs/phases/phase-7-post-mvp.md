@@ -9,14 +9,16 @@ Menampung ide yang ditunda demi MVP ramping (YAGNI). Dieksekusi hanya jika ada s
 
 ## Backlog
 
-### 7a. Import CV dari PDF/DOCX → auto-isi form (ditahan)
+### 7a. Import CV dari PDF/DOCX → auto-isi form (✅ selesai 2026-10-07)
+
+> Task breakdown: [phase-7a-import-cv.md](phase-7a-import-cv.md) — ✅ **selesai** (T1–T7b + 2 checkpoint, 2026-10-07).
 
 - **Masalah:** user yang sudah punya CV (pekerja, target PRD #2) malas ketik ulang.
 - **Solusi (paling lazy):** upload `multipart/form-data` → `smalot/pdfparser` extract text lokal → kirim text ke `AiService` (OpenAI-compatible, model via `AI_MODEL`) untuk strukturkan ke `CvData` JSON → isi `local` form (tidak auto-save, user review & edit dulu).
 - **Batasan v1:** max 5MB / 5 halaman, PDF text-based saja (scan/image → tolak "upload PDF text-based"), throttle 3/menit, file tidak disimpan, `502` jika gagal.
-- **Kontrak (rencana):** `POST /api/v1/ai/parse-cv` — body `file` (pdf/docx), response `{ data: CvData }` + warning jika field kosong.
-- **Dampak docs saat dieksekusi:** `PRD.md` F2/F5, `API_SPEC.md` tambah `POST /ai/parse-cv`, `ARCHITECTURE.md` ADR-5 tambah file handling + `pdfparser`, `DATA_MODEL.md` tetap (mapping ke skema existing).
-- **Kriteria mulai:** banyak request "punya CV lama" setelah launch, atau Fase 4 summary sudah stabil.
+- **Kontrak (final):** `POST /api/v1/ai/parse-cv` — body `multipart/form-data` `file` (pdf/docx ≤5 MB) + `language` opsional, response `{ data: CvData, warnings: string[] }`. Throttle `ai-parse` 3/menit. Lihat `API_SPEC.md`.
+- **Dampak docs saat dieksekusi:** ✅ `PRD.md` F2/F5, ✅ `API_SPEC.md` tambah `POST /ai/parse-cv`, ✅ `ARCHITECTURE.md` ADR-5 tambah file handling + `pdfparser`, ✅ `DATA_MODEL.md` tetap (mapping ke skema existing, tanpa perubahan skema).
+- **Kriteria mulai:** terpenuhi — Fase 4 summary stabil, dieksekusi 2026-10-06/07.
 
 ### 7b. Duplikat & terjemahkan CV ID→EN (✅ selesai 2026-09-02)
 
@@ -45,6 +47,6 @@ Menampung ide yang ditunda demi MVP ramping (YAGNI). Dieksekusi hanya jika ada s
 ## Catatan
 
 - Fase 4 (AI Summary) tetap prioritas berikutnya setelah Fase 3 — jangan loncat ke 7a dulu.
-- Saat eksekusi 7a, tambah 1 komponen upload di atas `CvForm.vue` ("Import dari PDF") + 1 endpoint, tanpa ubah migrasi DB.
+- Saat eksekusi 7a, tambah 1 komponen upload di atas `CvForm.vue` ("Import dari PDF") + 1 endpoint, tanpa ubah migrasi DB. ✅ Terlaksana: `ImportCvPanel.vue` di `CvFormView.vue` + `POST /ai/parse-cv`, tanpa migrasi baru.
 
 ← [Fase 6](phase-6-landing-polish.md) · Kembali ke [Roadmap](../ROADMAP.md)
