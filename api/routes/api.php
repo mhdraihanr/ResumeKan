@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cvs/{cv}/translate', [CvController::class, 'translate'])->middleware('throttle:5,1')->name('cvs.translate');
 
     Route::post('/ai/summary', [AiController::class, 'summary'])->middleware('throttle:ai')->name('ai.summary');
+    Route::post('/ai/parse-cv', [AiController::class, 'parseCv'])->middleware('throttle:ai-parse')->name('ai.parse-cv');
 
     Route::post('/upload-signature', [CvController::class, 'uploadSignature'])->name('upload.signature');
 });

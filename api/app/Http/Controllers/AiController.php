@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\UnreadableDocumentException;
+use App\Http\Requests\ParseCvRequest;
 use App\Models\Cv;
 use App\Services\AiService;
+use App\Services\DocumentTextExtractor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -39,5 +42,37 @@ class AiController extends Controller
         }
 
         return response()->json(['summary' => $summary]);
+    }
+
+    /**
+     * Import CV: baca teks dari berkas, lalu minta AI menyusunnya jadi CvData.
+     * Tidak menulis apa pun ke DB — hasilnya hanya mengisi form di klien.
+     */
+    public function parseCv(
+        ParseCvRequest $request,
+        DocumentTextExtractor $extractor,
+        AiService $ai,
+    ): JsonResponse {
+        try {
+            $hasil = $extractor->extract($request->file('file'));
+        } catch (UnreadableDocumentException $e) {
+            // 422: berkasnya sah sebagai upload, tapi isinya tidak bisa dipakai.
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        try {
+            $data = $ai->structureCvData($hasil['text'], $request->input('language') ?? 'id');
+        } catch (\RuntimeException $e) {
+            if (str_contains($e->getMessage(), 'AI_API_KEY')) {
+                return response()->json(['message' => 'AI belum dikonfigurasi'], 503);
+            }
+
+            return response()->json(['message' => 'AI service unavailable'], 502);
+        }
+
+        return response()->json([
+            'data' => $data,
+            'warnings' => $ai->emptyFieldWarnings($data),
+        ]);
     }
 }

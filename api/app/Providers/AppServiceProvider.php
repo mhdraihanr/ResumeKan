@@ -68,5 +68,13 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute((int) config('ai.throttle_per_minute', 5))
                 ->by($request->user()?->id ?: $request->ip());
         });
+
+        // Import CV memanggil AI plus parsing file, jadi lebih berat dari
+        // `ai` dan dibatasi lebih ketat (3/menit). Batas dipisah supaya import
+        // tidak memakai kuota ringkasan AI.
+        RateLimiter::for('ai-parse', function (Request $request) {
+            return Limit::perMinute((int) config('ai.parse_throttle_per_minute', 3))
+                ->by($request->user()?->id ?: $request->ip());
+        });
     }
 }

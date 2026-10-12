@@ -8,4 +8,6 @@ return [
     // Batas request AI per menit per user. Dipakai RateLimiter `ai` di
     // AppServiceProvider; nilainya bisa diubah lewat .env tanpa ubah kode.
     'throttle_per_minute' => (int) env('AI_THROTTLE_PER_MINUTE', 5),
+    // Batas terpisah untuk import CV (ekstraksi file + AI, lebih berat).
+    'parse_throttle_per_minute' => (int) env('AI_PARSE_THROTTLE_PER_MINUTE', 3),
 ];
