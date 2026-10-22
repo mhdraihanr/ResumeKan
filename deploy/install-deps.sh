@@ -13,6 +13,7 @@
 #
 # Variabel lingkungan (opsional):
 #   SKIP_CHROMIUM=1     lewati instalasi Chromium (PDF Browsershot tidak jalan).
+#   SKIP_PHP_UPGRADE=1  lewati upgrade paket PHP yang sudah terpasang.
 #   PHP_VERSION=8.4     versi PHP yang dipasang (default 8.4).
 #   NODE_MAJOR=22       versi mayor Node.js (default 22).
 set -euo pipefail
@@ -20,6 +21,11 @@ set -euo pipefail
 PHP_VERSION="${PHP_VERSION:-8.4}"
 NODE_MAJOR="${NODE_MAJOR:-22}"
 SKIP_CHROMIUM="${SKIP_CHROMIUM:-0}"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Helper upgrade paket PHP (dipakai juga oleh update.sh).
+# shellcheck source=lib-php.sh
+. "$SCRIPT_DIR/lib-php.sh"
 
 log()  { printf '\n==> %s\n' "$*"; }
 have() { command -v "$1" >/dev/null 2>&1; }
@@ -41,8 +47,14 @@ fi
 
 # 2. PHP ----------------------------------------------------------------------
 # Ubuntu 22.04 bawaan masih PHP 8.1, jadi pakai PPA ondrej/php untuk 8.4.
+#
+# Kalau PHP 8.4 sudah ada, jangan langsung lewat: paket patch keamanan (mis.
+# 8.4.27 untuk php2shell) tetap harus dinaikkan. Tanpa ini, container yang
+# dibuat sebelum rilis patch akan bertahan di versi rentan selamanya, karena
+# tidak ada systemd/unattended-upgrades di sini.
 if have php && php -r 'exit(version_compare(PHP_VERSION, "8.4.0", ">=") ? 0 : 1);'; then
 	log "PHP >= 8.4 sudah ada ($(php -r 'echo PHP_VERSION;'))."
+	upgrade_php_packages
 else
 	log "2/6 Pasang PHP $PHP_VERSION"
 	apt-get install -y --no-install-recommends software-properties-common

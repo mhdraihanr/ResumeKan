@@ -10,10 +10,23 @@
 	encode gzip zstd
 
 	handle /api/* {
+		# Pembatas body di depan PHP. Backend menerima berkas sampai 5 MB
+		# (Impor CV), dan php -S dijalankan dengan post_max_size=8M. Batas di
+		# sini sengaja sedikit lebih longgar supaya pesan 413/422 tetap datang
+		# dari Laravel (bahasa Indonesia, bisa dibaca pengguna), bukan dari
+		# Caddy. Gunanya bukan keramahan pesan, tapi menutup jalur php2shell
+		# yang memakai body besar untuk mendorong PHP ke OOM.
+		request_body {
+			max_size 10MB
+		}
 		reverse_proxy 127.0.0.1:8000
 	}
 
 	handle /sanctum/* {
+		# Endpoint ini hanya menerima JSON kecil (login, logout, CSRF cookie).
+		request_body {
+			max_size 1MB
+		}
 		reverse_proxy 127.0.0.1:8000
 	}
 

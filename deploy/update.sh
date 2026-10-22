@@ -4,8 +4,12 @@
 # Di laptop:  git push
 # Di container: bash /srv/ResumeKan/deploy/update.sh
 #
-# Jalur ini tidak menyentuh .env, database, Caddyfile, dan penjaga backend.
+# Jalur ini tidak menyentuh .env dan database.
+# Caddyfile ikut disegarkan (dengan cadangan .bak) karena aturan keamanan
+# seperti `request_body max_size` harus sampai ke container lewat jalur ini.
 # Kalau container di-redeploy (isi container hilang), pakai deploy.sh.
+#
+# Variabel lingkungan: SKIP_PHP_UPGRADE=1 melewati langkah upgrade paket PHP.
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-/srv/ResumeKan}"
@@ -18,6 +22,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Helper unduh dist dari CI (dipakai di langkah 3).
 # shellcheck source=lib-dist.sh
 . "$SCRIPT_DIR/lib-dist.sh"
+# Helper upgrade paket PHP (dipakai di langkah 5).
+# shellcheck source=lib-php.sh
+. "$SCRIPT_DIR/lib-php.sh"
 
 [ "${1:-}" = "--deps-only" ] && DEPS_ONLY=1
 
@@ -26,7 +33,7 @@ fail() { printf '\nGAGAL: %s\n' "$*" >&2; exit 1; }
 
 cd "$APP_DIR" || fail "$APP_DIR tidak ada. Jalankan deploy.sh dulu."
 
-log "1/5 Tarik kode dari GitHub"
+log "1/6 Tarik kode dari GitHub"
 [ -d .git ] || fail "Bukan repo git. Jalankan deploy.sh dulu."
 # Suntingan lokal akan hilang, jadi disimpan dulu supaya bisa dilihat lagi.
 if ! git diff --quiet || ! git diff --cached --quiet; then
@@ -41,7 +48,7 @@ else
 	git reset --hard "origin/$BRANCH"
 fi
 
-log "2/5 Backend: composer, migrasi, cache"
+log "2/6 Backend: composer, migrasi, cache"
 cd api
 composer install --no-dev --optimize-autoloader --no-interaction
 # Browsershot merender PDF lewat rantai PHP -> node -> api/node_modules/puppeteer
@@ -68,7 +75,7 @@ php artisan view:cache
 chown -R root:root storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
-log "3/5 Frontend: pakai hasil build dari CI (fallback: build lokal)"
+log "3/6 Frontend: pakai hasil build dari CI (fallback: build lokal)"
 cd ../web
 # Hasil build idealnya datang dari GitHub Actions (workflow "Build Web"), yang
 # berjalan di runner 2 core / 7 GB. Container ini hanya 0.5 CPU, dan `vite build`
@@ -91,14 +98,38 @@ install -d -m 755 ../api/public/print
 cp dist/print.html ../api/public/print/index.html
 chmod -R a+rX dist
 
-log "4/5 Muat ulang Caddy"
-# Aset statis sudah dibaca ulang dari disk, jadi reload ini hanya perlu
-# kalau Caddyfile ikut berubah. Kegagalan reload bukan alasan menghentikan update.
-if ! caddy reload --config /etc/caddy/Caddyfile 2>/dev/null; then
+log "4/6 Muat ulang Caddy"
+# Caddyfile ikut dipasang karena `request_body max_size` harus ada di container.
+# Salinan lama disimpan agar perubahan manual yang tertimpa masih bisa dilihat.
+if ! cmp -s "$SCRIPT_DIR/Caddyfile" /etc/caddy/Caddyfile; then
+	# Caddyfile rusak mematikan situs, dan tanpa systemd tidak ada yang memulihkan.
+	# Kalau biner caddy tidak ada, validasi dilewati: situs memang sudah mati.
+	if command -v caddy >/dev/null 2>&1 \
+		&& ! caddy validate --config "$SCRIPT_DIR/Caddyfile" --adapter caddyfile >/dev/null 2>&1; then
+		echo "PERINGATAN: Caddyfile baru tidak valid; konfigurasi lama dipertahankan."
+		echo "            Periksa: caddy validate --config $SCRIPT_DIR/Caddyfile --adapter caddyfile"
+	else
+		if [ -f /etc/caddy/Caddyfile ]; then
+			# Satu variabel agar pesan tidak menunjuk berkas yang tidak ada.
+			BACKUP="/etc/caddy/Caddyfile.bak-$(date +%F-%H%M)"
+			cp /etc/caddy/Caddyfile "$BACKUP"
+			echo "Caddyfile lama disimpan sebagai $BACKUP."
+		fi
+		install -d -m 755 /etc/caddy
+		install -m 644 "$SCRIPT_DIR/Caddyfile" /etc/caddy/Caddyfile
+		echo "Caddyfile baru dipasang."
+	fi
+fi
+# Aset statis sudah dibaca ulang dari disk, jadi reload ini jarang gagal fatal.
+if command -v caddy >/dev/null 2>&1 && ! caddy reload --config /etc/caddy/Caddyfile 2>/dev/null; then
 	echo "Caddy tidak bisa dimuat ulang (mungkin tidak jalan lewat admin API). Dilewati."
 fi
 
-log "5/5 Muat ulang backend"
+log "5/6 Upgrade paket PHP (patch keamanan)"
+# Harus sebelum restart: kalau sesudah, worker baru tetap memakai biner lama.
+upgrade_php_packages
+
+log "6/6 Muat ulang backend"
 # php -S tidak memuat ulang kode sendiri, jadi harus dimatikan dan dinyalakan lagi.
 # Watchdog akan menghidupkannya kembali dengan sendirinya, dan kalau watchdog
 # tidak jalan, hasil install ikut memastikan penjaga ada di tempatnya.

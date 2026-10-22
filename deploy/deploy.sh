@@ -26,6 +26,9 @@ ENV_EXAMPLE="$SCRIPT_DIR/.env.production.example"
 # Helper unduh dist dari CI (dipakai di langkah 6).
 # shellcheck source=lib-dist.sh
 . "$SCRIPT_DIR/lib-dist.sh"
+# Helper upgrade paket PHP (dipakai di langkah 1b).
+# shellcheck source=lib-php.sh
+. "$SCRIPT_DIR/lib-php.sh"
 
 log() { printf '\n==> %s\n' "$*"; }
 fail() { printf '\nGAGAL: %s\n' "$*" >&2; exit 1; }
@@ -75,6 +78,10 @@ fi
 php -r 'exit(version_compare(PHP_VERSION, "8.4.0", ">=") ? 0 : 1);' \
 	|| fail "Butuh PHP >= 8.4, yang ada: $(php -v | head -1)"
 
+# 1b. Naikkan paket PHP terpasang; install-deps.sh hanya memasang kalau belum ada.
+log "1b/8 Naikkan paket PHP ke versi patch terbaru"
+upgrade_php_packages
+
 log "2/8 Siapkan kode di $APP_DIR"
 mkdir -p "$(dirname "$APP_DIR")"
 if [ -d "$APP_DIR/.git" ]; then
@@ -100,6 +107,11 @@ fi
 install -m 600 "$ENV_TARGET" "$API/.env"
 
 log "4/8 Pasang Caddyfile dan penjaga backend"
+# Situs mati kalau Caddyfile rusak terpasang, dan tanpa systemd tak ada pemulih.
+if command -v caddy >/dev/null 2>&1; then
+	caddy validate --config "$SCRIPT_DIR/Caddyfile" --adapter caddyfile >/dev/null 2>&1 \
+		|| fail "Caddyfile tidak valid. Periksa: caddy validate --config $SCRIPT_DIR/Caddyfile --adapter caddyfile"
+fi
 install -d -m 755 /etc/caddy /opt/resumekan /var/log/caddy
 install -m 644 "$SCRIPT_DIR/Caddyfile" /etc/caddy/Caddyfile
 install -m 755 "$SCRIPT_DIR/watchdog.sh" /opt/resumekan/watchdog.sh
