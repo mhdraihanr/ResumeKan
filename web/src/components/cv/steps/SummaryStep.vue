@@ -42,7 +42,7 @@ function handleGenerate() {
       <button
         v-if="cvId && !showTailor"
         type="button"
-        class="rounded-lg bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800 disabled:opacity-40 dark:bg-main dark:hover:bg-blue-700"
+        class="rounded-lg bg-slate-900 px-3 py-1 text-xs font-medium text-white transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:translate-y-px disabled:opacity-40 disabled:hover:bg-slate-900 dark:bg-main dark:hover:bg-blue-700 dark:focus-visible:outline-foreground dark:disabled:hover:bg-main"
         :disabled="aiLoading"
         @click="handleGenerate"
       >
@@ -58,7 +58,7 @@ function handleGenerate() {
       <div class="flex flex-wrap items-center justify-between gap-2">
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 font-medium text-slate-700 hover:text-slate-900 focus:outline-none dark:text-foreground dark:hover:text-white"
+          class="inline-flex items-center gap-1.5 rounded-base font-medium text-slate-700 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:text-foreground dark:hover:text-white dark:focus-visible:outline-foreground"
           :aria-expanded="showTailor"
           @click="showTailor = !showTailor"
         >
@@ -98,7 +98,7 @@ function handleGenerate() {
         <button
           v-if="showTailor"
           type="button"
-          class="rounded-lg bg-slate-900 px-3 py-1 font-medium text-white hover:bg-slate-800 disabled:opacity-40 dark:bg-main dark:hover:bg-blue-700"
+          class="rounded-lg bg-slate-900 px-3 py-1 font-medium text-white transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:translate-y-px disabled:opacity-40 disabled:hover:bg-slate-900 dark:bg-main dark:hover:bg-blue-700 dark:focus-visible:outline-foreground dark:disabled:hover:bg-main"
           :disabled="aiLoading"
           @click="handleGenerate"
         >
@@ -135,7 +135,7 @@ function handleGenerate() {
           <button
             v-if="jobDescription"
             type="button"
-            class="text-slate-500 underline hover:text-red-500 dark:text-slate-300 dark:hover:text-red-300"
+            class="rounded-base px-1 text-slate-500 underline underline-offset-2 hover:text-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 dark:text-slate-300 dark:hover:text-red-300 dark:focus-visible:outline-red-300"
             @click="jobDescription = ''"
           >
             Hapus teks

@@ -37,7 +37,7 @@ function removeProject(i: number) {
       </h2>
       <button
         type="button"
-        class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
+        class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 transition hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:translate-y-px disabled:opacity-40 disabled:hover:bg-transparent dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground dark:focus-visible:outline-foreground"
         :disabled="(data.projects?.length ?? 0) >= 8"
         @click="addProject"
       >
@@ -56,7 +56,7 @@ function removeProject(i: number) {
         >
         <button
           type="button"
-          class="text-xs text-red-600 hover:underline dark:text-red-300"
+          class="rounded-base px-1 text-xs text-red-600 underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 dark:text-red-300 dark:focus-visible:outline-red-300"
           @click="removeProject(i)"
         >
           Hapus

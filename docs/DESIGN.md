@@ -344,6 +344,17 @@ selalu tersedia, dan sapaan memakai nama pengguna.
 - State pending memakai label semantik `Menerjemahkan...` + spinner, dan `<ul>` diberi
   `aria-busy="true"` selama proses.
 
+### Pengambilan PDF di editor (`CvFormView.downloadPdf`)
+
+- Kelengkapan dicek **sinkron** lewat `isComplete()` sebelum request, jadi tombol tidak pernah
+  memicu render server saat data kurang. Kalau kurang, `prepareSubmit()` memunculkan error inline
+  dan memindahkan pengguna ke step bermasalah, lalu toast.
+- PDF diambil lewat `fetch` + blob, bukan `window.open(pdfUrl)`. Menavigasi tab langsung ke URL API
+  membuat request tidak membawa cookie SPA, sehingga sesi tak terbaca dan tab menampilkan
+  `ERR_INVALID_RESPONSE` mentah, bukan PDF. Dengan `credentials: "include"`, setiap kegagalan
+  (401/422/5xx) terbaca sebagai JSON lalu ditampilkan sebagai toast.
+- Timeout `AbortController` 60 dtk menjaga tombol tidak berputar selamanya bila server menggantung.
+
 ### Kontrak pesan error
 
 - Pesan mentah Laravel **tidak pernah** ditampilkan apa adanya. `StoreCvRequest` hanya punya
@@ -362,7 +373,21 @@ selalu tersedia, dan sapaan memakai nama pengguna.
 - Ada **dua lapis**: tombolnya sudah `disabled` + `title` penjelas, dan handler-nya berpagar
   sehingga payload tidak pernah dikirim ke server. Terverifikasi: memaksa klik saat nonaktif
   tidak menghasilkan request `/translate` sama sekali dan hanya memunculkan pesan yang jelas.
-- Aksi destruktif tetap memakai `confirm()`. Disabled state pada PDF memakai `title` yang
+- Aksi destruktif memakai `ConfirmDialog` (`web/src/components/confirm/`), bukan `confirm()`
+  bawaan browser (direvisi 2026-10-22). Isinya: ikon peringatan, judul "Hapus CV ini?", nama CV
+  di deskripsi, tombol **Batal** (fokus awal) + **Hapus CV** berlabel teks, Esc = Batal, fokus
+  kembali ke tombol pemicu setelah ditutup, dan state `Menghapus...` + spinner selama request
+  (dialog ditahan terbuka untuk mencegah klik ganda). Alasan: `confirm()` tidak bisa diberi
+  konteks visual, tidak mengikuti tema, dan tidak punya state pending.
+- **Pemulihan fokus setelah hapus (2026-10-22):** menghapus baris memindahkan fokus ke tombol
+  Hapus pada kartu berikutnya (atau kartu sebelumnya bila yang dihapus terakhir). Kalau daftar
+  jadi kosong, fokus pindah ke CTA `Buat CV baru`. Tanpa ini fokus jatuh ke `<body>` dan pengguna
+  keyboard kehilangan posisi setelah setiap penghapusan.
+- **Import CV memakai dialog yang sama, `tone="neutral"` (2026-10-22):** mengimpor file memang
+  menimpa data form, tetapi bukan tindakan destruktif, jadi ikon dan tombolnya memakai powder/navy,
+  bukan merah. Esc dan **Batal** membatalkan import dan memunculkan toast, tanpa menyentuh form.
+  Dialog hanya muncul bila form sudah berisi; form kosong langsung diisi tanpa konfirmasi.
+- Disabled state pada PDF memakai `title` yang
   menjelaskan sebabnya, bukan hanya meredupkan tombol (R-27).
 - **Pending pada tombol PDF (2026-10-02):** karena render Chromium bisa 5-15 dtk, tombol
   mengubah ikonnya saat berjalan. Tombol ikon di Dashboard: `Download` → `Loader2` berputar,
@@ -404,7 +429,20 @@ selalu tersedia, dan sapaan memakai nama pengguna.
 
 ## 12. Accessibility & Delivery Gate
 
-- Semua komponen WAI-ARIA (dijamin shadcn-vue/Reka UI). Fokus keyboard terlihat (outline ink 2px).
+- Semua komponen WAI-ARIA (dijamin shadcn-vue/Reka UI). Fokus keyboard terlihat (outline ink 2px,
+  `dark:focus-visible:outline-foreground` agar terang di atas zinc-800). Dialog konfirmasi wajib
+  memakai Reka UI `AlertDialog` (fokus-trap, Esc, return-focus otomatis).
+- **Cursor (2026-10-22):** preflight Tailwind v4 tidak mengatur cursor pada `<button>`, sehingga
+  tombol aktif tampil `default` sementara link tampil `pointer`. `main.css` memuat aturan base:
+  `button:not(:disabled), [role="button"]:not([aria-disabled="true"])` = `pointer`; kontrol
+  `:disabled` = `not-allowed`. Jangan menambah `cursor-pointer` per tombol; aturan base yang menangani.
+- **Konsistensi tombol form CV (2026-10-22):** tombol di `/cvs/new` dan `/cvs/{id}/edit`
+  (`+ Tambah`, `Hapus` per entri, `Sebelumnya`/`Selanjutnya`, `Simpan CV`, `Generate AI`, `Reset`)
+  tetap bergaya area form (`rounded-lg`, border slate, primer `bg-slate-900`) tetapi kini memakai
+  focus ring ink yang sama dengan sisa aplikasi dan `active:translate-y-px active:shadow-none`.
+  Tombol nonaktif memakai `disabled:hover:bg-transparent` agar tidak menyala saat hover.
+  `focus:outline-none` sudah dihapus seluruhnya dari langkah-langkah form (diganti `focus-visible`).
+  Terverifikasi: ring `2px` warna `rgb(15,23,42)` di light dan `rgb(248,250,252)` di dark.
 - Kontras teks AA di light dan dark mode (R-25). Verifikasi wajib di **kedua mode** dengan sweep terprogram (hitung rasio tiap node teks via kanvas `getImageData` + `getComputedStyle`, ambang 4.5:1 teks normal / 3:1 teks besar) — nilai di atas kertas tidak cukup karena background efektif berbeda per mode (putih vs zinc-700).
 - Hover, focus, active, loading, disabled, error states lengkap di semua tombol (R-27).
 - Jalankan Delivery Gate antislop sebelum commit: cek em dash, kontras, keyboard, states, run dan

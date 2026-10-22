@@ -52,27 +52,27 @@ async function handleLogout() {
       <div class="hidden items-center gap-4 sm:flex">
         <RouterLink
           to="/"
-          class="text-sm font-medium text-ink/80 hover:text-ink dark:text-slate-300 dark:hover:text-foreground"
+          class="rounded-base px-2 py-1 text-sm font-medium text-ink/80 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:text-slate-300 dark:hover:text-foreground dark:focus-visible:outline-foreground"
         >
           Beranda
         </RouterLink>
         <RouterLink
           v-if="auth.isAuthenticated"
           to="/dashboard"
-          class="text-sm font-medium text-ink/80 hover:text-ink dark:text-slate-300 dark:hover:text-foreground"
+          class="rounded-base px-2 py-1 text-sm font-medium text-ink/80 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:text-slate-300 dark:hover:text-foreground dark:focus-visible:outline-foreground"
         >
           Dashboard
         </RouterLink>
         <template v-if="!auth.isAuthenticated">
           <RouterLink
             to="/login"
-            class="rounded-base border-2 border-ink bg-white px-3 py-1.5 text-sm font-medium text-ink shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:border-border dark:bg-secondary-background dark:text-foreground"
+            class="rounded-base border-2 border-ink bg-white px-3 py-1.5 text-sm font-medium text-ink shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus-visible:outline-foreground"
           >
             Masuk
           </RouterLink>
           <RouterLink
             to="/register"
-            class="rounded-base border-2 border-ink bg-navy px-3 py-1.5 text-sm font-medium text-white shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none"
+            class="rounded-base border-2 border-ink bg-navy px-3 py-1.5 text-sm font-medium text-white shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:focus-visible:outline-foreground"
           >
             Daftar
           </RouterLink>
@@ -82,14 +82,14 @@ async function handleLogout() {
           @click="handleLogout"
           :disabled="loggingOut"
           :aria-busy="loggingOut ? 'true' : 'false'"
-          class="flex items-center gap-1.5 rounded-base border-2 border-ink bg-white px-3 py-1.5 text-sm font-medium text-ink shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-shadow dark:border-border dark:bg-secondary-background dark:text-foreground"
+          class="flex items-center gap-1.5 rounded-base border-2 border-ink bg-white px-3 py-1.5 text-sm font-medium text-ink shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:focus-visible:outline-foreground disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-shadow dark:border-border dark:bg-secondary-background dark:text-foreground"
         >
           <Loader2 v-if="loggingOut" class="size-3.5 animate-spin" />
           {{ loggingOut ? "Keluar..." : "Logout" }}
         </button>
         <button
           @click="cycle()"
-          class="flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:border-border dark:bg-secondary-background"
+          class="flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:focus-visible:outline-foreground dark:border-border dark:bg-secondary-background"
           :title="label()"
           :aria-label="label()"
           :aria-pressed="isDark() ? 'true' : 'false'"
@@ -104,7 +104,9 @@ async function handleLogout() {
       <!-- Mobile toggle -->
       <button
         @click="open = !open"
-        class="flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white sm:hidden dark:border-border dark:bg-secondary-background"
+        :aria-expanded="open ? 'true' : 'false'"
+        aria-controls="navbar-mobile-menu"
+        class="flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:focus-visible:outline-foreground sm:hidden dark:border-border dark:bg-secondary-background"
       >
         <X v-if="open" class="size-4 text-ink dark:text-foreground" />
         <Menu v-else class="size-4 text-ink dark:text-foreground" />
@@ -114,12 +116,13 @@ async function handleLogout() {
     <!-- Mobile menu -->
     <div
       v-if="open"
+      id="navbar-mobile-menu"
       class="border-t-2 border-ink bg-paper px-4 pb-4 pt-2 sm:hidden dark:border-border dark:bg-background"
     >
       <div class="flex flex-col gap-2">
         <RouterLink
           to="/"
-          class="rounded-base px-3 py-2 text-sm font-medium text-ink hover:bg-ink/5 dark:text-foreground dark:hover:bg-ink/20"
+          class="rounded-base px-3 py-2 text-sm font-medium text-ink hover:bg-ink/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:text-foreground dark:hover:bg-ink/20 dark:focus-visible:outline-foreground"
           @click="open = false"
         >
           Beranda
@@ -127,7 +130,7 @@ async function handleLogout() {
         <RouterLink
           v-if="auth.isAuthenticated"
           to="/dashboard"
-          class="rounded-base px-3 py-2 text-sm font-medium text-ink hover:bg-ink/5 dark:text-foreground dark:hover:bg-ink/20"
+          class="rounded-base px-3 py-2 text-sm font-medium text-ink hover:bg-ink/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:text-foreground dark:hover:bg-ink/20 dark:focus-visible:outline-foreground"
           @click="open = false"
         >
           Dashboard
@@ -135,14 +138,14 @@ async function handleLogout() {
         <template v-if="!auth.isAuthenticated">
           <RouterLink
             to="/login"
-            class="rounded-base border-2 border-ink bg-white px-3 py-2 text-center text-sm font-medium text-ink dark:border-border dark:bg-secondary-background dark:text-foreground"
+            class="rounded-base border-2 border-ink bg-white px-3 py-2 text-center text-sm font-medium text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:border-border dark:bg-secondary-background dark:text-foreground dark:focus-visible:outline-foreground"
             @click="open = false"
           >
             Masuk
           </RouterLink>
           <RouterLink
             to="/register"
-            class="rounded-base border-2 border-ink bg-navy px-3 py-2 text-center text-sm font-medium text-white"
+            class="rounded-base border-2 border-ink bg-navy px-3 py-2 text-center text-sm font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:focus-visible:outline-foreground"
             @click="open = false"
           >
             Daftar
@@ -153,14 +156,14 @@ async function handleLogout() {
           @click="handleLogout"
           :disabled="loggingOut"
           :aria-busy="loggingOut ? 'true' : 'false'"
-          class="flex items-center gap-2 rounded-base border-2 border-ink bg-white px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:opacity-60 dark:border-border dark:bg-secondary-background dark:text-foreground"
+          class="flex items-center gap-2 rounded-base border-2 border-ink bg-white px-3 py-2 text-sm font-medium text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:focus-visible:outline-foreground disabled:cursor-not-allowed disabled:opacity-60 dark:border-border dark:bg-secondary-background dark:text-foreground"
         >
           <Loader2 v-if="loggingOut" class="size-4 animate-spin" />
           {{ loggingOut ? "Keluar..." : "Logout" }}
         </button>
         <button
           @click="cycle()"
-          class="flex items-center gap-2 rounded-base px-3 py-2 text-sm font-medium text-ink hover:bg-ink/5 dark:text-foreground dark:hover:bg-ink/20"
+          class="flex items-center gap-2 rounded-base px-3 py-2 text-sm font-medium text-ink hover:bg-ink/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:text-foreground dark:hover:bg-ink/20 dark:focus-visible:outline-foreground"
         >
           <component :is="icon()" class="size-4" />
           {{ label() }}

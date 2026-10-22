@@ -74,6 +74,21 @@
   --color-paper: #f8fafc;
 }
 
+/* Preflight Tailwind v4 TIDAK mengatur cursor pada <button>, jadi tanpa aturan ini
+   tombol terasa mati (default) sementara link tetap pointer. Satu sumber, dua state. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    cursor: not-allowed;
+  }
+}
+
 /* Dot grid halftone: motif kertas CV (docs/DESIGN.md §2). Dose cap: hero + FAQ saja.
    Alpha lebih tinggi di light (dot gelap di bg terang butuh lebih pekat) — Exa 0.09-0.14. */
 .bg-dots {

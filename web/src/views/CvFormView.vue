@@ -8,6 +8,7 @@ import type { CvData } from "@/types/cv";
 import CvForm from "@/components/cv/CvForm.vue";
 import CvPreview from "@/components/cv/CvPreview.vue";
 import ImportCvPanel from "@/components/cv/ImportCvPanel.vue";
+import { ConfirmDialog } from "@/components/confirm";
 
 const props = defineProps<{ id?: string }>();
 const router = useRouter();
@@ -35,11 +36,7 @@ function showToast(msg: string, ok = true, ms = 2600) {
   toastTimer = setTimeout(() => (toast.value = null), ms);
 }
 
-/**
- * Apakah form berisi ketikan user? Dipakai untuk memutuskan konfirmasi
- * sebelum menimpa. Hanya field yang user isi sendiri yang dicek — font,
- * ukuran, dan foto SELALU punya nilai bawaan/isi sehingga tidak dihitung.
- */
+/** Field yang diisi user sendiri; font/ukuran/foto selalu bernilai bawaan jadi tidak dihitung. */
 function formTerisi(): boolean {
   const d = data.value;
   if (title.value.trim() !== "") return true;
@@ -59,31 +56,39 @@ function formTerisi(): boolean {
   return (d.skills ?? []).some((g) => g.items.trim() !== "");
 }
 
-/**
- * Hasil impor dari `ImportCvPanel`. Menimpa form dengan hasil parse, jadi
- * kalau user sudah mengetik lebih dulu ia dikonfirmasi dulu. Foto profil dan
- * pilihan font SENGAJA dipertahankan: keduanya tidak dibaca AI dari berkas,
- * jadi menimpanya berarti menghapus pilihan user tanpa alasan.
- */
+/** Foto dan font sengaja dipertahankan: keduanya tidak dibaca AI dari berkas. */
 function onImported(payload: { data: CvData; warnings: string[] }) {
-  if (
-    formTerisi() &&
-    !confirm("Impor akan mengganti isian form yang sekarang. Lanjutkan?")
-  ) {
-    showToast("Impor dibatalkan. Isian form tidak diubah.", false);
+  // Impor tidak menghapus data tersimpan, jadi dialognya netral (bukan merah).
+  if (formTerisi()) {
+    pendingImport.value = payload;
     return;
   }
 
+  applyImport(payload);
+}
+
+const pendingImport = ref<{ data: CvData; warnings: string[] } | null>(null);
+
+function cancelImport() {
+  pendingImport.value = null;
+  showToast("Impor dibatalkan. Isian form tidak diubah.", false);
+}
+
+function confirmImport() {
+  const payload = pendingImport.value;
+  if (!payload) return;
+  pendingImport.value = null;
+  applyImport(payload);
+}
+
+function applyImport(payload: { data: CvData; warnings: string[] }) {
   const hasil = normalizeCvData(payload.data);
   hasil.fontFamily = data.value.fontFamily ?? "default";
   hasil.fontSize = data.value.fontSize ?? "default";
   hasil.personal.photo = data.value.personal.photo ?? "";
   data.value = hasil;
 
-  // Judul tidak dibaca AI dari berkas. Selalu pakai nama hasil parse: kalau
-  // form kosong, ini mengisi judul pertama; kalau user menerima penimpaan,
-  // judul lama pasti tidak lagi cocok dengan isi baru (judul "Budi" dengan
-  // data "Ani" lebih membingungkan daripada judul yang ikut berubah).
+  // Judul selalu ikut nama hasil parse: judul lama pasti tak lagi cocok dengan isi baru.
   const nama = hasil.personal.name.trim();
   if (nama !== "") {
     title.value = nama;
@@ -118,7 +123,7 @@ function onRemovedEntries(count: number) {
   removedTimer = setTimeout(() => (removedNote.value = ""), 4000);
 }
 
-// --- Preview Zoom Controls (10% step, min 50%, max 150%) ---
+// Preview zoom: langkah 10%, batas 50-150%.
 const zoom = ref<number | "fit">("fit");
 const currentScale = ref(1);
 const fitScale = ref(1);
@@ -249,21 +254,7 @@ async function draftSave() {
   }
 }
 
-/**
- * Unduh PDF hanya untuk CV yang sudah lengkap. Kelengkapan dicek SINKRON lewat
- * `isComplete()` dulu, jadi tombol tidak pernah memicu render saat data kurang —
- * pengguna tidak menunggu lama hanya untuk melihat penolakan.
- *
- * Kalau kurang: jalankan `prepareSubmit()` agar error inline muncul dan
- * pengguna dipindah ke step bermasalah, lalu tampilkan toast.
- *
- * PDF diambil lewat `fetch` + blob (bukan `win.open(pdfUrl)`). Dulu tab
- * dinavigasi langsung ke URL API, sehingga request TIDAK membawa cookie SPA:
- * kalau sesi kebetulan tidak terbaca, server membalas 401/500 dan tab
- * menampilkan halaman error mentah (ERR_INVALID_RESPONSE), bukan PDF. Dengan
- * fetch ber-`credentials: "include"`, cookie ikut terkirim dan setiap
- * kegagalan bisa dibaca sebagai JSON lalu ditampilkan sebagai toast.
- */
+/** Kelengkapan dicek sinkron agar data kurang tidak memicu render; alasan fetch+blob: docs/DESIGN.md §11. */
 async function downloadPdf() {
   if (downloadingPdf.value) return; // cegah dua render sekaligus
 
@@ -354,7 +345,7 @@ async function downloadPdf() {
         >
           <button
             @click="router.push('/dashboard')"
-            class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
+            class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:translate-y-px dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground dark:focus-visible:outline-foreground"
           >
             ← Kembali
           </button>
@@ -370,7 +361,7 @@ async function downloadPdf() {
             <button
               @click="draftSave"
               :disabled="drafting"
-              class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-200 disabled:opacity-40 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
+              class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:translate-y-px disabled:opacity-40 disabled:hover:bg-white dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground dark:focus-visible:outline-foreground dark:disabled:hover:bg-secondary-background"
             >
               {{ drafting ? "Menyimpan..." : "Simpan Draft" }}
             </button>
@@ -379,7 +370,7 @@ async function downloadPdf() {
               @click="downloadPdf"
               :disabled="downloadingPdf"
               :aria-busy="downloadingPdf"
-              class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-main dark:hover:bg-blue-700"
+              class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-slate-900 dark:bg-main dark:hover:bg-blue-700 dark:focus-visible:outline-foreground dark:disabled:hover:bg-main"
             >
               <Loader2
                 v-if="downloadingPdf"
@@ -459,7 +450,7 @@ async function downloadPdf() {
                   type="button"
                   @click="zoomOut"
                   :disabled="displayZoom <= 50"
-                  class="flex size-6 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300 dark:border-border dark:bg-secondary-background dark:text-foreground dark:hover:bg-zinc-800 dark:disabled:border-zinc-800/50 dark:disabled:text-zinc-600"
+                  class="flex size-6 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300 dark:border-border dark:bg-secondary-background dark:text-foreground dark:hover:bg-zinc-800 dark:disabled:border-zinc-800/50 dark:disabled:text-zinc-600 dark:focus-visible:outline-foreground"
                   title="Perkecil (-10%)"
                   aria-label="Perkecil zoom preview"
                 >
@@ -488,7 +479,7 @@ async function downloadPdf() {
                   type="button"
                   @click="zoomIn"
                   :disabled="displayZoom >= 150"
-                  class="flex size-6 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300 dark:border-border dark:bg-secondary-background dark:text-foreground dark:hover:bg-zinc-800 dark:disabled:border-zinc-800/50 dark:disabled:text-zinc-600"
+                  class="flex size-6 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-300 dark:border-border dark:bg-secondary-background dark:text-foreground dark:hover:bg-zinc-800 dark:disabled:border-zinc-800/50 dark:disabled:text-zinc-600 dark:focus-visible:outline-foreground"
                   title="Perbesar (+10%)"
                   aria-label="Perbesar zoom preview"
                 >
@@ -516,7 +507,7 @@ async function downloadPdf() {
                   type="button"
                   @click="resetFit"
                   :disabled="isFit"
-                  class="flex h-6 items-center rounded-md border border-slate-200 bg-white px-2 text-xs font-medium transition hover:bg-slate-50 disabled:cursor-default disabled:border-slate-100 disabled:text-slate-300 dark:border-border dark:bg-secondary-background dark:text-foreground dark:hover:bg-zinc-800 dark:disabled:border-zinc-800/50 dark:disabled:text-zinc-600"
+                  class="flex h-6 items-center rounded-md border border-slate-200 bg-white px-2 text-xs font-medium transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:cursor-default disabled:border-slate-100 disabled:text-slate-300 dark:border-border dark:bg-secondary-background dark:text-foreground dark:hover:bg-zinc-800 dark:disabled:border-zinc-800/50 dark:disabled:text-zinc-600 dark:focus-visible:outline-foreground"
                   :class="
                     isFit
                       ? 'bg-slate-50 font-normal dark:bg-zinc-800/40'
@@ -572,5 +563,17 @@ async function downloadPdf() {
         {{ toast?.msg ?? "" }}
       </div>
     </transition>
+
+    <ConfirmDialog
+      :open="pendingImport !== null"
+      tone="neutral"
+      title="Ganti isian form?"
+      description="Impor akan menimpa isian yang sekarang. Data yang sudah Anda ketik dan belum disimpan akan hilang. Pilihan font dan foto tetap dipertahankan."
+      confirm-label="Ya, ganti isian"
+      cancel-label="Batal"
+      @update:open="!$event && cancelImport()"
+      @cancel="cancelImport"
+      @confirm="confirmImport"
+    />
   </main>
 </template>

@@ -190,7 +190,8 @@ const openFaq = ref<number | null>(0);
                 v-for="t in Object.values(CV_TEMPLATES)"
                 :key="t.id"
                 @click="template = t.id"
-                class="inline-flex items-center gap-1.5 rounded-base border-2 border-ink px-3 py-1 text-xs font-medium transition"
+                :aria-pressed="template === t.id ? 'true' : 'false'"
+                class="inline-flex items-center gap-1.5 rounded-base border-2 border-ink px-3 py-1 text-xs font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:focus-visible:outline-foreground"
                 :class="
                   template === t.id
                     ? 'bg-navy text-white shadow-[2px_2px_0_0_#0f172a]'
@@ -286,7 +287,7 @@ const openFaq = ref<number | null>(0);
           >
             <button
               type="button"
-              class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-paper dark:hover:bg-background/50"
+              class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-paper focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink dark:hover:bg-background/50 dark:focus-visible:outline-foreground"
               :aria-expanded="openFaq === i ? 'true' : 'false'"
               @click="openFaq = openFaq === i ? null : i"
             >

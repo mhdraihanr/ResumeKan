@@ -283,7 +283,7 @@ async function generateSummary(jobDescription?: string) {
         v-for="(step, i) in steps"
         :key="step.key"
         type="button"
-        class="relative flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition"
+        class="relative flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:focus-visible:outline-foreground"
         :class="
           i === activeStep
             ? 'bg-slate-900 text-white dark:bg-main'
@@ -407,7 +407,7 @@ async function generateSummary(jobDescription?: string) {
       <button
         v-if="activeStep > 0"
         type="button"
-        class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground"
+        class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:translate-y-px dark:border-border dark:bg-secondary-background dark:text-foreground/70 dark:hover:bg-white/15 dark:hover:text-foreground dark:focus-visible:outline-foreground"
         @click="activeStep--"
       >
         ← Sebelumnya
@@ -419,7 +419,7 @@ async function generateSummary(jobDescription?: string) {
       <button
         v-if="activeStep < steps.length - 1"
         type="button"
-        class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-main dark:hover:bg-blue-700"
+        class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:translate-y-px dark:bg-main dark:hover:bg-blue-700 dark:focus-visible:outline-foreground"
         @click="activeStep++"
       >
         Selanjutnya →
@@ -428,7 +428,7 @@ async function generateSummary(jobDescription?: string) {
         v-else
         type="submit"
         :disabled="aiLoading"
-        class="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-40 dark:bg-main dark:hover:bg-blue-700"
+        class="rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:translate-y-px disabled:opacity-40 disabled:hover:bg-slate-900 dark:bg-main dark:hover:bg-blue-700 dark:focus-visible:outline-foreground dark:disabled:hover:bg-main"
       >
         Simpan CV
       </button>

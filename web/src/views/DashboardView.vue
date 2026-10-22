@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import {
   Download,
@@ -14,6 +14,7 @@ import { useCvStore } from "@/stores/cv";
 import { cvApi } from "@/api/cv";
 import type { Cv } from "@/types/cv";
 import CvThumb from "@/components/dashboard/CvThumb.vue";
+import { ConfirmDialog } from "@/components/confirm";
 
 const auth = useAuthStore();
 const cvStore = useCvStore();
@@ -56,17 +57,53 @@ const TEMPLATES: Record<Cv["template"], { label: string; badgeClass: string }> =
     neon: { label: "Neon", badgeClass: "bg-powder text-ink" },
   };
 
-async function handleDelete(cv: Cv) {
-  cvStore.error = null;
+// Dialog menggantikan confirm() bawaan: judul memuat nama CV, tombol destruktif
+// berlabel teks, dan fokus kembali ke pemicu setelah selesai.
+const pendingDelete = ref<Cv | null>(null);
+const deleting = ref(false);
+const listRef = ref<HTMLUListElement | null>(null);
+const newCvRef = ref<HTMLAnchorElement | null>(null);
 
-  if (!confirm(`Hapus CV "${cv.title}"? Tindakan ini tidak bisa dibatalkan.`)) {
-    return;
-  }
+function askDelete(cv: Cv) {
+  cvStore.error = null;
+  pendingDelete.value = cv;
+}
+
+function cancelDelete() {
+  if (deleting.value) return;
+  pendingDelete.value = null;
+}
+
+async function confirmDelete() {
+  const cv = pendingDelete.value;
+  if (!cv || deleting.value) return;
+
+  // Posisi diambil sebelum list berubah: setelah kartu hilang, fokus harus
+  // jatuh ke kartu yang mengisi celahnya, bukan lepas ke <body> (WCAG 2.4.3).
+  const index = cvStore.list.findIndex((item) => item.id === cv.id);
+
+  deleting.value = true;
   try {
     await cvStore.remove(cv.id);
+    pendingDelete.value = null;
+    await moveFocusAfterDelete(index);
   } catch (e) {
     cvStore.error = e instanceof Error ? e.message : "Gagal menghapus CV";
+  } finally {
+    deleting.value = false;
   }
+}
+
+// Daftar kosong tidak punya tombol Hapus lagi, jadi fokus pindah ke CTA
+// utama dan pembaca layar mendengar akibatnya lewat `aria-live` di bawah.
+async function moveFocusAfterDelete(removedIndex: number) {
+  await nextTick();
+  const buttons =
+    listRef.value?.querySelectorAll<HTMLButtonElement>("[data-cv-delete]");
+  const next =
+    buttons?.[Math.min(Math.max(removedIndex, 0), buttons.length - 1)] ??
+    newCvRef.value;
+  next?.focus();
 }
 
 const translatingId = ref<number | null>(null);
@@ -307,8 +344,9 @@ async function downloadPdf(cv: Cv) {
         </div>
 
         <RouterLink
+          ref="newCvRef"
           to="/cvs/new"
-          class="inline-flex h-11 items-center gap-2 rounded-base border-2 border-ink bg-navy px-5 text-sm font-bold text-white shadow-shadow transition-transform hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:border-border"
+          class="inline-flex h-11 items-center gap-2 rounded-base border-2 border-ink bg-navy px-5 text-sm font-bold text-white shadow-shadow transition-transform hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:border-border dark:focus-visible:outline-foreground"
         >
           Buat CV baru
         </RouterLink>
@@ -481,14 +519,19 @@ async function downloadPdf(cv: Cv) {
 
           <RouterLink
             to="/cvs/new"
-            class="mt-6 inline-flex h-11 items-center gap-2 rounded-base border-2 border-ink bg-navy px-5 text-sm font-bold text-white shadow-shadow transition-transform hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:border-border"
+            class="mt-6 inline-flex h-11 items-center gap-2 rounded-base border-2 border-ink bg-navy px-5 text-sm font-bold text-white shadow-shadow transition-transform hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:border-border dark:focus-visible:outline-foreground"
           >
             Buat CV pertama
           </RouterLink>
         </div>
       </div>
 
-      <ul v-else class="mt-4 flex flex-col gap-3" :aria-busy="translating">
+      <ul
+        v-else
+        ref="listRef"
+        class="mt-4 flex flex-col gap-3"
+        :aria-busy="translating"
+      >
         <li
           v-for="cv in cvStore.list"
           :key="cv.id"
@@ -536,7 +579,7 @@ async function downloadPdf(cv: Cv) {
               >
                 <RouterLink
                   :to="`/cvs/${cv.id}/edit`"
-                  class="inline-flex h-9 items-center gap-1.5 rounded-base border-2 border-ink bg-navy px-3.5 text-xs font-bold text-white shadow-shadow transition-transform hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:border-border"
+                  class="inline-flex h-9 items-center gap-1.5 rounded-base border-2 border-ink bg-navy px-3.5 text-xs font-bold text-white shadow-shadow transition-transform hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:border-border dark:focus-visible:outline-foreground"
                 >
                   <Pencil class="size-4" aria-hidden="true" />
                   Edit
@@ -559,7 +602,7 @@ async function downloadPdf(cv: Cv) {
                     downloadingPdfId === cv.id ? 'Menyiapkan PDF' : 'Unduh PDF'
                   "
                   @click="downloadPdf(cv)"
-                  class="flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white text-ink transition-colors hover:bg-powder focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:cursor-not-allowed disabled:border-ink/30 disabled:bg-transparent disabled:text-ink/40 disabled:hover:bg-transparent dark:border-border dark:bg-background dark:text-foreground dark:hover:bg-white/15 dark:disabled:border-border/40 dark:disabled:text-foreground/40"
+                  class="flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white text-ink transition-colors hover:bg-powder focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:focus-visible:outline-foreground disabled:cursor-not-allowed disabled:border-ink/30 disabled:bg-transparent disabled:text-ink/40 disabled:hover:bg-transparent dark:border-border dark:bg-background dark:text-foreground dark:hover:bg-white/15 dark:disabled:border-border/40 dark:disabled:text-foreground/40"
                 >
                   <Loader2
                     v-if="downloadingPdfId === cv.id"
@@ -581,7 +624,7 @@ async function downloadPdf(cv: Cv) {
                   "
                   :title="translateHint(cv)"
                   @click="duplicateTranslate(cv)"
-                  class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-base border-2 border-ink bg-white px-3 text-xs font-bold text-ink transition-colors hover:bg-powder focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:cursor-not-allowed disabled:border-ink/45 disabled:bg-transparent disabled:text-ink/80 disabled:hover:bg-transparent dark:border-border dark:bg-background dark:text-foreground dark:hover:bg-white/15 dark:disabled:border-border/60 dark:disabled:text-foreground/75"
+                  class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-base border-2 border-ink bg-white px-3 text-xs font-bold text-ink transition-colors hover:bg-powder focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:focus-visible:outline-foreground disabled:cursor-not-allowed disabled:border-ink/45 disabled:bg-transparent disabled:text-ink/80 disabled:hover:bg-transparent dark:border-border dark:bg-background dark:text-foreground dark:hover:bg-white/15 dark:disabled:border-border/60 dark:disabled:text-foreground/75"
                 >
                   <Loader2
                     v-if="translatingId === cv.id"
@@ -597,9 +640,10 @@ async function downloadPdf(cv: Cv) {
                 <button
                   type="button"
                   title="Hapus CV"
-                  aria-label="Hapus CV"
-                  @click="handleDelete(cv)"
-                  class="flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white text-red-700 transition-colors hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:border-border dark:bg-background dark:text-red-300 dark:hover:bg-red-950/40"
+                  data-cv-delete
+                  :aria-label="`Hapus CV ${cv.title}`"
+                  @click="askDelete(cv)"
+                  class="flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white text-red-700 transition-colors hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:border-border dark:bg-background dark:text-red-300 dark:hover:bg-red-950/40 dark:focus-visible:outline-foreground"
                 >
                   <Trash2 class="size-4" aria-hidden="true" />
                 </button>
@@ -609,5 +653,21 @@ async function downloadPdf(cv: Cv) {
         </li>
       </ul>
     </div>
+
+    <ConfirmDialog
+      :open="pendingDelete !== null"
+      title="Hapus CV ini?"
+      :description="
+        pendingDelete
+          ? `&quot;${pendingDelete.title}&quot; akan dihapus permanen dari akun Anda. Tindakan ini tidak bisa dibatalkan.`
+          : ''
+      "
+      confirm-label="Hapus CV"
+      :pending="deleting"
+      pending-label="Menghapus..."
+      @update:open="!$event && cancelDelete()"
+      @cancel="cancelDelete"
+      @confirm="confirmDelete"
+    />
   </main>
 </template>

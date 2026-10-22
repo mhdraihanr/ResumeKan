@@ -61,7 +61,7 @@ async function submit() {
       >
         <button
           @click="cycle()"
-          class="absolute right-4 top-4 flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none dark:border-border dark:bg-secondary-background"
+          class="absolute right-4 top-4 flex size-9 items-center justify-center rounded-base border-2 border-ink bg-white shadow-shadow hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:focus-visible:outline-foreground dark:border-border dark:bg-secondary-background"
           :title="isDark() ? 'Ganti ke mode terang' : 'Ganti ke mode gelap'"
           :aria-label="
             isDark() ? 'Ganti ke mode terang' : 'Ganti ke mode gelap'
@@ -114,7 +114,7 @@ async function submit() {
               />
               <button
                 type="button"
-                class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-ink/70 hover:text-ink dark:text-foreground/60 dark:hover:text-foreground"
+                class="absolute right-2 top-1/2 -translate-y-1/2 rounded-base p-1 text-ink/70 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:text-foreground/60 dark:hover:text-foreground dark:focus-visible:outline-foreground"
                 :aria-label="
                   showPassword ? 'Sembunyikan password' : 'Tampilkan password'
                 "
@@ -128,7 +128,7 @@ async function submit() {
           <button
             type="submit"
             :disabled="auth.loading"
-            class="w-full rounded-base border-2 border-ink bg-navy px-3 py-2.5 text-sm font-bold text-white shadow-shadow transition hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none disabled:opacity-50 dark:border-border dark:bg-main dark:shadow-[4px_4px_0_0_#09090b]"
+            class="w-full rounded-base border-2 border-ink bg-navy px-3 py-2.5 text-sm font-bold text-white shadow-shadow transition hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:focus-visible:outline-foreground disabled:opacity-50 disabled:hover:translate-x-0 disabled:hover:translate-y-0 dark:border-border dark:bg-main dark:shadow-[4px_4px_0_0_#09090b]"
           >
             {{ auth.loading ? "Memproses..." : "Masuk" }}
           </button>

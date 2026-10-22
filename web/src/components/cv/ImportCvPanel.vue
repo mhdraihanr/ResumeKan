@@ -164,7 +164,7 @@ function reset() {
       <button
         v-if="status !== 'idle'"
         type="button"
-        class="text-xs font-medium text-slate-500 underline hover:text-ink dark:text-slate-300 dark:hover:text-foreground"
+        class="rounded-base px-1 text-xs font-medium text-slate-500 underline underline-offset-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink dark:text-slate-300 dark:hover:text-foreground dark:focus-visible:outline-foreground"
         @click="reset"
       >
         Reset
