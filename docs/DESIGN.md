@@ -328,6 +328,11 @@ selalu tersedia, dan sapaan memakai nama pengguna.
 - Tombol terjemah **hanya muncul di kartu `language === 'id'`** (terjemah id -> en). Kartu `en`
   tidak punya tombol ini, sehingga kartunya jujur berisi satu aksi lebih sedikit (bukan bug).
   Karena tidak ada endpoint duplikat generik di API, tidak ada aksi tiruan untuk kartu `en`.
+- Tombol `Hapus` berlaku untuk **semua bahasa** (`id` dan `en`). `CvController::destroy()` hanya
+  memeriksa kepemilikan, bukan `language`, jadi pembatasan bahasa milik tombol terjemah tidak boleh
+  disalin ke aksi lain. Regresi 2026-10-21 sempat menyembunyikan tombol ini di kartu `id` sehingga
+  CV berbahasa Indonesia tidak bisa dihapus dari UI, padahal pesan kuota menyuruh pengguna
+  menghapus CV. Dikunci oleh `api/tests/Feature/CvDeleteTest.php`.
 - Aksi dinonaktifkan selama ada alasan yang bisa dijelaskan, dengan `title` yang menyebut
   sebabnya (R-27). Tombol terjemah punya tiga alasan, dan urutan prioritasnya penting:
   (1) data belum lengkap, (2) `atLimit` (terjemah memakai kuota 10 CV), (3) sedang berjalan.

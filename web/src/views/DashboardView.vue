@@ -21,18 +21,24 @@ const router = useRouter();
 
 onMounted(() => cvStore.fetchList());
 
-/** Batas jumlah CV per akun, dipakai sebagai penanda kapasitas di ringkasan. */
 const MAX_CV = 10;
 
+function fmtDate(s?: string) {
+  if (!s) return null;
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 const total = computed(() => cvStore.list.length);
-/** Dihitung dari is_complete yang datang dari server, bukan angka karangan. */
 const readyCount = computed(
   () => cvStore.list.filter((cv) => cv.is_complete !== false).length,
 );
 const atLimit = computed(() => total.value >= MAX_CV);
-
-/** Aksi terjemah sedang berjalan: dipakai untuk aria-busy di daftar. */
-const translating = ref(false);
 
 const initial = computed(() =>
   (auth.user?.name ?? "?").trim().charAt(0).toUpperCase(),
@@ -40,19 +46,19 @@ const initial = computed(() =>
 
 const memberSince = computed(() => fmtDate(auth.user?.created_at));
 
-const TEMPLATE_LABEL: Record<Cv["template"], string> = {
-  modern: "Modern",
-  classic: "Classic",
-  neon: "Neon",
-};
-
-const templateBadgeClass: Record<Cv["template"], string> = {
-  modern: "bg-navy text-white",
-  classic: "bg-ink text-white dark:bg-foreground dark:text-ink",
-  neon: "bg-powder text-ink",
-};
+const TEMPLATES: Record<Cv["template"], { label: string; badgeClass: string }> =
+  {
+    modern: { label: "Modern", badgeClass: "bg-navy text-white" },
+    classic: {
+      label: "Classic",
+      badgeClass: "bg-ink text-white dark:bg-foreground dark:text-ink",
+    },
+    neon: { label: "Neon", badgeClass: "bg-powder text-ink" },
+  };
 
 async function handleDelete(cv: Cv) {
+  cvStore.error = null;
+
   if (!confirm(`Hapus CV "${cv.title}"? Tindakan ini tidak bisa dibatalkan.`)) {
     return;
   }
@@ -64,14 +70,13 @@ async function handleDelete(cv: Cv) {
 }
 
 const translatingId = ref<number | null>(null);
-/** Id CV yang PDF-nya sedang dirender; dipakai untuk spinner tombol unduh. */
+const translating = computed(() => translatingId.value !== null);
 const downloadingPdfId = ref<number | null>(null);
+const translatedMessage = ref("");
 let pdfAbort: AbortController | null = null;
 
-// Batalkan permintaan PDF yang masih berjalan saat pengguna meninggalkan halaman,
-// supaya tidak ada render sia-sia dan state tidak menggantung.
+// Batalkan render PDF yang masih berjalan saat halaman ditinggalkan.
 onBeforeUnmount(() => pdfAbort?.abort());
-const translatedMessage = ref("");
 
 const SECTION_LABEL: Record<string, string> = {
   experiences: "Pengalaman",
@@ -81,11 +86,12 @@ const SECTION_LABEL: Record<string, string> = {
   projects: "Proyek",
 };
 
-/**
- * Pesan gagal `/translate`. Endpoint ini tidak memvalidasi `data.*`, jadi
- * satu-satunya 422 di sini adalah bentuk yang tidak terduga; kegagalan yang
- * benar-benar mungkin adalah 502 layanan dan 429 throttle.
- */
+const SECTION_KEY = new RegExp(
+  `^data\\.(${Object.keys(SECTION_LABEL).join("|")})\\.`,
+);
+
+// `/translate` tidak memvalidasi `data.*`, jadi 422 di sini hanya bentuk tak terduga.
+// Yang benar-benar mungkin: 502 layanan dan 429 throttle.
 function translateError(e: unknown): string {
   const err = e as Error & { status?: number };
 
@@ -104,58 +110,51 @@ function translateError(e: unknown): string {
   return err.message || "Gagal menerjemahkan CV. Coba lagi.";
 }
 
-/**
- * Pesan gagal simpan CV terjemahan.
- *
- * Ini bagian yang benar-benar bisa mengembalikan 422. Validasi server memakai
- * pesan Laravel mentah berbahasa Inggris (mis. "The data.certificates.0.issuer
- * field is required..."), dan pesan itu tidak pernah ditampilkan apa adanya:
- * kita baca kunci error untuk menyebut bagian mana yang harus dilengkapi.
- */
+// Laravel mengirim pesan validasi mentah berbahasa Inggris, jadi yang dibaca
+// adalah kunci error, bukan pesannya.
+function missingSections(errors: Record<string, string[]>): string[] {
+  const sections = new Set<string>();
+
+  for (const key of Object.keys(errors)) {
+    const match = key.match(SECTION_KEY);
+    if (match) sections.add(SECTION_LABEL[match[1]!]!);
+  }
+
+  return [...sections];
+}
+
+// Kuota penuh juga memakai 422 (`errors.title`), bukan hanya data belum lengkap.
+function isQuotaError(errors: Record<string, string[]>): boolean {
+  return Object.values(errors)
+    .flat()
+    .some((message) => /maksimal\s+\d+\s+cv/i.test(message));
+}
+
 function createError(cv: Cv, e: unknown): string {
   const err = e as Error & {
     status?: number;
     errors?: Record<string, string[]>;
   };
 
-  if (err.status === 422) {
-    const sections = new Set<string>();
-
-    for (const key of Object.keys(err.errors ?? {})) {
-      const m = key.match(
-        /^data\.(experiences|education|organizations|certificates|projects)\./,
-      );
-      if (m) sections.add(SECTION_LABEL[m[1]!]!);
-    }
-
-    if (sections.size) {
-      return `CV "${cv.title}" belum lengkap, jadi belum bisa disimpan sebagai CV baru. Lengkapi dulu bagian ${[
-        ...sections,
-      ].join(", ")}.`;
-    }
-
-    // 422 juga dipakai server saat kuota penuh (`errors.title`), bukan hanya saat
-    // data belum lengkap. Tanpa cabang ini pengguna diberi tahu CV-nya "belum
-    // lengkap" padahal masalahnya jumlah CV. Kuota bisa lolos dari `atLimit`
-    // karena daftar di state bisa basi (mis. CV ditambah dari tab lain).
-    const quota = Object.values(err.errors ?? {})
-      .flat()
-      .some((m) => /maksimal\s+\d+\s+cv/i.test(m));
-
-    if (quota) {
-      return `Batas ${MAX_CV} CV tercapai. Terjemah membuat CV baru, jadi hapus salah satu CV dulu.`;
-    }
-
-    return `CV "${cv.title}" belum bisa disimpan sebagai CV baru karena datanya belum lengkap. Buka editor untuk melengkapinya.`;
+  if (err.status !== 422) {
+    return err.message || "Gagal menyimpan CV terjemahan. Coba lagi.";
   }
 
-  return err.message || "Gagal menyimpan CV terjemahan. Coba lagi.";
+  const errors = err.errors ?? {};
+  const sections = missingSections(errors);
+
+  if (sections.length) {
+    return `CV "${cv.title}" belum lengkap, jadi belum bisa disimpan sebagai CV baru. Lengkapi dulu bagian ${sections.join(", ")}.`;
+  }
+
+  if (isQuotaError(errors)) {
+    return `Batas ${MAX_CV} CV tercapai. Terjemah membuat CV baru, jadi hapus salah satu CV dulu.`;
+  }
+
+  return `CV "${cv.title}" belum bisa disimpan sebagai CV baru karena datanya belum lengkap. Buka editor untuk melengkapinya.`;
 }
 
-/** Alasan tombol terjemah nonaktif, dipakai untuk `title`.
- *  Urutannya sengaja: alasan paling spesifik (data belum lengkap) disebut dulu,
- *  karena itu yang paling sering bikin pengguna bingung.
- */
+// Alasan paling spesifik disebut dulu karena itu yang paling sering membingungkan.
 function translateHint(cv: Cv): string {
   if (cv.is_complete === false) {
     return "Lengkapi dulu CV ini sebelum diterjemahkan";
@@ -167,16 +166,12 @@ function translateHint(cv: Cv): string {
 }
 
 /**
- * Duplikat + terjemahkan. Ini satu rangkaian: server menerjemahkan isi, lalu
- * klien menyimpan hasilnya sebagai CV baru. Bukan aksi instan, jadi tombolnya
- * memakai state pending dan teksnya berubah, bukan sekadar tooltip.
+ * Duplikat + terjemahkan: server menerjemahkan isi, lalu klien menyimpan
+ * hasilnya sebagai CV baru. Dua langkah, dua sumber kegagalan yang dipisah.
  */
 async function duplicateTranslate(cv: Cv) {
-  // Jaring pengaman, bukan jalur pesan pengguna. Tombolnya sudah `disabled`,
-  // jadi manusia tidak bisa sampai ke sini. Guard ini hanya menangkap kasus
-  // balapan: daftar di state masih menganggap CV lengkap padahal data server
-  // sudah tidak. Daripada mengirim payload yang pasti ditolak 422, kita diam
-  // dan minta daftar disegarkan.
+  // Jaring pengaman untuk balapan state: tombolnya sudah `disabled`, tapi daftar
+  // di klien bisa masih menganggap CV ini lengkap padahal server sudah tidak.
   if (cv.is_complete === false) {
     console.warn(
       `[dashboard] Terjemah dilewati: CV ${cv.id} belum lengkap menurut state. Daftar disegarkan.`,
@@ -186,43 +181,54 @@ async function duplicateTranslate(cv: Cv) {
   }
 
   translatingId.value = cv.id;
-  translating.value = true;
   cvStore.error = null;
   translatedMessage.value = "";
 
-  // Dua langkah, dua sumber kegagalan yang berbeda. Dipisah supaya pesannya
-  // tidak saling tertukar: gagal terjemah bukan gagal simpan, dan sebaliknya.
-  let data: Awaited<ReturnType<typeof cvApi.translate>>["data"];
   try {
-    ({ data } = await cvApi.translate(cv.id));
-  } catch (e) {
-    cvStore.error = translateError(e);
-    translatingId.value = null;
-    translating.value = false;
-    return;
-  }
+    // Gagal terjemah dan gagal simpan punya pesan berbeda, jadi dipisah.
+    let data: Awaited<ReturnType<typeof cvApi.translate>>["data"];
+    try {
+      ({ data } = await cvApi.translate(cv.id));
+    } catch (e) {
+      cvStore.error = translateError(e);
+      return;
+    }
 
-  try {
-    const created = await cvStore.create({
-      title: `${cv.title} (EN)`,
-      template: cv.template,
-      language: "en",
-      data,
-    });
-    translatedMessage.value = `"${created.title}" sudah dibuat. Membuka editor...`;
-    router.push(`/cvs/${created.id}/edit`);
-  } catch (e) {
-    cvStore.error = createError(cv, e);
+    try {
+      const created = await cvStore.create({
+        title: `${cv.title} (EN)`,
+        template: cv.template,
+        language: "en",
+        data,
+      });
+
+      translatedMessage.value = `"${created.title}" sudah dibuat. Membuka editor...`;
+      router.push(`/cvs/${created.id}/edit`);
+    } catch (e) {
+      cvStore.error = createError(cv, e);
+    }
   } finally {
     translatingId.value = null;
-    translating.value = false;
   }
+}
+
+// Simpan blob lewat anchor + object URL (bukan window.open) supaya tahan
+// popup-blocker dan tetap tersimpan sebagai attachment.
+function saveBlob(blob: Blob) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 async function downloadPdf(cv: Cv) {
   if (downloadingPdfId.value !== null) return; // satu render PDF dalam satu waktu
 
-  cvStore.error = "";
+  cvStore.error = null;
 
   // Tombol sudah disabled untuk CV belum lengkap; ini jaring pengaman kalau
   // dipanggil programatik. Server tetap memvalidasi (sumber kebenaran).
@@ -238,8 +244,7 @@ async function downloadPdf(cv: Cv) {
   const timer = setTimeout(() => controller.abort(), 60_000);
 
   try {
-    // Cek kelengkapan lewat server DULU tanpa membuka tab: CV belum lengkap ->
-    // 422 JSON yang akan tampil jelek bila dibuka langsung sebagai tab.
+    // Cek kelengkapan lewat server DULU tanpa membuka tab: CV belum lengkap -> 422 JSON.
     const res = await fetch(`/api/v1/cvs/${cv.id}/pdf`, {
       credentials: "include",
       headers: { Accept: "application/pdf" },
@@ -254,7 +259,9 @@ async function downloadPdf(cv: Cv) {
     }
 
     if (res.status === 422) {
-      const body = await res.json().catch(() => null);
+      const body = (await res.json().catch(() => null)) as {
+        message?: string;
+      } | null;
       cvStore.error = body?.message ?? "Lengkapi dulu sebelum mengunduh.";
       return;
     }
@@ -264,40 +271,18 @@ async function downloadPdf(cv: Cv) {
       return;
     }
 
-    // Sukses: unduh lewat anchor + object URL (bukan window.open) supaya tahan
-    // popup-blocker dan tetap tersimpan sebagai attachment.
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    saveBlob(await res.blob());
   } finally {
     clearTimeout(timer);
     if (pdfAbort === controller) pdfAbort = null;
     downloadingPdfId.value = null;
   }
 }
-
-function fmtDate(s?: string) {
-  if (!s) return null;
-  const d = new Date(s);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
 </script>
 
 <template>
   <main class="min-h-screen bg-paper dark:bg-background">
     <div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-10">
-      <!-- Identitas: baris yang isinya data user sendiri, bukan dekorasi -->
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div class="flex min-w-0 items-center gap-3">
           <div
@@ -329,7 +314,6 @@ function fmtDate(s?: string) {
         </RouterLink>
       </div>
 
-      <!-- Kapasitas: total CV, siap diunduh, batas akun (semuanya angka nyata) -->
       <dl v-if="total" class="mt-6 grid gap-3 sm:grid-cols-3">
         <div
           class="rounded-base border-2 border-ink bg-white px-4 py-3 shadow-shadow dark:border-border dark:bg-secondary-background"
@@ -393,7 +377,6 @@ function fmtDate(s?: string) {
         </p>
       </div>
 
-      <!-- Error -->
       <p
         v-if="cvStore.error"
         role="alert"
@@ -402,7 +385,6 @@ function fmtDate(s?: string) {
         {{ cvStore.error }}
       </p>
 
-      <!-- Sukses terjemah: hanya terlihat sekejap sebelum router berpindah -->
       <p
         v-if="translatedMessage"
         role="status"
@@ -412,7 +394,7 @@ function fmtDate(s?: string) {
         {{ translatedMessage }}
       </p>
 
-      <!-- Loading: skeleton menyamai bentuk kartu supaya tata letak tidak lompat -->
+      <!-- Skeleton meniru bentuk kartu supaya tata letak tidak melompat. -->
       <div
         v-if="cvStore.loading && !cvStore.list.length"
         class="mt-4 flex flex-col gap-3"
@@ -442,7 +424,6 @@ function fmtDate(s?: string) {
         </div>
       </div>
 
-      <!-- Kosong: sebut apa yang bisa dibuat, lalu tiga langkah nyata produk -->
       <div
         v-else-if="!cvStore.list.length"
         class="mt-4 rounded-base border-2 border-ink bg-white px-6 py-12 shadow-shadow sm:px-10 dark:border-border dark:bg-secondary-background"
@@ -507,7 +488,6 @@ function fmtDate(s?: string) {
         </div>
       </div>
 
-      <!-- Daftar: satu kartu per CV -->
       <ul v-else class="mt-4 flex flex-col gap-3" :aria-busy="translating">
         <li
           v-for="cv in cvStore.list"
@@ -521,7 +501,6 @@ function fmtDate(s?: string) {
             </div>
 
             <div class="flex min-w-0 flex-1 flex-col">
-              <!-- Judul + tag template dalam satu baris supaya kartu tetap pendek -->
               <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <h3
                   class="line-clamp-1 min-w-0 text-base font-black text-ink dark:text-foreground"
@@ -531,9 +510,9 @@ function fmtDate(s?: string) {
                 </h3>
                 <span
                   class="shrink-0 rounded-base border-2 border-ink px-1.5 text-[11px] font-bold leading-5 dark:border-border"
-                  :class="templateBadgeClass[cv.template]"
+                  :class="TEMPLATES[cv.template].badgeClass"
                 >
-                  {{ TEMPLATE_LABEL[cv.template] }}
+                  {{ TEMPLATES[cv.template].label }}
                 </span>
                 <span
                   v-if="cv.is_complete === false"
@@ -590,9 +569,8 @@ function fmtDate(s?: string) {
                   <Download v-else class="size-4" aria-hidden="true" />
                 </button>
 
-                <!-- Terjemah + duplikat dalam satu aksi, makna ikonnya tunggal.
-                     Teks selalu terlihat karena aksi ini mirip "Hapus" (risiko:
-                     antrean terjemahan terpakai) dan app ini dwibahasa. -->
+                <!-- Teks selalu terlihat: aksi ini mengonsumsi antrean terjemahan
+                     dan aplikasi ini dwibahasa, jadi ikon saja tidak cukup jelas. -->
                 <button
                   v-if="cv.language === 'id'"
                   type="button"
@@ -617,7 +595,6 @@ function fmtDate(s?: string) {
                 </button>
 
                 <button
-                  v-if="cv.language !== 'id'"
                   type="button"
                   title="Hapus CV"
                   aria-label="Hapus CV"
