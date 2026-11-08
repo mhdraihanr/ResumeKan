@@ -147,9 +147,25 @@ fi
 if ! wait_http "http://127.0.0.1:${ORIGIN_PORT}/up" 200 10; then
 	fail "Caddy :${ORIGIN_PORT}/up bukan 200. Lihat journalctl -u caddy -n 50 --no-pager"
 fi
+
+# Halaman depan WAJIB dicek terpisah. /up hanya membuktikan backend hidup; ia
+# lewat reverse_proxy dan tidak menyentuh filesystem, sehingga 403 akibat
+# permission web/dist lolos tanpa terdeteksi. Tanpa cek ini, deploy dilaporkan
+# sukses padahal situs menampilkan "403 Forbidden".
+code_root="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "http://127.0.0.1:${ORIGIN_PORT}/" || true)"
+if [ "$code_root" != "200" ]; then
+	fail "Halaman depan :${ORIGIN_PORT}/ → $code_root (bukan 200). Kalau 403, user caddy tidak bisa membaca web/dist. Periksa: namei -l ${APP_DIR}/web/dist/index.html dan journalctl -u caddy -n 50 --no-pager"
+fi
+# print shell dipakai CvController::resolvePrintHtml; 200 di sini berarti file
+# benar-benar tersaji, bukan hanya ada di disk.
+code_print="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "http://127.0.0.1:${ORIGIN_PORT}/print/" || true)"
+[ "$code_print" = "200" ] || warn "print shell :${ORIGIN_PORT}/print/ → $code_print (PDF mungkin gagal)"
+
 if [ -n "${PUBLIC_URL:-}" ]; then
 	code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -L "${PUBLIC_URL%/}/up" || true)"
 	[ "$code" = "200" ] || warn "PUBLIC_URL ${PUBLIC_URL%/}/up → $code (DNS/cloudflared mungkin belum siap)"
+	code_pub="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -L "${PUBLIC_URL%/}/" || true)"
+	[ "$code_pub" = "200" ] || warn "PUBLIC_URL ${PUBLIC_URL%/}/ → $code_pub (bukan 200; cek Cloudflare Access/WAF atau izin web/dist)"
 fi
 
 cat <<EOF

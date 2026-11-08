@@ -138,11 +138,14 @@ log "8/12 User $APP_USER dan repository"
 if ! id "$APP_USER" >/dev/null 2>&1; then
 	adduser --disabled-password --gecos '' "$APP_USER"
 fi
-install -d -o "$APP_USER" -g "$APP_USER" -m 0750 "$APP_DIR"
+install -d -o "$APP_USER" -g "$APP_USER" -m 0751 "$APP_DIR"
 
 # Catatan: direktori kerja root milik resumekan dan group-nya resumekan,
-# dengan mode 0750. Caddy cukup mendapat akses traverse (o+x) lewat
-# lib/frontend.sh, dan tidak akan bisa membaca isi repo.
+# dengan mode 0751. Angka terakhir (1 = o+x) WAJIB: user sistem `caddy` bukan
+# anggota group resumekan, dan harus bisa MENEMBUS direktori ini untuk mencapai
+# web/dist. Tanpa o+x, Caddy gagal membaca file statis -> halaman depan 403
+# walaupun /up tetap 200 (karena /up lewat reverse_proxy, tidak menyentuh
+# filesystem). Tidak ada o+r, jadi isi repo tetap tidak bisa dibaca caddy.
 
 if [ ! -d "$APP_DIR/.git" ]; then
 	# Clone sebagai user aplikasi supaya vendor/ dan .git tidak dimiliki root.

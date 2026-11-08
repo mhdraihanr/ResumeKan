@@ -26,8 +26,24 @@ fix_runtime_ownership() {
 	id "$user" >/dev/null 2>&1 || fail "User '$user' tidak ada."
 
 	# 1) Root aplikasi bisa ditembus Caddy (o+x) tapi tidak bisa dibaca (o+r).
+	#
+	# PENTING: harus 0751, BUKAN 0750. Caddy berjalan sebagai user sistem
+	# `caddy` (bukan anggota group aplikasi) dan wajib bisa MENEMBUS direktori
+	# ini untuk mencapai web/dist. Mode 0750 membuat "other" tanpa x, sehingga
+	# file_server Caddy gagal membaca web/dist -> HTTP 403 di halaman depan,
+	# sementara /up tetap 200 karena lewat reverse_proxy (tidak menyentuh
+	# filesystem). Itu kombinasi yang menyesatkan saat diagnosis.
 	chown "$user:$user" "$dir"
-	chmod 0750 "$dir"
+	chmod 0751 "$dir"
+
+	# 1b) Rantai direktori menuju web/dist harus bisa ditembus Caddy.
+	# `web` dibuat oleh git checkout (umask 022 -> 0755), tapi jangan
+	# mengandalkannya: set eksplisit supaya idempoten.
+	local p
+	for p in "$dir/web" "$dir/web/dist"; do
+		[ -d "$p" ] || continue
+		chmod o+x "$p"
+	done
 
 	# 2) Direktori yang ditulis Laravel saat runtime.
 	local d
@@ -54,6 +70,14 @@ fix_runtime_ownership() {
 	if [ -d "$dir/api/public/print" ]; then
 		chown -R "$user:$user" "$dir/api/public/print"
 		find "$dir/api/public/print" -type f -exec chmod 0644 {} +
+	fi
+
+	# 6) Verifikasi nyata: kalau Caddy tidak bisa membaca index.html, deploy
+	# harus berhenti di sini, bukan menghasilkan 403 di produksi.
+	if [ -d "$dir/web/dist" ] && id caddy >/dev/null 2>&1; then
+		if ! runuser -u caddy -- test -r "$dir/web/dist/index.html" 2>/dev/null; then
+			fail "User caddy tidak bisa membaca $dir/web/dist/index.html. Periksa izin $dir (butuh o+x) dan rantai direktori menuju web/dist."
+		fi
 	fi
 
 	log "Kepemilikan & izin runtime diperbaiki (user=$user)."
