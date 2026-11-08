@@ -71,7 +71,7 @@ Audit ATS berdasarkan riset Exa (OneResume, ATSFixer, ATS Verification, Resumefa
 
 ### ADR-7: Build frontend di GitHub Actions, bukan di container
 
-- **Keputusan:** `vite build` dijalankan oleh workflow `.github/workflows/build-web.yml` di runner GitHub (2 core / 7 GB), hasilnya dibungkus `web-dist.tar.gz` dan diterbitkan sebagai asset release tag `dist-latest`. Container produksi hanya mengunduh (`deploy/lib-dist.sh` → `fetch_dist`), dengan fallback build lokal.
+- **Keputusan:** `vite build` dijalankan oleh workflow `.github/workflows/build-web.yml` di runner GitHub (2 core / 7 GB), hasilnya dibungkus `web-dist.tar.gz` dan diterbitkan sebagai asset release tag `dist-latest`. Container produksi hanya mengunduh (`deploy/lib/dist.sh` → `fetch_dist`), dengan fallback build lokal.
 - **Alasan:** container Railway free hanya 0.5 CPU / 512 MB; `vite build` di sana terlihat hang di `transforming (xxxx)` selama puluhan menit. Runner CI menyelesaikannya dalam hitungan detik.
 - **Konsekuensi:** setiap perubahan `web/**` yang di-push ke `main` **wajib menunggu CI "Build Web" selesai** sebelum `deploy/update.sh` dijalankan, kalau tidak container mengambil `dist` versi lama. Release `dist-latest` selalu ditimpa, jadi URL unduhannya tetap.
 - **Catatan dev vs prod:** `pnpm dev` menyajikan ESM unbundled (ratusan request, tanpa minify/tree-shake) demi HMR — skornya di Lighthouse **tidak mewakili produksi** dan bukan indikator bug. Angka yang sah hanya dari `pnpm preview` (menyajikan `dist`) atau produksi langsung.

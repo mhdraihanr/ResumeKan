@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
-# install-deps.sh — pasang semua perangkat yang dibutuhkan deploy.sh.
+# install-deps.sh — [LEGACY] pasang semua perangkat yang dibutuhkan deploy.sh.
+#
+# ⚠️  Jalur ini memakai PPA Ubuntu `ondrej/php` dan menganggap lingkungan
+#     tanpa systemd (container Railway). Di Debian, PPA Ubuntu tidak sah.
+#     VPS Debian/Ubuntu WAJIB memakai:
+#         sudo bash deploy/bootstrap.sh
+#     bootstrap.sh memilih repo PHP yang benar per OS dan mendaftarkan
+#     systemd unit untuk backend/Caddy/cloudflared.
 #
 # Dipanggil otomatis oleh deploy.sh kalau ada binary yang hilang, atau bisa
 # dijalankan manual:  bash deploy/install-deps.sh
@@ -18,14 +25,19 @@
 #   NODE_MAJOR=22       versi mayor Node.js (default 22).
 set -euo pipefail
 
+SCRIPT_DIR_LEGACY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/legacy.sh
+. "$SCRIPT_DIR_LEGACY/lib/legacy.sh"
+refuse_on_systemd_host "install-deps.sh" "bootstrap.sh"
+
 PHP_VERSION="${PHP_VERSION:-8.4}"
 NODE_MAJOR="${NODE_MAJOR:-22}"
 SKIP_CHROMIUM="${SKIP_CHROMIUM:-0}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Helper upgrade paket PHP (dipakai juga oleh update.sh).
-# shellcheck source=lib-php.sh
-. "$SCRIPT_DIR/lib-php.sh"
+# shellcheck source=lib/php-upgrade.sh
+. "$SCRIPT_DIR/lib/php-upgrade.sh"
 
 log()  { printf '\n==> %s\n' "$*"; }
 have() { command -v "$1" >/dev/null 2>&1; }

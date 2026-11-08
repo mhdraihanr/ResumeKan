@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-# deploy.sh — bangun container ResumeKan dari nol (setelah redeploy Railway).
+# deploy.sh — [LEGACY] bangun container ResumeKan dari nol (setelah redeploy Railway).
+#
+# ⚠️  Jalur ini hanya untuk container Railway TANPA systemd. VPS Debian/Ubuntu
+#     WAJIB memakai:
+#         sudo bash deploy/bootstrap.sh     # sekali, menyiapkan OS
+#         sudo bash deploy/release.sh       # setiap update
+#     Skrip ini otomatis menolak berjalan di VPS systemd (lihat deploy/lib/legacy.sh).
 #
 # Tahap 1 (opsional, di laptop):  bash deploy/deploy.sh --template
 #   Membuat deploy/.env.production dari contoh, untuk diisi.
@@ -13,6 +19,14 @@
 # SKIP_DEPS_INSTALL=1 bila ingin memeriksa saja tanpa memasang apa pun.
 set -euo pipefail
 
+SCRIPT_DIR_EARLY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/legacy.sh
+. "$SCRIPT_DIR_EARLY/lib/legacy.sh"
+# --template aman di mesin lokal mana pun; tidak menyentuh sistem.
+if [ "${1:-}" != "--template" ]; then
+	refuse_on_systemd_host "deploy.sh" "bootstrap.sh"
+fi
+
 REPO_URL="${REPO_URL:-https://github.com/mhdraihanr/ResumeKan.git}"
 APP_DIR="${APP_DIR:-/srv/ResumeKan}"
 BRANCH="${BRANCH:-main}"
@@ -24,11 +38,11 @@ ENV_TARGET="$SCRIPT_DIR/.env.production"
 ENV_EXAMPLE="$SCRIPT_DIR/.env.production.example"
 
 # Helper unduh dist dari CI (dipakai di langkah 6).
-# shellcheck source=lib-dist.sh
-. "$SCRIPT_DIR/lib-dist.sh"
+# shellcheck source=lib/dist.sh
+. "$SCRIPT_DIR/lib/dist.sh"
 # Helper upgrade paket PHP (dipakai di langkah 1b).
-# shellcheck source=lib-php.sh
-. "$SCRIPT_DIR/lib-php.sh"
+# shellcheck source=lib/php-upgrade.sh
+. "$SCRIPT_DIR/lib/php-upgrade.sh"
 
 log() { printf '\n==> %s\n' "$*"; }
 fail() { printf '\nGAGAL: %s\n' "$*" >&2; exit 1; }

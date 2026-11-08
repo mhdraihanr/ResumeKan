@@ -1,0 +1,92 @@
+name: API Check
+
+# Tujuan: cegah deploy yang sudah pasti gagal di VPS.
+#
+# Yang dicek (sama dengan yang dijalankan bootstrap.sh / release.sh):
+#   * `composer install --no-dev` (menangkap dependency rusak)
+#   * `composer check-platform-reqs --no-dev` (PHP/ekstensi kurang)
+#   * `php artisan config:cache` / `route:cache` (menangkap bug env dan route)
+#   * lint PHP (syntax error lebih awal terlihat)
+#
+# Tidak butuh database atau secret produksi:
+#   * `config:cache` dijalankan dengan env dev yang aman (tanpa nilai production)
+#   * Migrasi TIDAK dijalankan; database Neon tetap utuh.
+#
+# Kalau job ini merah, jangan deploy ke VPS.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "api/**"
+      - ".github/workflows/api-check.yml"
+  pull_request:
+    paths:
+      - "api/**"
+      - ".github/workflows/api-check.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: api-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint & bootstrap-cache
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: api
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: bcmath, curl, dom, gd, intl, mbstring, pdo_pgsql, pgsql, xml, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('api/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+      - name: Platform requirements
+        run: composer check-platform-reqs --no-dev
+
+      - name: PHP lint
+        run: |
+          set -euo pipefail
+          fail=0
+          while IFS= read -r f; do
+            out="$(php -l "$f" 2>&1)" || { printf '%s\n' "$out" >&2; fail=1; }
+          done < <(find app config database routes -type f -name '*.php' -print)
+          exit "$fail"
+
+      - name: Siapkan .env minimal
+        # Cukup untuk config:cache/route:cache. Tidak ada credential produksi.
+        run: |
+          cp .env.example .env
+          php artisan key:generate --ansi
+          # Driver in-memory supaya tidak butuh Neon/database jaringan.
+          sed -i 's|^DB_CONNECTION=.*|DB_CONNECTION=sqlite|' .env
+          sed -i 's|^DB_DATABASE=.*|DB_DATABASE=:memory:|' .env
+          sed -i 's|^SESSION_DRIVER=.*|SESSION_DRIVER=array|' .env
+          sed -i 's|^CACHE_STORE=.*|CACHE_STORE=array|' .env
+
+      - name: Bootstrap cache (menangkap bug env/route)
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
