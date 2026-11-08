@@ -10,6 +10,16 @@
 
 SYSTEMD_TEMPLATE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../systemd" && pwd)"
 
+# Lib ini sering di-source langsung dari shell root (tanpa lewat bootstrap.sh
+# atau release.sh), mis. untuk memperbaiki unit saja. Pastikan fungsi dasar dari
+# common.sh (require_root, log, fail, write_if_changed) sudah tersedia; kalau
+# tidak, unit akan gagal ditulis dengan pesan yang membingungkan.
+if ! declare -F require_root >/dev/null 2>&1; then
+	# shellcheck source=./common.sh
+	# shellcheck disable=SC1091
+	. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
+fi
+
 # _render_template <template> <tujuan> [key=value...]
 _render_template() {
 	local src="$1" dst="$2"
@@ -19,8 +29,15 @@ _render_template() {
 	local tmp
 	tmp="$(mktemp)"
 
-	# Salin dulu, lalu ganti setiap placeholder.
-	cp "$src" "$tmp"
+	# Salin dulu, buang CRLF (berkas bisa saja tersimpan dengan akhiran baris
+	# Windows), lalu ganti setiap placeholder.
+	#
+	# CRLF di unit systemd merusak baris lanjutan ExecStart: baris berakhir dengan
+	# "\\\r" sehingga backslash-nya tidak dianggap escape dan sisa flag -d
+	# dijalankan sebagai executable → unit gagal start. Caddyfile pun lebih buruk
+	# lagi: Caddy bisa menganggap baris berikutnya sebagai argumen direktif atau
+	# menolak file ber-CRLF.
+	tr -d '\r' <"$src" >"$tmp"
 	local kv key value
 	for kv in "$@"; do
 		key="${kv%%=*}"
@@ -75,9 +92,10 @@ install_caddyfile() {
 
 	local tmp
 	tmp="$(mktemp)"
-	sed -e "s|{{APP_DIR}}|${app_dir}|g" \
-		-e "s|{{PORT}}|${port}|g" \
-		"$src" >"$tmp"
+	# tr -d '\r' dengan alasan sama seperti di _render_template.
+	tr -d '\r' <"$src" \
+		| sed -e "s|{{APP_DIR}}|${app_dir}|g" \
+			-e "s|{{PORT}}|${port}|g" >"$tmp"
 
 	# Cadangkan Caddyfile lama sekali, jangan menimpa cadangan sebelumnya.
 	if [ -f /etc/caddy/Caddyfile ] && ! cmp -s "$tmp" /etc/caddy/Caddyfile; then

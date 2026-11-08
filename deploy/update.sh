@@ -47,17 +47,20 @@ cd "$APP_DIR" || fail "$APP_DIR tidak ada. Jalankan deploy.sh dulu."
 
 log "1/6 Tarik kode dari GitHub"
 [ -d .git ] || fail "Bukan repo git. Jalankan deploy.sh dulu."
+# Repo milik $APP_USER, bukan root; git_repo menjalankan git sebagai pemilik
+# supaya tidak kena "detected dubious ownership".
 # Suntingan lokal akan hilang, jadi disimpan dulu supaya bisa dilihat lagi.
-if ! git diff --quiet || ! git diff --cached --quiet; then
+if ! git_repo "$APP_DIR" diff --quiet || ! git_repo "$APP_DIR" diff --cached --quiet; then
 	PATCH="/root/update-lokal-$(date +%F-%H%M).patch"
-	git diff HEAD >"$PATCH"
+	git_repo "$APP_DIR" diff HEAD >"$PATCH"
+	chmod 0600 "$PATCH"
 	printf 'PERINGATAN: ada perubahan lokal. Salinannya disimpan di %s\n' "$PATCH"
 fi
-git fetch origin "$BRANCH"
+git_repo "$APP_DIR" fetch origin "$BRANCH"
 if [ "$DEPS_ONLY" = "1" ]; then
-	git checkout "$BRANCH"
+	git_repo "$APP_DIR" checkout "$BRANCH"
 else
-	git reset --hard "origin/$BRANCH"
+	git_repo "$APP_DIR" reset --hard "origin/$BRANCH"
 fi
 
 log "2/6 Backend: composer, migrasi, cache"

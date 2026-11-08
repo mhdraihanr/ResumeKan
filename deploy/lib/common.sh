@@ -16,6 +16,40 @@ fail() { printf '\nGAGAL: %s\n' "$*" >&2; exit 1; }
 
 have() { command -v "$1" >/dev/null 2>&1; }
 
+# git_repo <dir-repo> [argumen git...]
+#
+# Menjalankan git di <dir-repo> sebagai PEMILIK direktori itu.
+#
+# Alasannya: bootstrap.sh dan release.sh dijalankan sebagai root, sedangkan
+# repo /srv/ResumeKan sengaja dimiliki user aplikasi (resumekan) supaya vendor/,
+# node_modules/, dan .git tidak pernah dimiliki root. Git menolak repo milik
+# user lain dengan "detected dubious ownership".
+#
+# `git config --global --add safe.directory` TIDAK dipakai karena itu mematikan
+# proteksi untuk semua repo di mesin; menjalankan sebagai pemilik adalah cara
+# yang benar dan tidak melonggarkan keamanan.
+#
+git_repo() {
+	local dir="$1"
+	shift
+	local owner
+	owner="$(stat -c '%U' "$dir" 2>/dev/null || stat -f '%Su' "$dir" 2>/dev/null)"
+
+	if [ "$(id -un)" = "$owner" ]; then
+		git -C "$dir" "$@"
+	else
+		# HOME diset eksplisit: git butuh home yang bisa ditulis untuk
+		# ~/.gitconfig, dan `su`/`runuser` bisa membawa HOME root.
+		runuser -u "$owner" -- env HOME="/home/$owner" git -C "$dir" "$@"
+	fi
+}
+
+# git_owner <dir-repo>
+# Cetak pemilik direktori repo (untuk cek/pesan).
+git_owner() {
+	stat -c '%U' "$1" 2>/dev/null || stat -f '%Su' "$1" 2>/dev/null
+}
+
 require_root() {
 	[ "$(id -u)" = "0" ] || fail "Jalankan sebagai root (sudo -i atau su -)."
 }

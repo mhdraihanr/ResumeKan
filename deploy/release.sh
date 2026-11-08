@@ -60,9 +60,11 @@ require_root
 
 cd "$APP_DIR"
 
+# Repo milik $APP_USER, bukan root; git_repo menjalankan git sebagai pemilik
+# supaya tidak kena "detected dubious ownership".
 log "1/7 Cek versi dari origin/$BRANCH"
-LOCAL_SHA="$(git rev-parse HEAD)"
-if ! git fetch --quiet origin "$BRANCH"; then
+LOCAL_SHA="$(git_repo "$APP_DIR" rev-parse HEAD)"
+if ! git_repo "$APP_DIR" fetch --quiet origin "$BRANCH"; then
 	if [ "$FROM_TIMER" = "1" ]; then
 		# Timer tidak boleh gagal keras karena jaringan sebentar putus.
 		warn "git fetch gagal (dipanggil timer); coba lagi pada jadwal berikutnya."
@@ -70,7 +72,7 @@ if ! git fetch --quiet origin "$BRANCH"; then
 	fi
 	fail "git fetch gagal. Periksa koneksi internet dan remote origin."
 fi
-REMOTE_SHA="$(git rev-parse "origin/$BRANCH")"
+REMOTE_SHA="$(git_repo "$APP_DIR" rev-parse "origin/$BRANCH")"
 
 if [ "$IF_CHANGED" = "1" ] && [ "$LOCAL_SHA" = "$REMOTE_SHA" ]; then
 	log "Tidak ada perubahan. HEAD sudah di $LOCAL_SHA; keluar."
@@ -80,7 +82,7 @@ log "Lokal: ${LOCAL_SHA:0:7} → Remote: ${REMOTE_SHA:0:7}"
 
 if [ "$DRY_RUN" = "1" ]; then
 	log "Mode dry-run: akan melakukan git merge --ff-only, composer install, artifact, migrate pending, restart."
-	git --no-pager log --oneline "$LOCAL_SHA..$REMOTE_SHA"
+	git_repo "$APP_DIR" --no-pager log --oneline "$LOCAL_SHA..$REMOTE_SHA"
 	exit 0
 fi
 
@@ -88,20 +90,21 @@ fi
 # file yang juga berubah di origin, merge akan gagal. Simpan patch agar bisa
 # dilihat kembali -- tapi jangan auto-stash dan lanjut, karena hasil merge bisa
 # tidak terduga di server produksi.
-if ! git diff --quiet || ! git diff --cached --quiet; then
+if ! git_repo "$APP_DIR" diff --quiet || ! git_repo "$APP_DIR" diff --cached --quiet; then
 	PATCH="/root/release-lokal-$(date +%F-%H%M).patch"
-	git diff HEAD >"$PATCH"
+	git_repo "$APP_DIR" diff HEAD >"$PATCH"
+	chmod 0600 "$PATCH"
 	warn "Ada perubahan lokal; patch disimpan di $PATCH"
 	warn "Deploy akan memakai git merge --ff-only. Kalau gagal, selesaikan manual dulu."
 fi
 
 log "2/7 Git merge --ff-only"
-if ! git merge --ff-only "origin/$BRANCH"; then
+if ! git_repo "$APP_DIR" merge --ff-only "origin/$BRANCH"; then
 	fail "Fast-forward gagal. Ada perubahan lokal/history divergen. Patch disimpan di /root/."
 fi
 
-NEW_SHA="$(git rev-parse --short HEAD)"
-NEW_SUBJECT="$(git log -1 --pretty='%s')"
+NEW_SHA="$(git_repo "$APP_DIR" rev-parse --short HEAD)"
+NEW_SUBJECT="$(git_repo "$APP_DIR" log -1 --pretty='%s')"
 log "Sekarang di $NEW_SHA — $NEW_SUBJECT"
 
 log "3/7 Composer & dependencies API"

@@ -100,7 +100,7 @@ if [ "$MODE" = "check" ]; then
 	log "Yang sudah ada : $(for b in git curl unzip php composer node npm pnpm caddy cloudflared; do have "$b" && printf '%s ' "$b"; done)"
 	log "Yang perlu ada  : ${missing[*]:-(tidak ada, semua siap)}"
 	if [ -d "$APP_DIR/.git" ]; then
-		log "Repository     : $APP_DIR ($(git -C "$APP_DIR" rev-parse --abbrev-ref HEAD) @ $(git -C "$APP_DIR" rev-parse --short HEAD))"
+		log "Repository     : $APP_DIR ($(git_repo "$APP_DIR" rev-parse --abbrev-ref HEAD) @ $(git_repo "$APP_DIR" rev-parse --short HEAD))"
 	else
 		log "Repository     : belum ada di $APP_DIR"
 	fi
