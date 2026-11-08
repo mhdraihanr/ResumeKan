@@ -51,6 +51,19 @@ jobs:
         working-directory: web
         run: pnpm build:ci
 
+      # print.html dipakai api/app/Http/Controllers/CvController.php (resolvePrintHtml)
+      # dan deploy/release.sh memasangnya ke api/public/print/index.html.
+      # Gagal keras di sini supaya tarball tidak pernah diterbitkan tanpa shell
+      # print: kalau file ini hilang, deploy VPS berhenti di langkah frontend.
+      - name: Pastikan print.html ikut dalam dist
+        working-directory: web
+        run: |
+          if [ ! -f dist/print.html ]; then
+            echo "GAGAL: web/dist/print.html tidak dihasilkan oleh 'pnpm build:ci'." >&2
+            echo "Periksa entry 'print' di web/vite.config.ts (rollupOptions.input)." >&2
+            exit 1
+          fi
+
       - name: Bungkus dist
         working-directory: web
         run: tar -czf ../web-dist.tar.gz -C dist .
@@ -60,7 +73,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Tag tetap `dist-latest`, release dibuat ulang tiap run supaya
-          # container selalu bisa mengunduh URL yang sama:
+          # VPS/container selalu bisa mengunduh URL yang sama:
           #   https://github.com/<owner>/<repo>/releases/download/dist-latest/web-dist.tar.gz
           gh release delete dist-latest --yes --cleanup-tag || true
           gh release create dist-latest web-dist.tar.gz \

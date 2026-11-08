@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
-# update.sh — pasang kode terbaru dari GitHub ke container yang sedang hidup.
+# update.sh — [LEGACY] pasang kode terbaru dari GitHub ke container Railway.
+#
+# ⚠️  Jalur ini hanya untuk container Railway TANPA systemd, dan memakai
+#     `git reset --hard` (perubahan lokal hilang).
+#     VPS Debian/Ubuntu WAJIB memakai:
+#         sudo bash deploy/release.sh              # deploy penuh
+#         sudo bash deploy/release.sh --if-changed # no-op kalau sudah versi terbaru
+#     release.sh memakai `git merge --ff-only` dan health check 3 lapis.
 #
 # Di laptop:  git push
 # Di container: bash /srv/ResumeKan/deploy/update.sh
@@ -12,6 +19,11 @@
 # Variabel lingkungan: SKIP_PHP_UPGRADE=1 melewati langkah upgrade paket PHP.
 set -euo pipefail
 
+SCRIPT_DIR_LEGACY="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/legacy.sh
+. "$SCRIPT_DIR_LEGACY/lib/legacy.sh"
+refuse_on_systemd_host "update.sh" "release.sh"
+
 APP_DIR="${APP_DIR:-/srv/ResumeKan}"
 BRANCH="${BRANCH:-main}"
 WORKERS="${WORKERS:-4}"
@@ -20,11 +32,11 @@ DEPS_ONLY=0
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Helper unduh dist dari CI (dipakai di langkah 3).
-# shellcheck source=lib-dist.sh
-. "$SCRIPT_DIR/lib-dist.sh"
+# shellcheck source=lib/dist.sh
+. "$SCRIPT_DIR/lib/dist.sh"
 # Helper upgrade paket PHP (dipakai di langkah 5).
-# shellcheck source=lib-php.sh
-. "$SCRIPT_DIR/lib-php.sh"
+# shellcheck source=lib/php-upgrade.sh
+. "$SCRIPT_DIR/lib/php-upgrade.sh"
 
 [ "${1:-}" = "--deps-only" ] && DEPS_ONLY=1
 
