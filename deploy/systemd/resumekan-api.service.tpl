@@ -38,7 +38,11 @@ TasksMax=128
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
-ProtectHome=true
+# tmpfs, bukan true: `true` membuat /home tidak bisa di-stat sama sekali,
+# sehingga libpq gagal membuka ~/.postgresql/postgresql.crt (EACCES, bukan
+# ENOENT) dan semua koneksi Postgres ditolak. tmpfs menyembunyikan isi /home
+# dengan direktori kosong, jadi libpq melihat ENOENT dan lanjut tanpa cert.
+ProtectHome=tmpfs
 ReadWritePaths={{APP_DIR}}/api/storage {{APP_DIR}}/api/bootstrap/cache
 
 [Install]

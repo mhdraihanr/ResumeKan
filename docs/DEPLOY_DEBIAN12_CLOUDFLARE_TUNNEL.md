@@ -387,7 +387,11 @@ TasksMax=128
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
-ProtectHome=true
+# Jangan pakai `ProtectHome=true`: /home jadi tidak bisa di-stat, libpq gagal
+# membuka ~/.postgresql/postgresql.crt (EACCES) dan semua koneksi Postgres
+# ditolak. `tmpfs` menyembunyikan isi /home sebagai direktori kosong sehingga
+# libpq mendapat ENOENT dan lanjut tanpa client certificate.
+ProtectHome=tmpfs
 ReadWritePaths=/srv/ResumeKan/api/storage /srv/ResumeKan/api/bootstrap/cache
 
 [Install]
